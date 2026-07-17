@@ -61,13 +61,14 @@ _ls() {
     '(-1 -C -l -o -m -x)-1[单列输出]'
     '(-%)-%[区分无数据文件]'
     '(-@)-@[显示扩展属性键和大小（配合 -l）]'
+    '*:文件或目录:_files'
   )
 
-  _arguments -C "${options[@]}" '*:文件或目录:_files'
+  _arguments -s $options && return
 
   case "$state" in
     color_values)
-      _describe -t values "颜色模式" _ls_color_values && ret=0
+      _describe -t values "颜色模式" _ls_color_values
       ;;
   esac
 }
