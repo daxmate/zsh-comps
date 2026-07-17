@@ -11,6 +11,7 @@
 | `_pake` | Pake 命令行工具补全 |
 | `_npm` | npm 包管理器命令补全 |
 | `_pnpm` | pnpm 包管理器命令补全 |
+| `_ls` | ls 列出目录内容（macOS BSD 版本） |
 | `_pdfcomp` | PDF 压缩命令补全（本地定制） |
 
 ## 安装
