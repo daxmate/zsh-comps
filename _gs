@@ -120,7 +120,7 @@ _gs() {
     '*:输入文件:_files -g "*.((ps|eps|pdf|prn|gsf)(-.)|ps.gz|eps.gz)"'
   )
 
-  _arguments -s "${options[@]}" && return
+  _arguments -s $options && return
 
   case "$state" in
     devices) _gs_devices ;;
