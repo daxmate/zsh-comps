@@ -1,0 +1,47 @@
+#compdef xxd
+
+# xxd Zsh 补全函数
+# 描述：生成十六进制转储或将十六进制转回二进制
+
+local curcontext="$curcontext" state state_descr line ret=1
+typeset -A opt_args
+
+_xxd_color_values=(
+  'auto:终端时自动启用（默认）'
+  'always:始终启用颜色'
+  'never:禁用颜色'
+)
+
+_xxd() {
+  _arguments -C \
+    '(- *)'{-h,--help}'[显示帮助信息]' \
+    '(- *)'{-v,--version}'[显示版本信息]' \
+    '(-a --autoskip)'{-a,--autoskip}'[开启自动跳过：连续的 NUL 行替换为 *]' \
+    '(-b --bits)'{-b,--bits}'[输出二进制位（不兼容 -ps）]' \
+    '(-C --capitalize)'{-C,--capitalize}'[C 包含风格输出时变量名大写]' \
+    '(-c --cols)'{-c+,--cols+}'[每行显示的字节数]:列数' \
+    '(-d)'{-d}'[偏移量用十进制显示]' \
+    '(-E --EBCDIC)'{-E,--EBCDIC}'[右侧列用 EBCDIC 编码替代 ASCII]' \
+    '(-e)'{-e}'[小端序转储（不兼容 -ps,-i,-r）]' \
+    '(-g --groupsize)'{-g+,--groupsize+}'[每组的字节数]:组大小' \
+    '(-i --include)'{-i,--include}'[输出为 C 包含文件风格]' \
+    '(-l --len)'{-l+,--len+}'[只处理前 N 个字节]:字节数' \
+    '(-n --name)'{-n+,--name+}'[设置 C 包含输出的变量名]:变量名' \
+    '(-o --offset)'{-o+}'[显示位置加上偏移量]:偏移量' \
+    '(-ps --postscript --plain)'{-p,--ps,--postscript,--plain}'[输出连续纯十六进制格式]' \
+    '(-r --revert)'{-r,--revert}'[反向操作：将十六进制转回二进制]' \
+    '(-R)'{-R+}'[颜色输出模式]:颜色模式:->color_values' \
+    '(-s --seek)'{-s+}'[从指定偏移开始读取]:偏移量' \
+    '(-u)'{-u}'[十六进制字母大写]' \
+    '(-B)'{-B+}'[设置输入/输出的块大小]:块大小' \
+    '1:输入文件:_files' \
+    '2:输出文件:_files'
+
+  case "$state" in
+    color_values)
+      _describe -t values "颜色模式" _xxd_color_values && ret=0
+      ;;
+  esac
+}
+
+_xxd "$@"
