@@ -12,8 +12,8 @@ _xxd_color_values=(
 _xxd() {
   local -a options
   options=(
-    '(- *)-h[显示帮助信息并退出]'
-    '(- *)-v[显示版本信息]'
+    '(- *)'{-h,-help}'[显示帮助信息并退出]'
+    '(- *)'{-v,-version}'[显示版本信息]'
     '(-a)-autoskip[(-a) 自动跳过：连续 NUL 行替换为 *]'
     '(-b -ps -postscript)-bits[(-b) 输出二进制位（可与 -i 一起使用）]'
     '(-C)-capitalize[(-C) C 包含风格变量名大写（需配合 -i）]'
@@ -32,9 +32,11 @@ _xxd() {
     '-s[(-s) 从指定偏移开始读取]:偏移量'
     '-seek[与 -r 配合，逆向时附加偏移量]:偏移量'
     '-u[十六进制字母大写]'
+
+	 '*:文件:_files'
   )
 
-  _arguments -C "${options[@]}" '*:文件:_files'
+  _arguments -s $options && return
 
   case "$state" in
     color_values)
