@@ -14,8 +14,8 @@ _xxd_color_values=(
 
 _xxd() {
   _arguments -C \
-    '(- *){-h,-help}[显示帮助信息并退出]' \
-    '(- *){-v,-version}[显示版本信息]' \
+    '(- *)'{-h,-help}'[显示帮助信息并退出]' \
+    '(- *)'{-v,-version}'[显示版本信息]' \
     '(-a)-autoskip[(-a) 自动跳过：连续 NUL 行替换为 *]' \
     '(-b -ps --postscript)-bits[(-b) 输出二进制位（可与 -i 一起使用）]' \
     '(-C)-capitalize[(-C) C 包含风格变量名大写（需配合 -i）]' \
