@@ -1,0 +1,549 @@
+#compdef pnpm
+
+# pnpm Zsh 补全函数
+# 生成于 pnpm@10.33.0
+# 描述：pnpm 包管理器命令补全
+
+local curcontext="$curcontext" state state_descr line ret=1
+typeset -A opt_args
+
+_pnpm_commands=(
+  'add:安装包及其依赖（默认到 dependencies）'
+  'approve-builds:批准依赖在安装时运行构建脚本'
+  'audit:检查已安装包的安全问题'
+  'bin:打印依赖可执行文件的链接目录'
+  'cache\:delete:删除指定包的元数据缓存'
+  'cache\:list:列出可用的包元数据缓存'
+  'cache\:list-registries:列出有本地缓存的注册表'
+  'cache\:view:查看指定包的缓存信息'
+  'cat-file:根据哈希值打印文件内容（存储分析）'
+  'cat-index:打印存储中指定包的索引文件'
+  'config:管理 pnpm 配置文件'
+  'create:从 create-* 或 @foo/create-* 脚手架创建项目'
+  'dedupe:删除 lockfile 中的旧版本依赖'
+  'deploy:从工作区部署包'
+  'dlx:临时获取包并运行其命令（不安装为依赖）'
+  'doctor:检查 pnpm 配置的常见问题'
+  'env:管理 Node.js 版本'
+  'exec:在项目范围内执行 shell 命令'
+  'fetch:从 lockfile 拉取包到虚拟存储'
+  'find-hash:根据哈希查找包含该文件的包'
+  'import:从 npm package-lock.json 生成 pnpm-lock.yaml'
+  'init:创建 package.json 文件'
+  'install:安装项目所有依赖'
+  'install-test:安装后运行测试'
+  'licenses:检查已安装包的许可证'
+  'link:将本地项目链接到另一个项目'
+  'list:以树状结构列出已安装的包'
+  'outdated:检查过期的包'
+  'pack:从包创建 tarball'
+  'patch:准备要修补的包'
+  'patch-commit:从目录生成补丁文件'
+  'patch-remove:删除已有的补丁文件'
+  'prune:移除无关的包'
+  'publish:发布包到注册表'
+  'rebuild:重新编译包'
+  'remove:从 node_modules 和 package.json 移除包'
+  'root:打印有效的 modules 目录'
+  'run:运行 package.json 中定义的脚本'
+  'self-update:更新 pnpm 到最新版本'
+  'start:运行包的 start 脚本'
+  'store\:add:直接添加包到 pnpm 存储'
+  'store\:path:打印活动存储目录路径'
+  'store\:prune:从存储移除未引用的包'
+  'store\:status:检查存储中包是否被修改'
+  'test:运行包的 test 脚本'
+  'unlink:取消链接包'
+  'update:将包更新到最新版本'
+  'why:显示哪些包依赖指定包'
+)
+
+_pnpm_global_options=(
+  '(-r --recursive)'{-r,--recursive}'[在工作区的每个项目中运行命令]'
+  '(-C --dir)'{-C+,--dir=}'[切换到指定目录运行]'
+  '(-g --global)'{-g,--global}'[全局操作]'
+  '(-w --workspace-root)'{-w,--workspace-root}'[在工作区根目录运行]'
+  '--verbose[输出详细信息]'
+  '--reporter[输出格式：default/ndjson/append-only]'
+  '--no-color[禁用颜色输出]'
+  '--color[强制颜色输出]'
+  '--loglevel[日志级别：debug/info/warn/error]'
+  '--stream[实时流式输出，带包名前缀]'
+  '--aggregate-output[合并并行输出，任务结束后统一打印]'
+  '--use-stderr[所有输出重定向到 stderr]'
+  '--filter[过滤器，选择匹配的包执行]'
+)
+
+_pnpm_get_scripts() {
+  local -a scripts
+  if [[ -f package.json ]]; then
+    scripts=($(jq -r '.scripts | keys[]' package.json 2>/dev/null))
+  fi
+  [[ ${#scripts} -gt 0 ]] && _describe -t scripts "脚本" scripts
+}
+
+_pnpm_add_options() {
+  _arguments -C -s \
+    '(-D --dev)'{-D,--dev}'[安装为 devDependencies]' \
+    '(-P --prod)'{-P,--prod}'[安装为 dependencies（默认）]' \
+    '(-O --optional)'{-O,--optional}'[安装为 optionalDependencies]' \
+    '(-E --save-exact)'{-E,--save-exact}'[安装精确版本，不插入 ^]' \
+    '(-g --global)'{-g,--global}'[全局安装]' \
+    '(-w --workspace-root)'{-w,--workspace-root}'[安装到工作区根]' \
+    '(-C --dir)'{-C+,--dir=}'[切换到指定目录]:目录:_files -/' \
+    '--save-workspace-protocol[使用 workspace: 协议（默认启用）]' \
+    '--no-save-workspace-protocol[不使用 workspace: 协议]' \
+    '--global-dir[指定全局包存储目录]:目录:_files -/' \
+    '--ignore-scripts[不运行生命周期脚本]' \
+    '--offline[离线模式，仅使用本地缓存]' \
+    '--prefer-offline[优先使用缓存，缺失时联网]' \
+    '--no-optional[不安装 optionalDependencies]' \
+    '--no-lockfile[不生成或读取 pnpm-lock.yaml]' \
+    '--frozen-lockfile[不更新 lockfile]' \
+    '--lockfile-only[只更新 lockfile，不下载依赖]' \
+    '--force[强制重新下载到存储]' \
+    '--filter[过滤工作区包]:过滤器' \
+    '1:包名'
+}
+
+_pnpm_install_options() {
+  _arguments -C -s \
+    '(-C --dir)'{-C+,--dir=}'[切换到指定目录]:目录:_files -/' \
+    '(-P --prod)'{-P,--prod}'[只装生产依赖]' \
+    '(-D --dev)'{-D,--dev}'[只装开发依赖]' \
+    '(-g --global)'{-g,--global}'[全局安装]' \
+    '(-r --recursive)'{-r,--recursive}'[递归安装所有子项目]' \
+    '(-w --workspace-root)'{-w,--workspace-root}'[在工作区根安装]' \
+    '--frozen-lockfile[不生成 lockfile，有更新则失败]' \
+    '--no-frozen-lockfile[不冻结 lockfile]' \
+    '--prefer-frozen-lockfile[优先使用已有 lockfile]' \
+    '--lockfile-only[只更新 lockfile]' \
+    '--fix-lockfile[自动修复损坏的 lockfile]' \
+    '--ignore-scripts[不运行生命周期脚本]' \
+    '--ignore-pnpmfile[禁用 .pnpmfile.cjs 钩子]' \
+    '--ignore-workspace[忽略 pnpm-workspace.yaml]' \
+    '--offline[离线模式]' \
+    '--prefer-offline[优先使用离线缓存]' \
+    '--no-optional[不装 optionalDependencies]' \
+    '--no-lockfile[不使用 lockfile]' \
+    '--no-hoist[不提升依赖]' \
+    '--shamefully-hoist[所有子依赖提升到根 node_modules]' \
+    '--force[强制重装]' \
+    '--store-dir[指定存储目录]:目录:_files -/' \
+    '--virtual-store-dir[指定虚拟存储目录]:目录:_files -/' \
+    '--modules-dir[指定 modules 目录]:目录:_files -/' \
+    '--lockfile-dir[指定 lockfile 目录]:目录:_files -/' \
+    '--verify-store-integrity[验证存储完整性]' \
+    '--no-verify-store-integrity[不验证存储完整性]' \
+    '--strict-peer-dependencies[严格检查 peer 依赖]' \
+    '--side-effects-cache[缓存安装钩子结果]' \
+    '--side-effects-cache-readonly[只读使用缓存的钩子结果]' \
+    '--hoist-pattern[提升匹配的依赖]:glob 模式' \
+    '--public-hoist-pattern[提升匹配的依赖到根目录]:glob 模式' \
+    '--package-import-method[包导入方法]:方法:(auto clone copy hardlink)' \
+    '--network-concurrency[最大并发网络请求数]:数字' \
+    '--child-concurrency[最大并行子进程数]:数字' \
+    '--use-store-server[后台启动存储服务器]' \
+    '--use-running-store-server[仅使用已在运行的存储服务器]' \
+    '--merge-git-branch-lockfiles[合并 git 分支上的 lockfile]' \
+    '--resolution-only[仅重新解析依赖，打印 peer 依赖问题]' \
+    '--optimistic-repeat-install[跳过已是最新的重装]' \
+    '--filter[过滤工作区包]:过滤器' \
+    '--stream[实时流式输出]' \
+    '--aggregate-output[合并输出]' \
+    '--reporter[输出格式]:格式:(default ndjson append-only)' \
+    '--loglevel[日志级别]:级别:(debug info warn error)' \
+    '--use-stderr[输出到 stderr]'
+}
+
+_pnpm_run_options() {
+  _arguments -C -s \
+    '(-C --dir)'{-C+,--dir=}'[切换到指定目录]:目录:_files -/' \
+    '(-r --recursive)'{-r,--recursive}'[在所有子目录递归运行]' \
+    '(-w --workspace-root)'{-w,--workspace-root}'[在工作区根运行]' \
+    '--parallel[在所有匹配包中并行运行]' \
+    '--sequential[依次逐个运行]' \
+    '--no-bail[脚本失败时仍以退出码 0 退出]' \
+    '--if-present[脚本未定义时不报错]' \
+    '--report-summary[输出结果摘要到 pnpm-exec-summary.json]' \
+    '--resume-from[从指定包继续执行]:包名' \
+    '--reporter-hide-prefix[隐藏输出中的项目名前缀]' \
+    '--filter[过滤工作区包]:过滤器' \
+    '--fail-if-no-match[无匹配包时退出码 1]' \
+    '--changed-files-ignore-pattern[过滤时忽略指定文件]:glob 模式' \
+    '--stream[实时流式输出]' \
+    '--aggregate-output[合并输出]' \
+    '--loglevel[日志级别]:级别:(debug info warn error)' \
+    '--use-stderr[输出到 stderr]' \
+    '1:脚本:->scripts' \
+    '*::参数:->scriptargs'
+}
+
+_pnpm_remove_options() {
+  _arguments -C -s \
+    '(-D --dev)'{-D,--dev}'[从 devDependencies 移除]' \
+    '(-P --prod)'{-P,--prod}'[从 dependencies 移除]' \
+    '(-O --optional)'{-O,--optional}'[从 optionalDependencies 移除]' \
+    '(-g --global)'{-g,--global}'[全局移除]' \
+    '(-r --recursive)'{-r,--recursive}'[递归移除]' \
+    '(-w --workspace-root)'{-w,--workspace-root}'[从工作区根移除]' \
+    '--filter[过滤工作区包]:过滤器' \
+    '1:包名'
+}
+
+_pnpm_link_options() {
+  _arguments -C -s \
+    '(-r --recursive)'{-r,--recursive}'[递归链接]' \
+    '(--global -g)'{--global,-g}'[全局链接]' \
+    '1:目标路径:_files -/'
+}
+
+_pnpm_update_options() {
+  _arguments -C -s \
+    '(-g --global)'{-g,--global}'[全局更新]' \
+    '(-r --recursive)'{-r,--recursive}'[递归更新]' \
+    '(-w --workspace-root)'{-w,--workspace-root}'[在工作区根更新]' \
+    '(-i --interactive)'{-i,--interactive}'[交互式选择更新]' \
+    '--latest[-L]:更新到最新版（无视范围约束）' \
+    '--filter[过滤工作区包]:过滤器'
+}
+
+_pnpm_publish_options() {
+  _arguments -C -s \
+    '(--access --access)'{--access}'[发布访问级别]:级别:(public restricted)' \
+    '--tag[注册发布标签]:标签（默认 latest）' \
+    '--dry-run[模拟发布]' \
+    '--force[强制发布（即使版本已存在）]' \
+    '--ignore-scripts[忽略发布生命周期脚本]' \
+    '--json[JSON 格式输出]' \
+    '--no-git-checks[不检查 git 分支状态]' \
+    '--otp[一次性密码（2FA）]:OTP' \
+    '--publish-branch[设置发布分支]:分支名' \
+    '(-r --recursive)'{-r,--recursive}'[发布工作区所有包]' \
+    '--report-summary[输出发布摘要到 pnpm-publish-summary.json]' \
+    '--filter[过滤工作区包]:过滤器' \
+    '1:包目录或 tarball:_files'
+}
+
+_pnpm_exec_options() {
+  _arguments -C -s \
+    '(-r --recursive)'{-r,--recursive}'[在工作区所有子目录执行]' \
+    '(-w --workspace-root)'{-w,--workspace-root}'[在工作区根执行]' \
+    '--filter[过滤工作区包]:过滤器' \
+    '--parallel[并行执行]' \
+    '--no-bail[失败时不中止]' \
+    '--resume-from[从指定包继续]:包名' \
+    '--report-summary[输出结果摘要]' \
+    '--stream[实时流式输出]' \
+    '--aggregate-output[合并输出]' \
+    "\*::命令:->command"
+}
+
+_pnpm_list_options() {
+  _arguments -C -s \
+    '(-r --recursive)'{-r,--recursive}'[递归列出]' \
+    '--deep[-d]:显示深度' \
+    '--json[JSON 格式输出]' \
+    '--long[-l]:详细信息' \
+    '--parseable[机器可读输出]' \
+    '(-g --global)'{-g,--global}'[列出全局包]' \
+    '--only[只列出一类]:类型:(projects dev prod)' \
+    '--filter[过滤工作区包]:过滤器'
+}
+
+_pnpm_config_subcmds() {
+  local -a config_cmds=(
+    'set:设置配置值'
+    'get:获取配置值'
+    'delete:删除配置项'
+    'list:列出所有配置'
+  )
+  _describe -t subcommands "config 子命令" config_cmds
+}
+
+_pnpm_store_subcmds() {
+  local -a store_cmds=(
+    'add:直接添加新包到存储'
+    'path:打印存储路径'
+    'prune:移除存储中未引用的包'
+    'status:检查包是否被修改'
+  )
+  _describe -t subcommands "store 子命令" store_cmds
+}
+
+_pnpm_cache_subcmds() {
+  local -a cache_cmds=(
+    'delete:删除指定包的元数据缓存'
+    'list:列出可用的包元数据缓存'
+    'list-registries:列出有本地缓存的注册表'
+    'view:查看指定包缓存信息'
+  )
+  _describe -t subcommands "cache 子命令" cache_cmds
+}
+
+_pnpm_env_cmds() {
+  local -a env_cmds=(
+    'use:切换到指定的 Node.js 版本'
+    'install:安装指定的 Node.js 版本'
+    'list:列出已安装的 Node.js 版本'
+    'remove:移除指定的 Node.js 版本'
+  )
+  _describe -t subcommands "env 子命令" env_cmds
+}
+
+_pnpm() {
+  local curcontext="$curcontext" state state_descr line ret=1
+  typeset -A opt_args
+
+  _arguments -C \
+    '(- *)'{-h,--help}'[显示帮助信息]' \
+    '(- *)'{-v,--version}'[显示版本号]' \
+    '(-r --recursive)'{-r,--recursive}'[在工作区的每个项目中运行]' \
+    '(-C --dir)'{-C+,--dir=}'[切换到指定目录]:目录:_files -/' \
+    '(-g --global)'{-g,--global}'[全局操作]' \
+    '(-w --workspace-root)'{-w,--workspace-root}'[在工作区根目录运行]' \
+    '--color[强制颜色输出]' \
+    '--no-color[禁用颜色输出]' \
+    '--loglevel[日志级别]:级别:(debug info warn error)' \
+    '--reporter[输出格式]:格式:(default ndjson append-only)' \
+    '--stream[实时流式输出，带包名前缀]' \
+    '--aggregate-output[合并并行输出，任务结束后统一打印]' \
+    '--use-stderr[输出到 stderr]' \
+    '--filter[过滤器，选择匹配的包执行]:过滤表达式' \
+    ':命令:->cmds' \
+    '*::参数:->args'
+
+  case "$state" in
+    cmds)
+      _describe -t commands "pnpm 命令" _pnpm_commands && ret=0
+      ;;
+    args)
+      case "$words[1]" in
+        add)
+          _pnpm_add_options
+          ;;
+        install|i)
+          _pnpm_install_options
+          ;;
+        remove|rm)
+          _pnpm_remove_options
+          ;;
+        update|up)
+          _pnpm_update_options
+          ;;
+        run|run-script)
+          case "$state" in
+            scripts) _pnpm_get_scripts ;;
+            scriptargs) _normal ;;
+          esac
+          _pnpm_run_options
+          ;;
+        exec)
+          _pnpm_exec_options
+          ;;
+        publish)
+          _pnpm_publish_options
+          ;;
+        link|ln)
+          _pnpm_link_options
+          ;;
+        unlink)
+          _arguments -C -s '1:链接名'
+          ;;
+        list|ls)
+          _pnpm_list_options
+          ;;
+        outdated)
+          _arguments -C -s \
+            '(-r --recursive)'{-r,--recursive}'[递归检查]' \
+            '(-g --global)'{-g,--global}'[检查全局包]' \
+            '(-C --dir)'{-C+,--dir=}'[指定目录]:目录:_files -/' \
+            '--filter[过滤工作区包]:过滤器' \
+            '--json[JSON 格式输出]' \
+            '--long[-l]:详细信息' \
+            '--no-optional[不检查 optionalDependencies]' \
+            '--no-dev[不检查 devDependencies]'
+          ;;
+        why)
+          _arguments -C -s \
+            '(-r --recursive)'{-r,--recursive}'[递归显示]' \
+            '--json[JSON 格式输出]' \
+            '--parseable[机器可读输出]' \
+            '1:包名'
+          ;;
+        audit)
+          _arguments -C -s \
+            '(-r --recursive)'{-r,--recursive}'[递归审计]' \
+            '--json[JSON 格式输出]' \
+            '--only-dev[只检查 devDependencies]' \
+            '--only-prod[只检查 dependencies]' \
+            '--ignore-registry-errors[忽略注册表错误]'
+          ;;
+        init)
+          _arguments -C -s \
+            '(-y --yes)'{-y,--yes}'[使用默认值初始化]' \
+            '(-C --dir)'{-C+,--dir=}'[指定初始化目录]:目录:_files -/'
+          ;;
+        create)
+          _arguments -C -s \
+            '(-C --dir)'{-C+,--dir=}'[指定目录]:目录:_files -/' \
+            '1:create 包名（如 vite next react）'
+          ;;
+        dlx)
+          _arguments -C -s \
+            '--package[-p]:指定要使用的包' \
+            '(-w --workspace-root)'{-w,--workspace-root}'[在工作区根执行]' \
+            '1:包名' \
+            '*::参数:包参数'
+          ;;
+        config|c)
+          _arguments -C -s \
+            '(-g --global)'{-g,--global}'[全局配置]' \
+            '--json[JSON 格式输出]' \
+            '--location[配置位置]:位置:(project global)' \
+            '1:config 子命令:->config_subcmd' \
+            '*:键值'
+          case "$state" in
+            config_subcmd) _pnpm_config_subcmds ;;
+          esac
+          ;;
+        store)
+          _arguments -C -s \
+            '1:store 子命令:->store_subcmd'
+          case "$state" in
+            store_subcmd) _pnpm_store_subcmds ;;
+          esac
+          ;;
+        cache)
+          _arguments -C -s \
+            '1:cache 子命令:->cache_subcmd'
+          case "$state" in
+            cache_subcmd) _pnpm_cache_subcmds ;;
+          esac
+          ;;
+        env)
+          _arguments -C -s \
+            '(-g --global)'{-g,--global}'[全局安装]' \
+            '1:env 子命令:->env_subcmd' \
+            '*:版本号'
+          case "$state" in
+            env_subcmd) _pnpm_env_cmds ;;
+          esac
+          ;;
+        deploy)
+          _arguments -C -s \
+            '--filter[过滤工作区包]:过滤器' \
+            '--prod[只部署生产依赖]' \
+            '--no-optional[不包括 optionalDependencies]' \
+            '1:输出目录:_files -/'
+          ;;
+        prune)
+          _arguments -C -s \
+            '--prod[只保留生产依赖]' \
+            '--no-optional[移除 optionalDependencies]'
+          ;;
+        rebuild|rb)
+          _arguments -C -s \
+            '(-r --recursive)'{-r,--recursive}'[递归重编]' \
+            '--store-dir[指定存储目录]:目录:_files -/' \
+            "\*:包名"
+          ;;
+        pack)
+          _arguments -C -s \
+            '--dry-run[模拟打包]' \
+            '--pack-destination[打包输出目录]:目录:_files -/' \
+            '1:目录:_files -/'
+          ;;
+        start)
+          _arguments -C -s \
+            '(-r --recursive)'{-r,--recursive}'[递归运行]' \
+            '--if-present[脚本未定义时不报错]' \
+            '--filter[过滤工作区包]:过滤器'
+          ;;
+        test|t)
+          _arguments -C -s \
+            '(-r --recursive)'{-r,--recursive}'[递归运行]' \
+            '--if-present[脚本未定义时不报错]' \
+            '--filter[过滤工作区包]:过滤器'
+          ;;
+        install-test|it)
+          _pnpm_install_options
+          ;;
+        fetch)
+          _arguments -C -s \
+            '--dev[同时拉取 devDependencies]' \
+            '--prod[只拉取 dependencies]' \
+            '--no-optional[不拉取 optionalDependencies]'
+          ;;
+        import)
+          _arguments -C -s \
+            '--lockfile-only[只导入 lockfile]'
+          ;;
+        dedupe)
+          _arguments -C -s \
+            '--check[只检查不执行]'
+          ;;
+        licenses)
+          _arguments -C -s \
+            '--json[JSON 格式输出]' \
+            '--long[-l]:详细信息' \
+            '--filter[过滤工作区包]:过滤器'
+          ;;
+        patch)
+          _arguments -C -s \
+            '--edit-dir[指定编辑目录]:目录:_files -/' \
+            '1:包名'
+          ;;
+        patch-commit)
+          _arguments -C -s \
+            '1:补丁目录:_files -/' \
+            '2:输出补丁文件:_files'
+          ;;
+        patch-remove)
+          _arguments -C -s \
+            '1:包名'
+          ;;
+        approve-builds)
+          _arguments -C -s \
+            '(-g --global)'{-g,--global}'[全局批准]' \
+            "\*:包名"
+          ;;
+        ignored-builds)
+          _arguments -C -s \
+            '--json[JSON 格式输出]'
+          ;;
+        bin)
+          _arguments -C -s \
+            '1:包名'
+          ;;
+        doctor)
+          _arguments -C -s \
+            '--json[JSON 格式输出]'
+          ;;
+        root)
+          ;;
+        self-update)
+          _arguments -C -s \
+            '--version[更新到指定版本]:版本号'
+          ;;
+        recursive|rec)
+          _arguments -C -s \
+            '1:子命令:(add install remove update link unlink exec run outdate list)'
+          ;;
+        cat-file|cat-index)
+          _arguments -C -s '1:哈希值'
+          ;;
+        find-hash)
+          _arguments -C -s '1:哈希值'
+          ;;
+        *)
+          ret=0
+          ;;
+      esac
+      ;;
+  esac
+
+  return ret
+}
+
+_pnpm "$@"

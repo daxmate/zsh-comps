@@ -9,6 +9,8 @@
 | `_gs` | Ghostscript (`gs`) 命令补全 |
 | `_m4b-tool` | m4b-tool 有声书工具补全 |
 | `_pake` | Pake 命令行工具补全 |
+| `_npm` | npm 包管理器命令补全 |
+| `_pnpm` | pnpm 包管理器命令补全 |
 
 ## 安装
 
