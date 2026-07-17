@@ -59,10 +59,10 @@ _pnpm_commands=(
 )
 
 _pnpm_global_options=(
-  '(-r --recursive)'{-r,--recursive}'[在工作区的每个项目中运行命令]'
-  '(-C --dir)'{-C+,--dir=}'[切换到指定目录运行]'
-  '(-g --global)'{-g,--global}'[全局操作]'
-  '(-w --workspace-root)'{-w,--workspace-root}'[在工作区根目录运行]'
+  '(-r --recursive)--recursive[(-r) 在工作区的每个项目中运行命令]'
+  '(-C --dir)--dir[(-C) 切换到指定目录运行]'
+  '(-g --global)--global[(-g) 全局操作]'
+  '(-w --workspace-root)--workspace-root[(-w) 在工作区根目录运行]'
   '--verbose[输出详细信息]'
   '--reporter[输出格式：default/ndjson/append-only]'
   '--no-color[禁用颜色输出]'
@@ -84,13 +84,14 @@ _pnpm_get_scripts() {
 
 _pnpm_add_options() {
   _arguments -C -s \
-    '(-D --dev)'{-D,--dev}'[安装为 devDependencies]' \
-    '(-P --prod)'{-P,--prod}'[安装为 dependencies（默认）]' \
-    '(-O --optional)'{-O,--optional}'[安装为 optionalDependencies]' \
-    '(-E --save-exact)'{-E,--save-exact}'[安装精确版本，不插入 ^]' \
-    '(-g --global)'{-g,--global}'[全局安装]' \
-    '(-w --workspace-root)'{-w,--workspace-root}'[安装到工作区根]' \
-    '(-C --dir)'{-C+,--dir=}'[切换到指定目录]:目录:_files -/' \
+    '(-D --dev)--dev[(-D) 安装为 devDependencies]' \
+    '(-P --prod)--prod[(-P) 安装为 dependencies（默认）]' \
+    '(-O --optional)--optional[(-O) 安装为 optionalDependencies]' \
+    '(-E --save-exact)--save-exact[(-E) 安装精确版本，不插入 ^]' \
+    '(-g --global)--global[(-g) 全局安装]' \
+    '(-w --workspace-root)--workspace-root[(-w) 安装到工作区根]' \
+    '(-C --dir)'--dir=[(-C) [切换到指定目录]:目录:_files -/' \
+[切换到指定目录]:目录:_files -/' \
     '--save-workspace-protocol[使用 workspace: 协议（默认启用）]' \
     '--no-save-workspace-protocol[不使用 workspace: 协议]' \
     '--global-dir[指定全局包存储目录]:目录:_files -/' \
@@ -108,12 +109,13 @@ _pnpm_add_options() {
 
 _pnpm_install_options() {
   _arguments -C -s \
-    '(-C --dir)'{-C+,--dir=}'[切换到指定目录]:目录:_files -/' \
-    '(-P --prod)'{-P,--prod}'[只装生产依赖]' \
-    '(-D --dev)'{-D,--dev}'[只装开发依赖]' \
-    '(-g --global)'{-g,--global}'[全局安装]' \
-    '(-r --recursive)'{-r,--recursive}'[递归安装所有子项目]' \
-    '(-w --workspace-root)'{-w,--workspace-root}'[在工作区根安装]' \
+    '(-C --dir)'--dir=[(-C) [切换到指定目录]:目录:_files -/' \
+[切换到指定目录]:目录:_files -/' \
+    '(-P --prod)--prod[(-P) 只装生产依赖]' \
+    '(-D --dev)--dev[(-D) 只装开发依赖]' \
+    '(-g --global)--global[(-g) 全局安装]' \
+    '(-r --recursive)--recursive[(-r) 递归安装所有子项目]' \
+    '(-w --workspace-root)--workspace-root[(-w) 在工作区根安装]' \
     '--frozen-lockfile[不生成 lockfile，有更新则失败]' \
     '--no-frozen-lockfile[不冻结 lockfile]' \
     '--prefer-frozen-lockfile[优先使用已有 lockfile]' \
@@ -158,9 +160,10 @@ _pnpm_install_options() {
 
 _pnpm_run_options() {
   _arguments -C -s \
-    '(-C --dir)'{-C+,--dir=}'[切换到指定目录]:目录:_files -/' \
-    '(-r --recursive)'{-r,--recursive}'[在所有子目录递归运行]' \
-    '(-w --workspace-root)'{-w,--workspace-root}'[在工作区根运行]' \
+    '(-C --dir)'--dir=[(-C) [切换到指定目录]:目录:_files -/' \
+[切换到指定目录]:目录:_files -/' \
+    '(-r --recursive)--recursive[(-r) 在所有子目录递归运行]' \
+    '(-w --workspace-root)--workspace-root[(-w) 在工作区根运行]' \
     '--parallel[在所有匹配包中并行运行]' \
     '--sequential[依次逐个运行]' \
     '--no-bail[脚本失败时仍以退出码 0 退出]' \
@@ -181,36 +184,36 @@ _pnpm_run_options() {
 
 _pnpm_remove_options() {
   _arguments -C -s \
-    '(-D --dev)'{-D,--dev}'[从 devDependencies 移除]' \
-    '(-P --prod)'{-P,--prod}'[从 dependencies 移除]' \
-    '(-O --optional)'{-O,--optional}'[从 optionalDependencies 移除]' \
-    '(-g --global)'{-g,--global}'[全局移除]' \
-    '(-r --recursive)'{-r,--recursive}'[递归移除]' \
-    '(-w --workspace-root)'{-w,--workspace-root}'[从工作区根移除]' \
+    '(-D --dev)--dev[(-D) 从 devDependencies 移除]' \
+    '(-P --prod)--prod[(-P) 从 dependencies 移除]' \
+    '(-O --optional)--optional[(-O) 从 optionalDependencies 移除]' \
+    '(-g --global)--global[(-g) 全局移除]' \
+    '(-r --recursive)--recursive[(-r) 递归移除]' \
+    '(-w --workspace-root)--workspace-root[(-w) 从工作区根移除]' \
     '--filter[过滤工作区包]:过滤器' \
     '1:包名'
 }
 
 _pnpm_link_options() {
   _arguments -C -s \
-    '(-r --recursive)'{-r,--recursive}'[递归链接]' \
-    '(--global -g)'{--global,-g}'[全局链接]' \
+    '(-r --recursive)--recursive[(-r) 递归链接]' \
+    '(-g --global)--global[(-g) 全局链接]' \
     '1:目标路径:_files -/'
 }
 
 _pnpm_update_options() {
   _arguments -C -s \
-    '(-g --global)'{-g,--global}'[全局更新]' \
-    '(-r --recursive)'{-r,--recursive}'[递归更新]' \
-    '(-w --workspace-root)'{-w,--workspace-root}'[在工作区根更新]' \
-    '(-i --interactive)'{-i,--interactive}'[交互式选择更新]' \
+    '(-g --global)--global[(-g) 全局更新]' \
+    '(-r --recursive)--recursive[(-r) 递归更新]' \
+    '(-w --workspace-root)--workspace-root[(-w) 在工作区根更新]' \
+    '(-i --interactive)--interactive[(-i) 交互式选择更新]' \
     '--latest[-L]:更新到最新版（无视范围约束）' \
     '--filter[过滤工作区包]:过滤器'
 }
 
 _pnpm_publish_options() {
   _arguments -C -s \
-    '(--access --access)'{--access}'[发布访问级别]:级别:(public restricted)' \
+    '(--access --access)--access[(--access) 发布访问级别]:级别:(public restricted)' \
     '--tag[注册发布标签]:标签（默认 latest）' \
     '--dry-run[模拟发布]' \
     '--force[强制发布（即使版本已存在）]' \
@@ -219,7 +222,7 @@ _pnpm_publish_options() {
     '--no-git-checks[不检查 git 分支状态]' \
     '--otp[一次性密码（2FA）]:OTP' \
     '--publish-branch[设置发布分支]:分支名' \
-    '(-r --recursive)'{-r,--recursive}'[发布工作区所有包]' \
+    '(-r --recursive)--recursive[(-r) 发布工作区所有包]' \
     '--report-summary[输出发布摘要到 pnpm-publish-summary.json]' \
     '--filter[过滤工作区包]:过滤器' \
     '1:包目录或 tarball:_files'
@@ -227,8 +230,8 @@ _pnpm_publish_options() {
 
 _pnpm_exec_options() {
   _arguments -C -s \
-    '(-r --recursive)'{-r,--recursive}'[在工作区所有子目录执行]' \
-    '(-w --workspace-root)'{-w,--workspace-root}'[在工作区根执行]' \
+    '(-r --recursive)--recursive[(-r) 在工作区所有子目录执行]' \
+    '(-w --workspace-root)--workspace-root[(-w) 在工作区根执行]' \
     '--filter[过滤工作区包]:过滤器' \
     '--parallel[并行执行]' \
     '--no-bail[失败时不中止]' \
@@ -241,12 +244,12 @@ _pnpm_exec_options() {
 
 _pnpm_list_options() {
   _arguments -C -s \
-    '(-r --recursive)'{-r,--recursive}'[递归列出]' \
+    '(-r --recursive)--recursive[(-r) 递归列出]' \
     '--deep[-d]:显示深度' \
     '--json[JSON 格式输出]' \
     '--long[-l]:详细信息' \
     '--parseable[机器可读输出]' \
-    '(-g --global)'{-g,--global}'[列出全局包]' \
+    '(-g --global)--global[(-g) 列出全局包]' \
     '--only[只列出一类]:类型:(projects dev prod)' \
     '--filter[过滤工作区包]:过滤器'
 }
@@ -298,10 +301,11 @@ _pnpm() {
   _arguments -C \
     '(- *)'{-h,--help}'[显示帮助信息]' \
     '(- *)'{-v,--version}'[显示版本号]' \
-    '(-r --recursive)'{-r,--recursive}'[在工作区的每个项目中运行]' \
-    '(-C --dir)'{-C+,--dir=}'[切换到指定目录]:目录:_files -/' \
-    '(-g --global)'{-g,--global}'[全局操作]' \
-    '(-w --workspace-root)'{-w,--workspace-root}'[在工作区根目录运行]' \
+    '(-r --recursive)--recursive[(-r) 在工作区的每个项目中运行]' \
+    '(-C --dir)'--dir=[(-C) [切换到指定目录]:目录:_files -/' \
+[切换到指定目录]:目录:_files -/' \
+    '(-g --global)--global[(-g) 全局操作]' \
+    '(-w --workspace-root)--workspace-root[(-w) 在工作区根目录运行]' \
     '--color[强制颜色输出]' \
     '--no-color[禁用颜色输出]' \
     '--loglevel[日志级别]:级别:(debug info warn error)' \
@@ -355,9 +359,10 @@ _pnpm() {
           ;;
         outdated)
           _arguments -C -s \
-            '(-r --recursive)'{-r,--recursive}'[递归检查]' \
-            '(-g --global)'{-g,--global}'[检查全局包]' \
-            '(-C --dir)'{-C+,--dir=}'[指定目录]:目录:_files -/' \
+            '(-r --recursive)--recursive[(-r) 递归检查]' \
+            '(-g --global)--global[(-g) 检查全局包]' \
+            '(-C --dir)'--dir=[(-C) [指定目录]:目录:_files -/' \
+[指定目录]:目录:_files -/' \
             '--filter[过滤工作区包]:过滤器' \
             '--json[JSON 格式输出]' \
             '--long[-l]:详细信息' \
@@ -366,14 +371,14 @@ _pnpm() {
           ;;
         why)
           _arguments -C -s \
-            '(-r --recursive)'{-r,--recursive}'[递归显示]' \
+            '(-r --recursive)--recursive[(-r) 递归显示]' \
             '--json[JSON 格式输出]' \
             '--parseable[机器可读输出]' \
             '1:包名'
           ;;
         audit)
           _arguments -C -s \
-            '(-r --recursive)'{-r,--recursive}'[递归审计]' \
+            '(-r --recursive)--recursive[(-r) 递归审计]' \
             '--json[JSON 格式输出]' \
             '--only-dev[只检查 devDependencies]' \
             '--only-prod[只检查 dependencies]' \
@@ -381,24 +386,26 @@ _pnpm() {
           ;;
         init)
           _arguments -C -s \
-            '(-y --yes)'{-y,--yes}'[使用默认值初始化]' \
-            '(-C --dir)'{-C+,--dir=}'[指定初始化目录]:目录:_files -/'
+            '(-y --yes)--yes[(-y) 使用默认值初始化]' \
+            '(-C --dir)'--dir=[(-C) [指定初始化目录]:目录:_files -/'
+[指定初始化目录]:目录:_files -/'
           ;;
         create)
           _arguments -C -s \
-            '(-C --dir)'{-C+,--dir=}'[指定目录]:目录:_files -/' \
+            '(-C --dir)'--dir=[(-C) [指定目录]:目录:_files -/' \
+[指定目录]:目录:_files -/' \
             '1:create 包名（如 vite next react）'
           ;;
         dlx)
           _arguments -C -s \
             '--package[-p]:指定要使用的包' \
-            '(-w --workspace-root)'{-w,--workspace-root}'[在工作区根执行]' \
+            '(-w --workspace-root)--workspace-root[(-w) 在工作区根执行]' \
             '1:包名' \
             '*::参数:包参数'
           ;;
         config|c)
           _arguments -C -s \
-            '(-g --global)'{-g,--global}'[全局配置]' \
+            '(-g --global)--global[(-g) 全局配置]' \
             '--json[JSON 格式输出]' \
             '--location[配置位置]:位置:(project global)' \
             '1:config 子命令:->config_subcmd' \
@@ -423,7 +430,7 @@ _pnpm() {
           ;;
         env)
           _arguments -C -s \
-            '(-g --global)'{-g,--global}'[全局安装]' \
+            '(-g --global)--global[(-g) 全局安装]' \
             '1:env 子命令:->env_subcmd' \
             '*:版本号'
           case "$state" in
@@ -444,7 +451,7 @@ _pnpm() {
           ;;
         rebuild|rb)
           _arguments -C -s \
-            '(-r --recursive)'{-r,--recursive}'[递归重编]' \
+            '(-r --recursive)--recursive[(-r) 递归重编]' \
             '--store-dir[指定存储目录]:目录:_files -/' \
             "\*:包名"
           ;;
@@ -456,13 +463,13 @@ _pnpm() {
           ;;
         start)
           _arguments -C -s \
-            '(-r --recursive)'{-r,--recursive}'[递归运行]' \
+            '(-r --recursive)--recursive[(-r) 递归运行]' \
             '--if-present[脚本未定义时不报错]' \
             '--filter[过滤工作区包]:过滤器'
           ;;
         test|t)
           _arguments -C -s \
-            '(-r --recursive)'{-r,--recursive}'[递归运行]' \
+            '(-r --recursive)--recursive[(-r) 递归运行]' \
             '--if-present[脚本未定义时不报错]' \
             '--filter[过滤工作区包]:过滤器'
           ;;
@@ -505,7 +512,7 @@ _pnpm() {
           ;;
         approve-builds)
           _arguments -C -s \
-            '(-g --global)'{-g,--global}'[全局批准]' \
+            '(-g --global)--global[(-g) 全局批准]' \
             "\*:包名"
           ;;
         ignored-builds)

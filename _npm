@@ -314,12 +314,12 @@ _npm() {
       case "$words[1]" in
         install|i|in|ins|inst|insta|instal|isnt|isnta|isntal|isntall|add)
           _arguments -C -s \
-            '(-D --save-dev)'{-D,--save-dev}'[保存到 devDependencies]' \
-            '(-P --save-prod)'{-P,--save-prod}'[保存到 dependencies]' \
-            '(-O --save-optional)'{-O,--save-optional}'[保存到 optionalDependencies]' \
-            '(-E --save-exact)'{-E,--save-exact}'[保存精确版本]' \
-            '(-g --global)'{-g,--global}'[全局安装]' \
-            '(-f --force)'{-f,--force}'[强制安装]' \
+            '(-D --save-dev)--save-dev[(-D) 保存到 devDependencies]' \
+            '(-P --save-prod)--save-prod[(-P) 保存到 dependencies]' \
+            '(-O --save-optional)--save-optional[(-O) 保存到 optionalDependencies]' \
+            '(-E --save-exact)--save-exact[(-E) 保存精确版本]' \
+            '(-g --global)--global[(-g) 全局安装]' \
+            '(-f --force)--force[(-f) 强制安装]' \
             '--no-audit[跳过安全审计]' \
             '--no-fund[跳过资助信息]' \
             '--no-package-lock[跳过 package-lock.json]' \
@@ -334,22 +334,24 @@ _npm() {
             '--dry-run[模拟运行]' \
             '--audit-level[最低审计级别]' \
             '--foreground-scripts[前台运行脚本]' \
-            '(-w --workspace)'{-w+,--workspace=}'[指定工作区]:工作区名称' \
+            '(-w --workspace)'--workspace=[(-w) [指定工作区]:工作区名称' \
+[指定工作区]:工作区名称' \
             '--workspaces[所有工作区]' \
             '--include-workspace-root[包含工作区根目录]'
           ;;
         uninstall|remove|rm|r)
           _arguments -C -s \
-            '(-g --global)'{-g,--global}'[全局卸载]' \
-            '(-D --save-dev)'{-D,--save-dev}'[从 devDependencies 移除]' \
-            '(-P --save-prod)'{-P,--save-prod}'[从 dependencies 移除]' \
+            '(-g --global)--global[(-g) 全局卸载]' \
+            '(-D --save-dev)--save-dev[(-D) 从 devDependencies 移除]' \
+            '(-P --save-prod)--save-prod[(-P) 从 dependencies 移除]' \
             '--no-audit[跳过审计]'
           ;;
         run|run-script|rum|urn)
           _arguments -C -s \
             '--if-present[脚本不存在时不报错]' \
             '--silent[静默输出]' \
-            '(-w --workspace)'{-w+,--workspace=}'[指定工作区]:工作区名称' \
+            '(-w --workspace)'--workspace=[(-w) [指定工作区]:工作区名称' \
+[指定工作区]:工作区名称' \
             '--workspaces[所有工作区]' \
             '--include-workspace-root[包含工作区根目录]' \
             '1:脚本:->scripts' \
@@ -361,9 +363,12 @@ _npm() {
           ;;
         exec|x)
           _arguments -C -s \
-            '(-p --package)'{-p+,--package=}'[指定使用的包]:包名' \
-            '(-c --call)'{-c+,--call=}'[直接执行命令字符串]:命令' \
-            '(-w --workspace)'{-w+,--workspace=}'[指定工作区]:工作区名称' \
+            '(-p --package)'--package=[(-p) [指定使用的包]:包名' \
+[指定使用的包]:包名' \
+            '(-c --call)'--call=[(-c) [直接执行命令字符串]:命令' \
+[直接执行命令字符串]:命令' \
+            '(-w --workspace)'--workspace=[(-w) [指定工作区]:工作区名称' \
+[指定工作区]:工作区名称' \
             '--workspaces[所有工作区]' \
             '--include-workspace-root[包含工作区根目录]' \
             '--allow-scripts[允许运行的安装脚本列表]' \
@@ -389,10 +394,10 @@ _npm() {
         config|c)
           _arguments -C -s \
             '--json[JSON 格式输出]' \
-            '(-g --global)'{-g,--global}'[全局配置]' \
+            '(-g --global)--global[(-g) 全局配置]' \
             '--editor[指定编辑器]' \
             '--location[配置位置：global/user/project]' \
-            '(-l --long)'{-l,--long}'[详细信息]' \
+            '(-l --long)--long[(-l) 详细信息]' \
             '1:配置子命令:->config_subcmd'
           case "$state" in
             config_subcmd) _npm_config_subcmd ;;
@@ -402,13 +407,14 @@ _npm() {
           _arguments -C -s \
             '--audit-level[最低审计级别]' \
             '--dry-run[模拟修复]' \
-            '(-f --force)'{-f,--force}'[强制修复]' \
+            '(-f --force)--force[(-f) 强制修复]' \
             '--json[JSON 格式输出]' \
             '--package-lock-only[只检查 package-lock.json]' \
             '--omit[跳过依赖类型]' \
             '--include[包含依赖类型]' \
             '--ignore-scripts[忽略脚本]' \
-            '(-w --workspace)'{-w+,--workspace=}'[指定工作区]:工作区名称' \
+            '(-w --workspace)'--workspace=[(-w) [指定工作区]:工作区名称' \
+[指定工作区]:工作区名称' \
             '--workspaces[所有工作区]' \
             '1:审计子命令:(fix:自动修复安全问题 signatures:审计签名)'
           ;;
@@ -423,40 +429,43 @@ _npm() {
             '--no-bin-links[跳过 bin 链接]' \
             '--no-fund[跳过资助信息]' \
             '--dry-run[模拟运行]' \
-            '(-w --workspace)'{-w+,--workspace=}'[指定工作区]:工作区名称' \
+            '(-w --workspace)'--workspace=[(-w) [指定工作区]:工作区名称' \
+[指定工作区]:工作区名称' \
             '--workspaces[所有工作区]' \
             '--include-workspace-root[包含工作区根目录]'
           ;;
         update|up)
           _arguments -C -s \
-            '(-g --global)'{-g,--global}'[全局更新]' \
+            '(-g --global)--global[(-g) 全局更新]' \
             '--depth[依赖深度]' \
             '--no-audit[跳过审计]' \
             '--no-fund[跳过资助信息]' \
-            '(-w --workspace)'{-w+,--workspace=}'[指定工作区]:工作区名称' \
+            '(-w --workspace)'--workspace=[(-w) [指定工作区]:工作区名称' \
+[指定工作区]:工作区名称' \
             '--workspaces[所有工作区]' \
             '--include-workspace-root[包含工作区根目录]'
           ;;
         ls|list)
           _arguments -C -s \
-            '(-a --all)'{-a,--all}'[显示所有包]' \
+            '(-a --all)--all[(-a) 显示所有包]' \
             '--json[JSON 格式输出]' \
-            '(-g --global)'{-g,--global}'[列出全局包]' \
+            '(-g --global)--global[(-g) 列出全局包]' \
             '--depth[依赖深度]' \
             '--long[-l]:详细信息' \
             '--parseable[机器可读输出]' \
-            '(-w --workspace)'{-w+,--workspace=}'[指定工作区]:工作区名称' \
+            '(-w --workspace)'--workspace=[(-w) [指定工作区]:工作区名称' \
+[指定工作区]:工作区名称' \
             '--workspaces[所有工作区]' \
             '--include-workspace-root[包含工作区根目录]'
           ;;
         link|ln)
           _arguments -C -s \
-            '(-g --global)'{-g,--global}'[全局链接]' \
+            '(-g --global)--global[(-g) 全局链接]' \
             '--install-links[安装链接]'
           ;;
         init)
           _arguments -C -s \
-            '(-y --yes)'{-y,--yes}'[使用默认值初始化]' \
+            '(-y --yes)--yes[(-y) 使用默认值初始化]' \
             '--scope[初始化 scope 包]' \
             '--workspace[-w]:在指定工作区初始化'
           ;;
@@ -497,7 +506,7 @@ _npm() {
             '--diff-ignore-all-space[忽略空格差异]' \
             '--diff-no-prefix[不显示路径前缀]' \
             '--diff-text[按文本比较]' \
-            '(-g --global)'{-g,--global}'[全局范围]' \
+            '(-g --global)--global[(-g) 全局范围]' \
             '--tag[标签]'
           ;;
         pack)
@@ -512,7 +521,7 @@ _npm() {
           ;;
         rebuild|rb)
           _arguments -C -s \
-            '(-g --global)'{-g,--global}'[全局重建]'
+            '(-g --global)--global[(-g) 全局重建]'
           ;;
         restart)
           _arguments -C -s \
@@ -532,7 +541,8 @@ _npm() {
         test|t)
           _arguments -C -s \
             '--ignore-scripts[忽略生命周期脚本]' \
-            '(-w --workspace)'{-w+,--workspace=}'[指定工作区]:工作区名称' \
+            '(-w --workspace)'--workspace=[(-w) [指定工作区]:工作区名称' \
+[指定工作区]:工作区名称' \
             '--workspaces[所有工作区]' \
             '--include-workspace-root[包含工作区根目录]'
           ;;
@@ -581,14 +591,16 @@ _npm() {
             '--no-browser[不打开浏览器]' \
             '--browser[指定浏览器]' \
             '--registry[注册表地址]' \
-            '(-w --workspace)'{-w+,--workspace=}'[指定工作区]:工作区名称'
+            '(-w --workspace)'--workspace=[(-w) [指定工作区]:工作区名称'
+[指定工作区]:工作区名称'
           ;;
         docs|home)
           _arguments -C -s \
             '--no-browser[不打开浏览器]' \
             '--browser[指定浏览器]' \
             '--registry[注册表地址]' \
-            '(-w --workspace)'{-w+,--workspace=}'[指定工作区]:工作区名称'
+            '(-w --workspace)'--workspace=[(-w) [指定工作区]:工作区名称'
+[指定工作区]:工作区名称'
           ;;
         search)
           _arguments -C -s \
@@ -599,7 +611,8 @@ _npm() {
         explain|why)
           _arguments -C -s \
             '--json[JSON 格式输出]' \
-            '(-w --workspace)'{-w+,--workspace=}'[指定工作区]:工作区名称'
+            '(-w --workspace)'--workspace=[(-w) [指定工作区]:工作区名称'
+[指定工作区]:工作区名称'
           ;;
         explore)
           _arguments -C -s \
@@ -610,14 +623,16 @@ _npm() {
             '--no-browser[不打开浏览器]' \
             '--browser[指定浏览器]' \
             '--registry[注册表地址]' \
-            '(-w --workspace)'{-w+,--workspace=}'[指定工作区]:工作区名称'
+            '(-w --workspace)'--workspace=[(-w) [指定工作区]:工作区名称'
+[指定工作区]:工作区名称'
           ;;
         fund)
           _arguments -C -s \
             '--json[JSON 格式输出]' \
             '--no-browser[不打开浏览器]' \
             '(--which --which)-w[只显示指定包的资助信息]' \
-            '(-w --workspace)'{-w+,--workspace=}'[指定工作区]:工作区名称'
+            '(-w --workspace)'--workspace=[(-w) [指定工作区]:工作区名称'
+[指定工作区]:工作区名称'
           ;;
         query)
           _arguments -C -s \
@@ -636,14 +651,14 @@ _npm() {
           ;;
         approve-scripts)
           _arguments -C -s \
-            '(-a --all)'{-a,--all}'[批准所有]' \
+            '(-a --all)--all[(-a) 批准所有]' \
             '--allow-scripts-pending[含待定脚本]' \
             '--no-allow-scripts-pin[不固定脚本]' \
             '--json[JSON 格式输出]'
           ;;
         deny-scripts)
           _arguments -C -s \
-            '(-a --all)'{-a,--all}'[拒绝所有]' \
+            '(-a --all)--all[(-a) 拒绝所有]' \
             '--allow-scripts-pending[含待定脚本]' \
             '--no-allow-scripts-pin[不固定脚本]' \
             '--json[JSON 格式输出]'
@@ -667,7 +682,7 @@ _npm() {
           ;;
         prefix)
           _arguments -C -s \
-            '(-g --global)'{-g,--global}'[全局前缀]'
+            '(-g --global)--global[(-g) 全局前缀]'
           ;;
         root)
           ;;
@@ -683,7 +698,8 @@ _npm() {
             '--no-bin-links[跳过 bin 链接]' \
             '--no-fund[跳过资助信息]' \
             '--dry-run[模拟运行]' \
-            '(-w --workspace)'{-w+,--workspace=}'[指定工作区]:工作区名称' \
+            '(-w --workspace)'--workspace=[(-w) [指定工作区]:工作区名称' \
+[指定工作区]:工作区名称' \
             '--workspaces[所有工作区]'
           ;;
         shrinkwrap)
