@@ -9,7 +9,6 @@
 | `_gs` | Ghostscript (`gs`) 命令补全 |
 | `_m4b-tool` | m4b-tool 有声书工具补全 |
 | `_pake` | Pake 命令行工具补全 |
-| `_pdfcomp` | PDF 压缩相关命令补全 |
 
 ## 安装
 
