@@ -1,0 +1,131 @@
+#compdef gs gswin32c gswin32 gsos2
+# Zsh 补全 —— Ghostscript (gs)
+
+_gs_devices() {
+  local -a devs
+  if [[ -x /usr/local/bin/gs ]]; then
+    devs=( ${(f)"$(/usr/local/bin/gs -h 2>&1 | sed -n '/^Available devices:/,/^Search path:/p' | tail -n +2 | sed '/^Search path:/,$d' | tr -s ' \n' '\n' | sed '/^$/d' | sort -u)"} )
+    _describe '输出设备' devs
+    return
+  fi
+  devs=(
+    bbox bit bitcmyk bitrgb display eps2write epson faxg3 faxg4
+    jpeg jpegcmyk laserjet ljet4 miff24 nullpage pam pbm pcx16 pcx24b
+    pcx256 pcxcmyk pcxgray pcxmono pdfimage24 pdfimage32 pdfimage8
+    pdfocr24 pdfocr32 pdfocr8 pdfwrite pgm pgnm pkm pnm png16 png16m
+    png256 png48 pngalpha pnggray pngmono ppm ps2write psdcmyk psdrgb
+    pxlcolor pxlmono tiff12nc tiff24nc tiff32nc tiff48nc tiff64nc
+    tiffcrle tiffg3 tiffg32d tiffg4 tiffgray tifflzw tiffpack tiffsep
+    tiffsep1 txtwrite uniprint xcf xpswrite
+  )
+  _describe '输出设备' devs
+}
+
+_gs_papersizes() {
+  local -a sizes
+  sizes=(
+    'a0:A0' 'a1:A1' 'a2:A2' 'a3:A3' 'a4:A4' 'a5:A5' 'a6:A6'
+    'letter:Letter' 'legal:Legal' 'ledger:Ledger' 'tabloid:Tabloid'
+    'executive:Executive' 'halfletter:Half Letter'
+    'b0:B0' 'b1:B1' 'b2:B2' 'b3:B3' 'b4:B4' 'b5:B5'
+    'jisb0:JIS B0' 'jisb1:JIS B1' 'jisb2:JIS B2'
+    'jisb3:JIS B3' 'jisb4:JIS B4' 'jisb5:JIS B5' 'jisb6:JIS B6'
+    'archA:Arch A' 'archB:Arch B' 'archC:Arch C'
+    'postcard:明信片' 'c4:C4 信封' 'c5:C5 信封' 'c6:C6 信封'
+    'dl:DL 信封' 'com10:#10 信封'
+  )
+  _describe '纸张尺寸' sizes
+}
+
+_gs() {
+  local -a options
+  options=(
+    '-h[显示帮助信息]'
+    '-?[显示帮助信息]'
+    '--help[显示帮助信息]'
+    '--version[显示版本号]'
+
+    '-dNOPAUSE[每页结束后不暂停]'
+    '-dBATCH[文件处理完毕后自动退出]'
+    '-dNODISPLAY[跳过输出设备初始化]'
+    '-dNOPLATFONTS[禁用平台字体]'
+    '-dNOCACHE[禁用字符缓存]'
+    '-dNOBIND[禁用 bind 操作符]'
+    '-dQUIET[减少输出信息]'
+    '-dSAFER[限制文件操作权限]'
+    '-dNOSAFER[关闭安全模式]'
+    '-dDELAYSAFER[延迟启用安全模式]'
+    '-dWRITESYSTEMDICT[保持 systemdict 可写]'
+    '-dDownsampleColorImages[对彩色图像降采样]'
+    '-dDownsampleGrayImages[对灰度图像降采样]'
+    '-dDownsampleMonoImages[对黑白图像降采样]'
+    '-dEmbedAllFonts[嵌入所有字体]'
+    '-dSubsetFonts[子集化字体]'
+    '-dCompressFonts[压缩字体]'
+    '-dUseFlateCompression[使用 Flate 压缩]'
+    '-dDetectDuplicateImages[检测并复用重复图像]'
+    '-dCompressPages[压缩页面内容]'
+    '-dUseCIEColor[使用 CIE 色彩空间]'
+    '-dPrinted[标记页面为已打印]'
+    '-dPreserveCopyPage[保留 CopyPage 语义]'
+    '-dPreserveEPSInfo[保留 EPS 信息]'
+    '-dAutoFilterColorImages[自动选择彩色图像过滤器]'
+    '-dAutoFilterGrayImages[自动选择灰度图像过滤器]'
+    '-dEncodeColorImages[编码彩色图像]'
+    '-dEncodeGrayImages[编码灰度图像]'
+    '-dEncodeMonoImages[编码黑白图像]'
+
+    '-dFirstPage=[从指定页开始]:页码:'
+    '-dLastPage=[处理到指定页]:页码:'
+    '-dNumRenderingThreads=[渲染线程数]:线程数:'
+    '-dMaxBitmap=[最大位图(字节)]:字节数:'
+    '-dBufferSpace=[缓冲区大小]:大小:'
+    '-dBandBufferSpace=[分色缓存大小]:大小:'
+    '-dTextAlphaBits=[文本抗锯齿]:位数:(1 2 4)'
+    '-dGraphicsAlphaBits=[图形抗锯齿]:位数:(1 2 4)'
+    '-dMaxDistillListSize=[合并列表大小]:大小:'
+    '-dNupDown=[N-up 每页份数]:份数:'
+    '-dNupLayout=[N-up 布局]:布局:(/NW /NE /SW /SE)'
+
+    '-dPDFSETTINGS=[PDF 质量预设]:设置:(/screen /ebook /printer /prepress /default)'
+    '-dCompatibilityLevel=[PDF 兼容版本]:版本:(1.3 1.4 1.5 1.6 1.7 2.0)'
+    '-dAutoRotatePages=[自动旋转页面]:选项:(/None /PageByPage /All)'
+    '-dColorConversionStrategy=[色彩转换策略]:策略:(/Gray /RGB /CMYK /DeviceGray /DeviceRGB /DeviceCMYK /CIEBasedA /CIEBasedABC /ICCBased)'
+
+    '-dColorImageDownsampleType=[彩色降采样方式]:方式:(/Average /Bicubic /Subsample)'
+    '-dGrayImageDownsampleType=[灰度降采样方式]:方式:(/Average /Bicubic /Subsample)'
+    '-dMonoImageDownsampleType=[黑白降采样方式]:方式:(/Average /Bicubic /Subsample)'
+    '-dColorImageResolution=[彩色图像 dpi]:dpi:'
+    '-dGrayImageResolution=[灰度图像 dpi]:dpi:'
+    '-dMonoImageResolution=[黑白图像 dpi]:dpi:'
+    '-dColorImageFilter=[彩色过滤器]:过滤器:(/DCTEncode /FlateEncode /SameEncode /Subsample)'
+
+    '-D[定义名称(值可为空)]:名称=值:'
+    '-d[定义名称(值可为空)]:名称=值:'
+    '-S[定义字符串值]:名称=字符串:'
+    '-s[定义字符串值]:名称=字符串:'
+
+    '-sDEVICE=[选择输出设备]:设备:->devices'
+    '-sOutputFile=[输出文件]:文件:_files'
+    '-sPAPERSIZE=[纸张尺寸]:尺寸:->papersizes'
+
+    '-o[快捷输出=dBATCH+dNOPAUSE+sOutputFile]:文件:_files'
+    '-r[分辨率 dpi]:dpi:'
+    '-g[像素尺寸]:宽x高:'
+    '-I[库文件搜索路径]:目录:_files -/'
+    '-c[执行 PS 代码后处理文件]:PS代码:'
+    '-P[优先当前目录查找库文件]'
+    '-q[静默启动]'
+
+    '*:输入文件:_files -g "*.((ps|eps|pdf|prn|gsf)(-.)|ps.gz|eps.gz)"'
+  )
+
+  _arguments -s $options && return
+
+  case "$state" in
+    devices) _gs_devices ;;
+    papersizes) _gs_papersizes ;;
+  esac
+}
+
+_gs

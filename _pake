@@ -1,0 +1,66 @@
+#compdef pake
+
+_pake() {
+  local -a options
+  options=(
+    '--name[应用名称]:名称:'
+    '--identifier[应用标识符 / Bundle ID]:标识符:'
+    '--icon[自定义图标路径或 URL]:图标文件:_files'
+    '--width[窗口宽度]:宽度:'
+    '--height[窗口高度]:高度:'
+    '--min-width[最小窗口宽度]:宽度:'
+    '--min-height[最小窗口高度]:高度:'
+    '--zoom[初始页面缩放比例 (50-200)]:缩放:'
+    '--title[窗口标题]:标题:'
+    '--app-version[应用版本号]:版本:'
+    '--user-agent[自定义 User Agent 字符串]:UA:'
+    '--installer-language[安装程序语言]:语言:'
+
+    '--fullscreen[启动时全屏]'
+    '--maximize[启动时最大化]'
+    '--hide-title-bar[隐藏标题栏（仅 macOS）]'
+    '--always-on-top[窗口始终置顶]'
+    '--dark-mode[强制深色模式]'
+    '--hide-on-close[关闭窗口时隐藏而非退出]'
+    '--incognito[隐私/无痕模式启动]'
+    '--start-to-tray[启动时最小化到托盘]'
+
+    '--install[自动安装到 /Applications（macOS）]'
+    '--multi-arch[同时构建 Intel 和 Apple Silicon 版本]'
+    '--multi-instance[允许多个应用实例]'
+    '--multi-window[允许在单实例内打开多个窗口]'
+    '--targets[构建目标格式]:目标:'
+    '--keep-binary[保留原始二进制文件]'
+
+    '--inject[注入本地 CSS/JS 文件]:文件:_files'
+    '--proxy-url[代理地址]:代理 URL:'
+    '--debug[调试模式，输出更多信息]'
+    '--iterative-build[快速构建模式，仅打包 app，不生成安装器]'
+
+    '--activation-shortcut[全局激活快捷键]:快捷键:'
+    '--show-system-tray[显示系统托盘图标]'
+    '--system-tray-icon[自定义系统托盘图标]:图标文件:_files'
+    '--disabled-web-shortcuts[禁用网页内快捷键]'
+
+    '--use-local-file[使用本地文件打包]'
+    '--safe-domain[允许留在应用内的域名（逗号分隔）]:域名:'
+    '--force-internal-navigation[所有链接留在 Pake 窗口内]'
+    '--internal-url-regex[内部 URL 匹配正则]:正则:'
+    '--enable-drag-drop[启用拖拽功能]'
+    '--enable-find[启用页面内查找 (Cmd+F)]'
+    '--new-window[允许网页打开新窗口]'
+
+    '--wasm[启用 WebAssembly 支持]'
+    '--ignore-certificate-errors[忽略证书错误]'
+    '--camera[请求摄像头权限（macOS）]'
+    '--microphone[请求麦克风权限（macOS）]'
+
+    '--help[显示所有选项]'
+    '--version[显示版本号]'
+  )
+
+  _arguments -s $options \
+    '1:网页 URL 或本地 HTML 文件:_urls'
+}
+
+_pake

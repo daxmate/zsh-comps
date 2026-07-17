@@ -1,0 +1,202 @@
+#compdef m4b-tool
+
+_m4b-tool() {
+    local curcontext="$curcontext" state state_descr line
+    typeset -A opt_args
+
+    # Global options shared by all commands
+    local -a global_opts
+    global_opts=(
+        '(-h --help)'{-h,--help}'[显示帮助]'
+        '(-q --quiet)'{-q,--quiet}'[静默模式，不输出信息]'
+        '(-V --version)'{-V,--version}'[显示版本信息]'
+        '--ansi[强制 ANSI 输出]'
+        '--no-ansi[禁用 ANSI 输出]'
+        '(-n --no-interaction)'{-n,--no-interaction}'[不询问交互问题]'
+        '(-v -vv -vvv)--verbose[增加输出详细程度：1=正常, 2=更详细, 3=调试]'
+    )
+
+    # Common options shared by merge/split/chapters/meta
+    local -a common_opts
+    common_opts=(
+        '--logfile=[日志输出文件]:file:_files'
+        '--debug[启用调试模式]'
+        '(-f --force)'{-f,--force}'[强制覆盖已有文件]'
+        '--tmp-dir=[临时文件目录]:dir:_directories'
+        '--no-cleanup[不清除生成的元数据文件]'
+        '--no-cache[操作前清除缓存]'
+        '--ffmpeg-threads=[指定 ffmpeg -threads 参数]:threads'
+        '--platform-charset=[从该文件系统字符集转换为 utf-8]:charset'
+        '--ffmpeg-param=[添加到每次 ffmpeg 调用的参数]:param'
+        '(-a --silence-min-length)'{-a,--silence-min-length}'[静音最小长度(毫秒)]:ms'
+        '(-b --silence-max-length)'{-b,--silence-max-length}'[静音最大长度(毫秒)]:ms'
+        '--min-chapter-length=[最小章节长度(秒)]:seconds'
+        '--max-chapter-length=[最大章节长度(秒)]:seconds'
+        '--enable-improvers=[仅启用指定的 improvers]:improver'
+        '--disable-improvers=[禁用指定的 improvers]:improver'
+        '(-p --filename-template)'{-p,--filename-template}'[输出文件名 Twig 模板]:template'
+        '--name=[自定义名称]:name'
+        '--sortname=[自定义排序名]:sortname'
+        '--album=[自定义专辑名]:album'
+        '--sortalbum=[自定义排序专辑名]:sortalbum'
+        '--artist=[自定义艺术家]:artist'
+        '--sortartist=[自定义排序艺术家]:sortartist'
+        '--genre=[自定义流派]:genre'
+        '--writer=[自定义作者]:writer'
+        '--albumartist=[自定义专辑艺术家]:albumartist'
+        '--year=[自定义年份]:year'
+        '--description=[自定义短描述]:description'
+        '--longdesc=[自定义长描述]:longdesc'
+        '--comment=[自定义评论]:comment'
+        '--copyright=[自定义版权]:copyright'
+        '--encoded-by=[自定义编码者]:encoded-by'
+        '--grouping=[自定义分组]:grouping'
+        '--purchase-date=[自定义购买日期]:date'
+        '--encoder=[自定义编码器]:encoder'
+        '--cover=[自定义封面图片]:file:_files'
+        '--skip-cover-if-exists[仅当文件存在时跳过封面提取]'
+        '--skip-cover[跳过提取和嵌入封面]'
+        '--series=[自定义系列名称]:series'
+        '--series-part=[自定义系列序号]:series-part'
+        '--remove=[移除指定标签(逗号分隔或多次使用)]:tags'
+        '--ignore-source-tags[忽略源文件的所有标签]'
+        '--prefer-metadata-tags[优先使用元数据文件中的标签]'
+        '--audio-format=[输出格式]:format:(m4b mp3 m4a ogg opus flac wav)'
+        '--audio-extension=[输出扩展名]:extension'
+        '--audio-channels=[音频声道数]:channels:(1 2 6)'
+        '--audio-bitrate=[音频比特率]:bitrate'
+        '--audio-samplerate=[音频采样率]:samplerate'
+        '--audio-codec=[音频编码器]:codec:(aac libmp3lame copy)'
+        '--audio-quality=[可变比特率质量(百分比)]:quality'
+        '--audio-profile=[低比特率音频规格]:profile:(aac_he aac_he_v2)'
+        '--adjust-for-ipod[自动调整比特率和采样率适配 iPod]'
+        '--use-nero-chapter-format[使用 Nero 格式替代 QuickTime 章节格式]'
+        '--fix-mime-type[修复 MIME 类型(video/mp4 -> audio/mp4)]'
+        '--no-conversion[跳过转换]'
+        '--trim-silence[裁剪文件开头和结尾的静音]'
+        '--add-silence=[合并文件间添加静音(毫秒)]:ms'
+    )
+
+    local -a commands
+    commands=(
+        'chapters:添加章节到 M4B 文件'
+        'completion:导出 shell 补全脚本'
+        'help:显示帮助信息'
+        'list:列出可用命令'
+        'merge:合并多个音频文件为 M4B'
+        'meta:查看和修改单个文件元数据'
+        'split:按章节拆分 M4B 文件'
+    )
+
+    _arguments -C \
+        '(-): :->command' \
+        '(-)*:: :->option-or-argument'
+
+    case $state in
+        command)
+            _describe -t commands 'm4b-tool commands' commands
+            ;;
+        option-or-argument)
+            case $words[1] in
+                merge)
+                    _arguments -s -S : \
+                        $common_opts \
+                        '(-o --output-file)'{-o,--output-file}'[输出文件路径]:output file:_files' \
+                        '--include-extensions=[包含的文件扩展名(逗号分隔)]:extensions' \
+                        '(-m --musicbrainz-id)'{-m,--musicbrainz-id}'[MusicBrainz ID 用于加载章节]:mbid' \
+                        '--batch-pattern=[批量合并匹配模式]:pattern' \
+                        '--batch-pattern-path=[批量模式的基础路径]:dir:_directories' \
+                        '--batch-filter=[跳过不包含此字符串的文件]:filter' \
+                        '--batch-resume-file=[从中断处恢复批量编码]:file:_files' \
+                        '--dry-run[不转换文件执行试运行]' \
+                        '--jobs=[同时运行的作业数]:jobs' \
+                        '--use-filenames-as-chapters[使用文件名作为章节标题]' \
+                        '--chapter-algo=[章节重新索引算法]:algo:(none legacy grouping)' \
+                        '--tag-debug-path=[标签调试信息输出路径]:path' \
+                        '--no-chapter-reindexing[不进行章节重新索引]' \
+                        '--prepend-series-to-longdesc[在描述前加上系列名和序号]' \
+                        '--equate=[强制标签字段相同值]:fields' \
+                        '*:input file:_files'
+                    ;;
+                split)
+                    _arguments -s -S : \
+                        $common_opts \
+                        '(-o --output-dir)'{-o,--output-dir}'[输出目录]:dir:_directories' \
+                        '--use-existing-chapters-file[使用已有的章节文件进行拆分]' \
+                        '--reindex-chapters[使用数字索引代替章节名进行拆分]' \
+                        '--fixed-length=[按固定长度(秒)拆分]:seconds' \
+                        '--chapters-filename=[提供包含章节的文件名]:file:_files' \
+                        '--by-silence[按静音拆分音频文件]' \
+                        '*:input file:_files'
+                    ;;
+                chapters)
+                    _arguments -s -S : \
+                        $common_opts \
+                        '--epub=[用于提取章节名的 EPUB 文件]:file:_files' \
+                        '--epub-restore[尝试从之前的 EPUB 章节映射恢复]' \
+                        '--epub-dump[仅导出 EPUB 章节用于查找和忽略]' \
+                        '--epub-ignore-chapters=[EPUB 中但不在有声书中的章节索引]:indexes' \
+                        '--epub-append-introduction[保留原始章节名并在其后添加章节开头文字]' \
+                        '(-m --musicbrainz-id)'{-m,--musicbrainz-id}'[MusicBrainz ID 用于加载章节]:mbid' \
+                        '(-s --merge-similar)'{-s,--merge-similar}'[合并相似章节名]' \
+                        '(-o --output-file)'{-o,--output-file}'[输出章节文件]:file:_files' \
+                        '--adjust-by-silence[通过静音检测调整章节]' \
+                        '--normalize[标准化章节名称]' \
+                        '--shift=[按毫秒偏移章节]:shift' \
+                        '--find-misplaced-chapters=[标记位置错误的章节]:indexes' \
+                        '--find-misplaced-offset=[查找错位章节时的最大偏移秒数]:seconds' \
+                        '--find-misplaced-tolerance=[章节前偏移毫秒补偿 ffmpeg 偏差]:ms' \
+                        '--no-chapter-numbering[不在章节名后追加编号]' \
+                        '--no-chapter-import[不导入章节到文件，仅创建 chapters.txt]' \
+                        '--chapter-pattern=[匹配章节名的正则表达式]:pattern' \
+                        '--chapter-replacement=[章节名替换正则表达式]:replacement' \
+                        '--chapter-remove-chars=[从章节名中移除的字符]:chars' \
+                        '--first-chapter-offset=[在章节开始静音后添加的毫秒数]:ms' \
+                        '--last-chapter-offset=[在最后一个章节结束前偏移的毫秒数]:ms' \
+                        '*:input file:_files'
+                    ;;
+                meta)
+                    _arguments -s -S : \
+                        $common_opts \
+                        '--import-all[导入所有默认标签源]' \
+                        '--import-cover=[导入封面文件]:file:_files' \
+                        '--import-description=[导入描述文件]:file:_files' \
+                        '--import-ffmetadata=[导入 ffmetadata 格式元数据]:file:_files' \
+                        '--import-opf=[导入 OPF 格式元数据]:file:_files' \
+                        '--import-chapters=[导入 mp4v2 格式章节]:file:_files' \
+                        '--import-cue-sheet=[导入 Cue Sheet]:file:_files' \
+                        '--export-all[导出所有默认标签到文件]' \
+                        '--export-cover=[导出封面]:file:_files' \
+                        '--export-description=[导出描述]:file:_files' \
+                        '--export-ffmetadata=[导出 ffmetadata 格式元数据]:file:_files' \
+                        '--export-chapters=[导出 mp4v2 格式章节]:file:_files' \
+                        '--export-cue-sheet=[导出 Cue Sheet]:file:_files' \
+                        '*:input file:_files'
+                    ;;
+                help)
+                    _arguments -s -S : \
+                        $global_opts \
+                        '--format=[输出格式]:format:(txt xml json md)' \
+                        '--raw[输出原始命令帮助]' \
+                        '::command name:->command'
+                    ;;
+                list)
+                    _arguments -s -S : \
+                        $global_opts \
+                        '--raw[输出原始命令列表]' \
+                        '--format=[输出格式]:format:(txt xml json md)' \
+                        '--short[跳过命令参数描述]' \
+                        '::namespace'
+                    ;;
+                completion)
+                    _arguments -s -S : \
+                        $global_opts \
+                        '--debug[跟踪补全调试日志]' \
+                        '::shell:(bash zsh fish)'
+                    ;;
+            esac
+            ;;
+    esac
+}
+
+_m4b-tool "$@"
