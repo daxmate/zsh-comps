@@ -55,7 +55,7 @@ else
 	'files:file:_files'
       )
       args+=(
-	'-r+[参考时间：文件修改时间或字面时间]:reference: _alternative $alts'
+	'-r+[参考时间:文件修改时间或字面时间]:reference: _alternative $alts'
 	'(-R)-I-[以 ISO 8601 格式显示]::precision:(date hours minutes seconds)'
       )
     ;|
