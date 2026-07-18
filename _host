@@ -1,0 +1,23 @@
+#compdef host
+
+# Note: This command is closely related to (and shares some options with) dig
+_arguments -s -S -A '-*' : \
+  '(: * -)-V[显示版本信息]' \
+  '(-6)-4[仅使用 IPv4]' \
+  '(-4)-6[仅使用 IPv6]' \
+  '(-v -t)-a[查询所有记录类型，或（与 -l 一起）列出所有区域记录]' \
+  '(-d -v)'{-d,-v}'[增加输出详细程度]' \
+  '-c+[指定查询类别]:query class:compadd -M "m\:{a-z}={A-Z}" - CH CS HS IN' \
+  '-C[检查 SOA 一致性]' \
+  '-l[列出区域记录]' \
+  '-N+[指定判断主机名为绝对域名所需的最小点数]:点数' \
+  '-r[非递归查询（清除 RD 位）]' \
+  '-R+[指定 UDP 查询的重试次数]:重试次数 [1]' \
+  '-s[SERVFAIL 后不尝试下一台名称服务器]' \
+  '-t+[指定查询类型]: :_dns_types' \
+  '-T[通过 TCP 查询]' \
+  '*-m+[指定内存使用调试标志]:debug flag:(record usage trace)' \
+  '(-W)-w[禁用查询超时（永远等待）]' \
+  '(-w)-W+[指定查询超时]:查询超时（秒）[5 (UDP), 10 (TCP)]' \
+  '1: :_hosts' \
+  '2::DNS server:_hosts'
