@@ -1,0 +1,24 @@
+#compdef fold gfold
+
+local variant
+local -a args
+
+_pick_variant -r variant busybox=BusyBox gnu='Free Soft' unix --version
+
+args=(
+  '(-b --bytes)'{-b,--bytes}'[按字节而非列计算]'
+  '(: -)--help[显示帮助信息]'
+  '(-s --spaces)'{-s,--spaces}'[在空白处折行]'
+  '(-w --width)'{-w+,--width=}'[指定行宽]:行宽（列或字节）'
+  '(: -)--version[显示版本信息]'
+  '*: :_files'
+)
+
+# Non-GNU variants don't support long options (except BusyBox's --help)
+if [[ $variant == *busybox* ]]; then # See also: _busybox
+  args=( ${args:#((#s)|*\))(\*|)--^help*} )
+elif [[ $variant != gnu ]]; then
+  args=( ${args:#((#s)|*\))(\*|)--*} )
+fi
+
+_arguments -s -S : $args
