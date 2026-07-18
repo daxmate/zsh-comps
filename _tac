@@ -1,0 +1,15 @@
+#compdef tac gtac
+
+# NetBSD (at least) has its own bare-bones version of this tool
+_pick_variant gnu='Free Soft' unix --version || {
+  _default
+  return
+}
+
+_arguments -s -S : \
+  '(: -)--help[显示帮助信息]' \
+  '(: -)--version[显示版本信息]' \
+  '(-b --before)'{-b,--before}'[将分隔符附在之前而非之后]' \
+  '(-r --regex)'{-r,--regex}'[将分隔符视为正则表达式（与 -s 一起）]' \
+  '(-s --separator)'{-s+,--separator=}'[使用指定分隔符而非换行]:分隔符' \
+  '*: :_files'
