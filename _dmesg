@@ -1,0 +1,39 @@
+#compdef dmesg
+
+local -a args
+
+case $OSTYPE in
+  linux*) args=( -S --  ) ;;
+  darwin*|dragonfly*|*bsd*)
+    args=(
+      '-M[从内核转储提取数据]:转储文件:_files'
+      '-N[从内核镜像提取名称列表]:系统文件:_files'
+    )
+  ;|
+  dragonfly*|freebsd*)
+    args=(
+      '-a[显示所有数据，包括 syslog 和控制台]'
+      '-c[打印后清空缓冲区]'
+    )
+  ;|
+  openbsd*)
+    args+=(
+      '-s[改为显示控制台消息缓冲区]'
+    )
+  ;;
+  dragonfly*)
+    args+=(
+      '\*-f[跟随缓冲区，显示新到达的数据]'
+      '-n[使用指定的内核核心]:编号'
+    )
+  ;;
+  netbsd*)
+    args+=(
+      '-d[显示时间戳增量]'
+      '(-t)-T[以人类可读格式显示运行时间戳]'
+      '(-T)-t[抑制打印运行时间戳]'
+    )
+  ;;
+esac
+
+_arguments -s : $args
