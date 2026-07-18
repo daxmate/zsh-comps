@@ -1,18 +1,7 @@
 #compdef time
 
 # time Zsh 补全函数
-# 描述：计时程序执行时间
+# 描述：计时程序执行时间（zsh 保留字）
+# time 是 shell 保留字，不支持选项，后面的参数是命令
 
-local curcontext="$curcontext" state line ret=1
-local -a args
-
-args=(
-  '-a[配合 -o，追加到文件而非覆盖]'
-  '-h[以人类可读格式打印时间]'
-  '-l[同时打印 rusage 结构内容]'
-  '-o+[将输出写入指定文件]:输出文件:_files'
-  '-p[POSIX.2 兼容格式输出]'
-  '*::命令: _normal'
-)
-
-_arguments -s $args
+_arguments '*::命令: _normal'
