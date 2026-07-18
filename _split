@@ -1,0 +1,56 @@
+#compdef split gsplit
+
+local curcontext="$curcontext" variant ret=1
+local -A opt_args
+local -a state line args
+
+_pick_variant -r variant gnu=GNU $OSTYPE --version
+
+case $variant in
+  gnu)
+    args=( -C
+      '(H -a --suffix-length)'{-a+,--suffix-length=}'[生成指定长度的后缀]:长度 [2]'
+      '(H)--additional-suffix=[在文件名后附加额外后缀]:后缀'
+      '(H -b --bytes -C --line-bytes -l --lines -n --number)'{-b+,--bytes=}'[每个输出文件指定字节数]:大小（字节）'
+      '(H -b --bytes -C --line-bytes -l --lines -n --number)'{-C+,--line-bytes=}'[每个输出文件按大小限制放入完整行/记录]:大小（字节）'
+      '(H --numeric-suffixes -x --hex-suffixes)-d[使用从 0 开始的数字后缀]'
+      '(H -d -x --hex-suffixes)--numeric-suffixes=-[使用数字后缀]::起始值 [0]'
+      '(H -d --numeric-suffixes --hex-suffixes)-x[使用从 0 开始的十六进制后缀]'
+      '(H -d --numeric-suffixes -x)--hex-suffixes=-[使用十六进制后缀]::起始值 [0]'
+      '(H -e --elide-empty-files)'{-e,--elide-empty-files}"[不生成空输出文件（配合 '-n'）]"
+      '(H)--filter=[写入 shell 命令，文件名放在 $FILE 中]:命令:_cmdstring'
+      '(H -b --bytes -C --line-bytes -l --lines -n --number)'{-l+,--lines=}'[每个输出文件指定行数]:行数'
+      '(H -b --bytes -C --line-bytes -l --lines -n --number)'{-n+,--number=}'[生成指定数量的输出文件]:份数:->chunks'
+      '(H -t --separator)'{-t+,--separator=}'[使用指定记录分隔符而非换行]:分隔符'
+      '(H -u --unbuffered)'{-u,--unbuffered}"[使用 '-n r/...' 时立即复制输入到输出]"
+      '(H)--verbose[打印每个输出文件打开前的诊断信息]'
+      '(H)1:文件:_files'
+      '(H)2: :_guard "^-*" "前缀 [x]"'
+      + 'H'
+      '(- 1 2)--help[显示用法信息]'
+      '(- 1 2)--version[显示版本信息]'
+    )
+  ;;
+  (free|net)bsd*)
+    args+=( '(-b -l -p)-n+[生成指定数量的输出文件]:输出文件数' )
+  ;|
+  darwin*|freebsd*)
+    args+=(
+      '(-b -l -n)-p+[每当行匹配指定模式时分割文件]:模式'
+    )
+  ;|
+  freebsd*) args+=( '-d[使用数字后缀]' ) ;;
+esac
+
+_arguments -s -S $args && ret=0
+
+if [[ $state = chunks ]]; then
+  if [[ ! -prefix *[0-9/]* ]]; then
+    _alternative 'modifiers: :_values -s/ "modifier" "l[不拆分行/记录]" "r[轮询分发]"' \
+      'lines: :_guard "[0-9/]#" lines' && ret=0
+  else
+    _message -e lines lines
+  fi
+fi
+
+return ret
