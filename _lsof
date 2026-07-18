@@ -1,0 +1,127 @@
+#compdef lsof
+
+local curcontext="$curcontext" ret=1
+local -a state line expl args vals fields alts suf hsuf pref
+
+case $OSTYPE in
+  linux*)
+    args=(
+      '-E[显示管道、套接字和伪终端的端点信息，但不显示终端文件]'
+      '+E[显示管道、套接字和伪终端的端点信息，包括终端文件]'
+      '-X[跳过报告网络连接信息]'
+    )
+  ;;
+  solaris*)
+    args=(
+      '-X[包含已删除文件]'
+      '-z[区域信息]::zone:_zones'
+    )
+  ;;
+esac
+
+_arguments -C -s -S $args \
+  '(-)'{-\?,-h}'[列出帮助信息]' \
+  '-a[AND 选择（所有条件需同时满足）]' \
+  '-b[避免内核阻塞]' \
+  '-C[禁用报告路径名组件]' \
+  '+c[将命令名截断为指定字符数]:字符数' \
+  '-c[列出以指定命令名开头的文件]:命令名' \
+  '+d[搜索指定目录内容的打开实例]:搜索目录:_files -/' \
+  '-d[指定要排除/包含的文件描述符列表]:文件描述符:->filedes' \
+  '+D[从指定目录递归搜索]:搜索目录:_files -/' \
+  '-D[设备缓存文件的使用方式]:方式:((\?\:报告设备缓存文件路径 b\:构建设备缓存文件 i\:忽略设备缓存文件 r\:读取设备缓存文件 u\:读取并更新设备缓存文件))' \
+  '*-+e[将文件系统排除在阻塞内核调用之外]:文件系统:_directories' \
+  '-f[禁止列出内核文件结构信息]::信息类型:->file-structures' \
+  '+f[启用列出内核文件结构信息]::信息类型:->file-structures' \
+  '-F[选择输出字段]:字段:->fields' \
+  '-g[按进程组 ID 选择]::进程组 ID:_sequence -s , _pgids' \
+  '(*)*-i[选择网络文件]::地址:->addresses' \
+  '-K+[选择列出进程的任务]::值:((i\:忽略任务))' \
+  '-k[指定内核名称列表文件]:内核文件:_files' \
+  '-l[禁止将 UID 转换为用户名]' \
+  '-L[不列出链接计数]' \
+  '+L[列出所有链接计数]::要列出文件的最大链接数' \
+  '-m[指定内核内存文件]:内核内存文件:_files' \
+  '-M[禁用报告端口映射注册信息]' \
+  '+M[启用报告端口映射注册信息]' \
+  '-n[禁止将网络号转换为主机名]' \
+  '-N[选择列出 NFS 文件]' \
+  '(-s)-o[列出文件偏移量]::文件偏移量数字位数' \
+  '-O[避免绕过潜在阻塞的开销]' \
+  '-P[禁止将端口号转换为端口名]' \
+  '-p[列出指定进程的文件]:进程 ID:_sequence -s , _pids' \
+  '-r[无限重复列出]::延迟（秒）' \
+  '+r[直到没有文件列出时停止重复]::延迟（秒）' \
+  '-R[列出父 PID]' \
+  '(-o)-s+[列出文件大小或按状态排除 TCP/UDP 文件]::状态:->states' \
+  '-S[指定可能死锁的内核函数超时]:超时（秒）' \
+  '-T[选择报告 TCP/TPI 信息]::信息类型:((q\:队列长度报告 s\:状态报告 w\:窗口大小报告))' \
+  '(+w -w)-t[简洁输出]' \
+  '-u[列出指定用户拥有的文件]:用户:_users -S,' \
+  '-U[列出 Unix 域套接字文件]' \
+  '(-)-v[列出版本信息]' \
+  '-V[指示搜索未成功的项]' \
+  '(-t)+w[抑制警告]' \
+  '(-t)-w[启用警告]' \
+  '-x[交叉文件系统/为 +d/+D 遍历符号链接]::类型:((f\:文件系统 s\:符号链接))' \
+  '*:文件:_files' && ret=0
+
+case $state in
+  addresses)
+    if compset -P 1 '*:'; then
+      _ports && ret=0
+    else
+      if compset -P 1 '*@'; then
+        pref=()
+      else
+        pref=( -P @ )
+        suf=( -qS @ )
+        [[ $PREFIX = (#i)(4|6|tcp|udp)* ]] || alts=( 'ip-versions:IP version:(4 6)' )
+        compset -P '[46]'
+        alts+=( 'protocols:协议:compadd $suf -M 'm:{a-z}={A-Z}' TCP UDP' )
+      fi
+      if compset -S '@*'; then
+        suf=()
+      else
+        hsuf=( -qS : )
+        compset -S ':*' && hsuf=()
+        alts+=( "hosts:主机:_hosts $pref $hsuf" )
+      fi
+
+      _alternative $alts && ret=0
+    fi
+  ;;
+  fields)
+    fields=( ${${${${(f)"$($words[1] -F \? 2>&1)"}[2,-1]#??}//  ##/:}:#(#s)[${PREFIX:-:}]:*} )
+    compset -P '*'
+    _describe -t fields "field" fields -S '' && ret=0
+  ;;
+  filedes)
+    _sequence -s , _wanted -x file-descriptors expl "file descriptor" compadd - \
+        cwd err jld ltz mem mmap pd rtd tr txt v86 && ret=0
+  ;;
+  file-structures)
+    vals=(
+      'g[文件标志缩写]'
+      'G[十六进制文件标志]'
+    )
+    [[ $OSTYPE != linux* ]] && vals+=(
+      'c[文件结构使用计数]'
+      'f[文件结构地址]'
+      'n[文件结构节点地址]'
+    )
+    _values 'kernel file structures' $vals && ret=0
+  ;;
+  states)
+    if compset -P 1 '*:'; then
+      _sequence _wanted states expl state compadd - -M 'm:{a-z}={A-Z}' \
+          CLOSED IDLE BOUND LISTEN ESTABLISHED SYN_SENT SYN_RCDV ESTABLISHED \
+          CLOSE_WAIT FIN_WAIT1 CLOSING LAST_ACK FIN_WAIT_2 TIME_WAIT && ret=0
+    else
+      compset -S ':*' || suf=( -qS : )
+      _wanted protocols expl protocol compadd $suf -M 'm:{a-z}={A-Z}' TCP UDP && ret=0
+    fi
+  ;;
+esac
+
+return ret
