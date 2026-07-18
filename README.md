@@ -59,15 +59,15 @@ ln -sfn /path/to/zsh-comps/* /path/to/.oh-my-zsh/custom/completions/
 - ✅ `cat` — 连接输出文件
 ✅ `less` — 分页查看
 - ✅ `head` / `tail` — 文件头尾
-⚠️ `file`（无系统补全） — 识别文件类型
+✅ `file` — 识别文件类型
 ✅ `locate` — 快速查找文件
 ✅ `ssh` — 远程登录
-⚠️ `scp`（无系统补全） — 远程复制
+✅ `scp` — 远程复制
 ✅ `wget` — 下载
 ✅ `ping` — 网络连通性测试
 ✅ `ps` — 进程列表
 ✅ `kill` / `killall` — 发送信号
-⚠️ `time`（无系统补全） — 计时
+✅ `time` — 计时
 ✅ `zip` / `unzip` — ZIP 压缩
 ✅ `gzip` / `gunzip` — GZip 压缩
 ✅ `df` — 磁盘空间

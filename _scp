@@ -1,0 +1,61 @@
+#compdef scp
+
+# scp Zsh 补全函数
+# 描述：安全复制（远程文件复制程序）
+
+local curcontext="$curcontext" state line ret=1
+local -a args
+
+args=(
+  '-3[通过本地主机在两个远程主机之间复制]'
+  '-4[仅使用 IPv4 地址]'
+  '-6[仅使用 IPv6 地址]'
+  '-A[允许向远程系统转发 ssh-agent]'
+  '-B[批处理模式（不询问密码短语）]'
+  '-C[启用压缩（传递 -C 给 ssh）]'
+  '-c+[指定加密密码]:加密密码'
+  '-D+[直接连接到本地 sftp 服务器]:sftp 服务器路径'
+  '-F+[指定 ssh 配置文件]:配置文件:_files'
+  '-i+[指定身份文件]:身份文件:_files'
+  '-J+[通过跳板主机连接]: :->userhost'
+  '-l+[限制带宽]:带宽（Kbit/s）'
+  '-O[使用传统 SCP 协议替代 SFTP]'
+  '-o+[指定 ssh 选项]:选项'
+  '-P+[指定远程主机端口]:端口'
+  '-p[保留修改时间、访问时间和文件模式位]'
+  '-q[安静模式：禁用进度条和警告]'
+  '-R[通过本地主机在两个远程主机之间复制]'
+  '-r[递归复制整个目录（跟随符号链接）]'
+  '-S+[指定连接使用的 ssh 程序]:ssh 程序:_command_names -e'
+  '-3[通过本地主机在两个远程主机之间复制]'
+  '-v[详细模式]'
+  '*:文件:->file'
+)
+
+_arguments -C -s $args && ret=0
+
+case "$state" in
+  file)
+    if compset -P 1 '[^./][^/]#:'; then
+      _remote_files -- ssh ${(kv)~opt_args[(I)-[P1246]]/-P/-p} && ret=0
+    elif compset -P 1 '*@'; then
+      _wanted hosts expl '远程主机名' _ssh_hosts -r: -S: && ret=0
+    else
+      _alternative \
+          'files:: _files' \
+          'hosts:远程主机名:_ssh_hosts -r: -S:' \
+          'users:用户:_ssh_users -qS@' && ret=0
+    fi
+    ;;
+  userhost)
+    if compset -P '*@'; then
+      _wanted hosts expl '远程主机名' _ssh_hosts && ret=0
+    else
+      _alternative \
+          'hosts:远程主机名:_ssh_hosts' \
+          'users:登录名:_ssh_users -qS@' && ret=0
+    fi
+    ;;
+esac
+
+return ret

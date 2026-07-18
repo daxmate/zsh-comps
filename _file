@@ -1,0 +1,46 @@
+#compdef file
+
+# file Zsh 补全函数
+# 描述：确定文件类型
+
+local curcontext="$curcontext" state line ret=1
+local -a args
+
+_pick_variant -r variant gnu=GNU $OSTYPE --version
+
+args=(
+  '(-b --brief)'{-b,--brief}'[简短模式：输出前不添加文件名]'
+  '(-c --checking-printout)'{-c,--checking-printout}'[打印 magic 文件的解析形式（用于调试）]'
+  '(-C --compile)'{-C,--compile}'[编译 magic 文件为 .mgc 格式]'
+  '(-d -M)-d[应用默认系统测试（默认行为）]'
+  '-D[打印调试信息]'
+  '-E[文件系统错误时退出并报错，而非继续]'
+  '(-e --exclude)'{-e+,--exclude=}'[排除指定类型的测试]:测试类型:(apptype asf elf encoding soft text cdf compress tar json)'
+  '--exclude-quiet[同 --exclude，但忽略不认识的测试]'
+  '--extension[打印文件类型对应的文件扩展名]'
+  '(-F --separator)'{-F+,--separator=}'[指定字段分隔符]:分隔符'
+  '(-f --files-from)'{-f+,--files-from=}'[从文件读取要检查的文件列表]:文件列表:_files'
+  '(-h --no-dereference)'{-h,--no-dereference}'[不跟随符号链接]'
+  '(-I --mime -i --mime-type --mime-encoding)'{-i}'[不分类常规文件内容，仅输出 mime 类型]'
+  '(-i --mime-type --mime-encoding -I --mime)'{-I,--mime}'[输出 MIME 类型字符串]'
+  '--mime-type[输出 MIME 类型]'
+  '--mime-encoding[输出 MIME 编码]'
+  '(-k --keep-going)'{-k,--keep-going}'[不停止于第一个匹配]'
+  '(-l --list)'{-l,--list}'[列出 magic 强度信息]'
+  '(-L --dereference)'{-L,--dereference}'[跟随符号链接]'
+  '(-m --magic-file)'{-m+,--magic-file=}'[指定 magic 文件或目录]:magic 文件:_files'
+  '(-M)-M+[指定 magic 文件（不应用默认系统测试）]:magic 文件:_files'
+  '(-n --no-buffer)'{-n,--no-buffer}'[关闭输出缓冲]'
+  '(-p --preserve-date)'{-p,--preserve-date}'[保留文件访问时间]'
+  '(-P --parameter)'{-P+,--parameter=}'[设置参数]:参数名=值'
+  '(-r --raw)'{-r,--raw}'[原始输出（不解码 quoted-printable）]'
+  '(-s --special-files)'{-s,--special-files}'[读取特殊文件（如设备文件）]'
+  '(-v --version)'{-v,--version}'[显示版本信息]'
+  '(-z --uncompress)'{-z,--uncompress}'[尝试查看压缩文件内部]'
+  '(-Z --uncompress-noreport)'{-Z,--uncompress-noreport}'[解压但不报告解压信息]'
+  '(-0 --print0)'{-0,--print0}'[文件名后以 NUL 结尾]'
+  '(- *)--help[显示帮助信息]'
+  '*:文件:_files'
+)
+
+_arguments -s -S $args
