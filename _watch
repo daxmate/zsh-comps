@@ -1,0 +1,42 @@
+#compdef watch
+
+local variant ret=1
+local -a context line state state_descr
+local -A opt_args
+
+_pick_variant -r variant procps=procps $OSTYPE --version
+
+case $variant in
+  (procps)
+    _arguments -s -S -A '-*' : \
+      '(: * -)'{-h,--help}'[显示帮助信息]' \
+      '(: * -)'{-v,--version}'[显示版本信息]' \
+      '(-b --beep)'{-b,--beep}'[命令退出码非零时响铃]' \
+      '(-c --color)'{-c,--color}'[解释 ANSI 颜色/样式序列]' \
+      '(-d --differences)'{-d-,--differences=-}'[高亮更新间的变化]::高亮方式:(permanent)' \
+      '(-e --errexit)'{-e,--errexit}'[命令非零退出时冻结更新]' \
+      '(-g --chgexit)'{-g,--chgexit}'[命令输出变化时退出]' \
+      '(-n --interval)'{-n+,--interval=}'[指定刷新间隔]:更新间隔（秒）[2]' \
+      '(-p --precise)'{-p,--precise}'[以精确间隔执行命令]' \
+      '(-t --no-title)'{-t,--no-title}'[关闭标题栏]' \
+      '(-x --exec)'{-x,--exec}'[通过 exec(2) 执行命令（而非 `sh -c`）]' \
+      '(-)*::: :->cmd' \
+    && ret=0
+
+    [[ $state == cmd ]] &&
+    if
+      (( CURRENT == 1 )) &&
+      [[ $words[1] == (\"|\'|\$\')* ]] &&
+      [[ -z $opt_args[(i)(-x|--exec)] ]]
+    then
+      _cmdstring && ret=0
+    else
+      _normal && ret=0
+    fi
+    ;;
+  # watch(1) has completely different semantics on freebsd compared to linux, hence:
+  (freebsd*|dragonfly*) _watch-snoop "$@" && ret=0 ;;
+  (*) _default && ret=0 ;;
+esac
+
+return ret
