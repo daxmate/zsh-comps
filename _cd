@@ -1,0 +1,121 @@
+#compdef cd chdir pushd
+
+# cd Zsh 补全函数
+# 描述：切换工作目录（带中文选项说明）
+# 支持：cdpath、cdablevars、目录栈、cd old new 替换
+#
+# 目录栈用法：cd <Tab> 时会同时显示目录栈中的路径
+# 选择后直接插入实际路径，避免 -N 与选项冲突
+
+_cd() {
+  setopt localoptions nonomatch
+  local curcontext="$curcontext" state state_descr line ret=1
+  local -a options
+
+  # 选项
+  options=(
+    '-q[安静模式，切换目录后不输出也不触发 hooks]'
+    '-s[拒绝使用包含符号链接的路径（强制物理路径）]'
+    '(-P)-L[保留符号链接，不解析（默认行为）]'
+    '(-L)-P[解析所有符号链接，使用物理目录结构]'
+    '(-)-[回到上一个目录]'
+    '*:目标目录:->dir'
+  )
+
+  _arguments -s $options && return
+
+  case "$state" in
+    dir)
+      local expl
+
+      # 判断是 cd old new 替换模式
+      if [[ CURRENT -eq 3 ]]; then
+        local rep
+        rep=(${~PWD/$words[2]/*}~$PWD(-/))
+        rep=(${${rep#${PWD%%$words[2]*}}%${PWD#*$words[2]}})
+        (( $#rep )) && _wanted -C replacement strings expl "替换字符串" compadd -a rep && return
+      fi
+
+      # 处理 ../ 路径
+      local -a tmpWpath
+      if [[ $PREFIX = (|*/)../* ]]; then
+        local tmpprefix
+        tmpprefix=$(cd ${PREFIX%/*} >&/dev/null && print $PWD)
+        if [[ -n $tmpprefix ]]; then
+          tmpWpath=(-W $tmpprefix)
+          IPREFIX="${IPREFIX}${PREFIX%/*}/"
+          PREFIX="${PREFIX##*/}"
+        fi
+      fi
+
+      if [[ $PREFIX != (\~|/|./|../)* && $IPREFIX != ../* ]]; then
+        local tmpcdpath alt
+        alt=()
+        tmpcdpath=(${${(@)cdpath:#.}:#$PWD})
+        (( $#tmpcdpath )) &&
+          alt=( '路径-cdpath:cdpath 目录:_path_files -W tmpcdpath -/' )
+
+        # cdablevars：用变量名补全目录
+        if [[ -o cdablevars && -n "$PREFIX" && "$PREFIX" != <-> ]]; then
+          if [[ "$PREFIX" != */* ]]; then
+            alt=( "$alt[@]" '命名目录: : _tilde' )
+          else
+            local oipre="$IPREFIX" opre="$PREFIX" dirpre dir
+            dirpre="${PREFIX%%/*}/"
+            IPREFIX="$IPREFIX$dirpre"
+            eval "dir=( ~$dirpre )"
+            PREFIX="${PREFIX#*/}"
+            [[ $#dir -eq 1 && "$dir[1]" != "~$dirpre" ]] &&
+              _wanted named-directories expl "cdablevar 目录" \
+                _path_files -W dir -/ && ret=0
+            PREFIX="$opre"
+            IPREFIX="$oipre"
+          fi
+        fi
+
+        # 目录补全
+        local dir_tag="${cdpath+本地}目录"
+        [[ CURRENT -ne 1 || ( -z "$path[(r).]" && $PREFIX != */* ) ]] &&
+          alt=( "${dir_tag}:${cdpath+本地 }目录:_path_files ${(j: :)${(@q)tmpWpath}} -/" "$alt[@]" )
+
+        _alternative "$alt[@]" && ret=0
+
+        # 额外补全目录栈条目
+        _cd_dirstack
+        return ret
+      fi
+
+      # 绝对/相对路径补全
+      [[ CURRENT -ne 1 ]] && _wanted directories expl "目录" \
+        _path_files $tmpWpath -/ && ret=0
+
+      # 额外补全目录栈条目
+      _cd_dirstack
+      return ret
+      ;;
+  esac
+}
+
+# 补全目录栈条目
+# 显示 dirs -v 中的路径，选择后直接插入实际路径
+_cd_dirstack() {
+  local -a entries items
+  entries=(${(f)"$(dirs -v 2>/dev/null)"})
+
+  (( $#entries )) || return
+
+  items=()
+  for entry in $entries; do
+    local num="${entry%%[[:space:]]*}"
+    local dir="${entry##*[[:space:]]}"
+    local abs_dir="${dir/#\~/$HOME}"
+    if [[ -n "$abs_dir" && -d "$abs_dir" ]]; then
+      items+=("$abs_dir:目录栈 #$num")
+    fi
+  done
+
+  (( $#items )) || return
+  _describe -t dirstack "目录栈" items -V dirstack
+}
+
+_cd "$@"

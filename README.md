@@ -25,6 +25,7 @@
 | `_pnpm` | pnpm 包管理器命令补全 |
 | `_ls` | ls 列出目录内容（macOS BSD 版本） |
 | `_xxd` | xxd 十六进制转储与还原 |
+| `_cd` | cd 切换工作目录（目录栈混入补全列表、cdpath、cdablevars） |
 | `_pdfcomp` | PDF 压缩命令补全（本地定制） |
 
 ## 安装
