@@ -1,0 +1,74 @@
+#compdef env genv
+
+local context state line variant ign ret=1
+local -a args suf
+
+_pick_variant -r variant gnu=Free\ Soft $OSTYPE --version
+case $variant in
+  gnu)
+    (( $#words > 2 )) && ign='!'
+    args=(
+      '(-)'{-i,--ignore-environment}'[以空环境启动]'
+      '(--ignore-environment -i --help --version)*'{-u+,--unset=}'[从环境中移除变量]:环境变量:_parameters -g "*export*"'
+      '(-C --chdir)'{-C+,--chdir=}'[切换工作目录]:目录:_directories'
+      '(-S --split-string)'{-S+,--split-string=}'[进行单词拆分]:要拆分的字符串'
+      '--block-signal=[阻止向命令发送信号]:信号:_sequence _signals'
+      '--default-signal=[重置信号处理为默认]:信号:_sequence _signals'
+      '--ignore-signal=[忽略信号]:信号:_sequence _signals'
+      '--list-signal-handling[列出非默认信号处理状态到 stderr]'
+      '(-v --debug)'{-v,--debug}'[打印每个处理步骤的详细信息]'
+      "${ign}(- *)--help[显示帮助信息]"
+      "${ign}(- *)--version[显示版本信息]"
+    )
+  ;;
+  freebsd*)
+    args=(
+      '-0[输出中变量间使用 NUL 而非换行分隔]'
+      '-L[从系统 login.conf(5) 添加变量]: :->user-class'
+      '-U[从用户和系统 login.conf(5) 添加变量]: :->user-class'
+    )
+  ;|
+  freebsd*|darwin*|dragonfly*)
+    args+=(
+      '(-i)*-u+[从环境中移除变量]:环境变量:_parameters -g "*export*"'
+      '-P+[指定替代的可执行文件搜索路径]:路径:_dir_list'
+      '-S+[进行单词拆分]:要拆分的字符串'
+      '*-v[详细输出]'
+    )
+  ;&
+  *)
+    if (( $words[(i)-] < CURRENT )); then
+      words[(i)-]=()
+      (( CURRENT-- ))
+    else
+      args+=(
+	'(-)'{-,-i}'[以空环境启动]'
+      )
+    fi
+  ;;
+esac
+
+_arguments $args \
+  '*::arguments:->normal' && ret=0
+
+if [[ -n $state ]]; then
+  case $state in
+    normal)
+      while [[ $words[1] = *=* ]]; do
+        shift words
+        (( CURRENT-- ))
+      done
+      _normal && ret=0
+    ;;
+    user-class)
+      if compset -P 1 '*/'; then
+        _login_classes && ret=0
+      else
+        compset -S '/*' || suf=( -qS/ )
+        _users $suf && ret=0
+      fi
+    ;;
+  esac
+fi
+
+return ret
