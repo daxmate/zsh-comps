@@ -1,0 +1,142 @@
+#compdef screen
+
+local curcontext="$curcontext" state line expl ret=1
+local scr_cmds sessions
+
+scr_cmds=(
+  acladd            aclchg            acldel            aclgrp
+  aclumask          activity          addacl            allpartial
+  altscreen         at                attrcolor         autodetach
+  autonuke          backtick          bce               bd_bc_down
+  bd_bc_left        bd_bc_right       bd_bc_up          bd_bell
+  bd_braille_table  bd_eightdot       bd_info           bd_link
+  bd_lower_left     bd_lower_right    bd_ncrc           bd_port
+  bd_scroll         bd_skip           bd_start_braille  bd_type
+  bd_upper_left     bd_upper_right    bd_width          bell_msg
+  bind              bindkey           blanker           blankerprg
+  break             breaktype         bufferfile        c1
+  caption           chacl             charset           chdir
+  clear             colon             command           compacthist
+  console           copy              crlf              debug
+  defautonuke       defbce            defbreaktype      defc1
+  defcharset        defencoding       defescape         defflow
+  defgr             defhstatus        defkanji          deflog
+  deflogin          defmode           defmonitor        defnonblock
+  defobuflimit      defscrollback     defshell          defsilence
+  defslowpaste      defutf8           defwrap           defwritelock
+  detach            digraph           dinfo             displays
+  dumptermcap       echo              encoding          escape
+  eval              exec              fit               flow
+  focus             gr                hardcopy          hardcopy_append
+  hardcopydir       hardstatus        height            help
+  history           hstatus           idle              ignorecase
+  info              kanji             kill              lastmsg
+  license           lockscreen        log               logfile
+  login             logtstamp         mapdefault        mapnotnext
+  maptimeout        markkeys          maxwin            meta
+  monitor           msgminwait        msgwait           multiuser
+  nethack           next              nonblock          number
+  obuflimit         only              other             partial
+  password          paste             pastefont         pow_break
+  pow_detach        pow_detach_msg    prev              printcmd
+  process           quit              readbuf           readreg
+  redisplay         register          remove            removebuf
+  reset             resize            screen            scrollback
+  select            sessionname       setenv            setsid
+  shell             shelltitle        silence           silencewait
+  sleep             slowpaste         sorendition       source
+  split             startup_message   stuff             su
+  suspend           term              termcap           termcapinfo
+  terminfo          time              title             umask
+  unsetenv          utf8              vbell             vbell_msg
+  vbellwait         verbose           version           wall
+  width             windowlist        windows           wrap
+  writebuf          writelock         xoff              xon
+  zmodem            zombie
+)
+
+_arguments -C \
+  '(-6)-4[仅将主机名解析为 IPv4 地址]' \
+  '(-4)-4[仅将主机名解析为 IPv6 地址]' \
+  "-a[将所有功能强制放入每个窗口的 termcap]" \
+  '-A[使所有窗口适应新的显示宽度和高度]' \
+  "-c[读取指定配置文件（而非 .screenrc）]:配置文件:_files" \
+  '-d[分离其他地方运行的 screen（与 -r 一起：重新挂载到此）]: :->attached-sessions' \
+  '-dmS[以守护进程方式启动，screen 会话处于分离模式]:会话名' \
+  '-D[分离并登出远程（与 -r 一起：重新挂载到此）]: :->attached-sessions' \
+  '-e[更改命令字符]:命令字符' \
+  '-f-[设置流控制]:流控制:((n\:关闭 a\:自动 \:开启))' \
+  '-h[设置滚动历史缓冲区大小]:缓冲区大小' \
+  '-i[流控制开启时更快地中断输出]' \
+  "(-l)-ln[登录模式关闭（不更新 utmp 数据库）]" \
+  '(-ln)-l[登录模式开启（更新 utmp 数据库）]' \
+  '(- *)'{-ls,-list}'[列出会话/套接字目录]: :->any-sessions' \
+  "-L[终端的最后一个字符可安全更新]" \
+  '-Logfile[设置日志文件名]:日志文件:_files' \
+  '-m[忽略 $STY 变量，创建新的 screen 会话]' \
+  '-O[选择优化输出而非精确 vt100 模拟]' \
+  '-p[预选指定窗口]:窗口号或名称:((\=\:窗口列表 -\:空白窗口 \:窗口号))' \
+  '-q[安静启动，不成功则以非零返回码退出]' \
+  '-Q[将命令查询进程的响应发送到 stdout]:screen 命令:(echo info lastmsg number select time title windows)' \
+  '-r[重新挂载到已分离的 screen 进程]: :->detached-sessions' \
+  '-Dr: :->any-sessions' \
+  '-dr: :->any-sessions' \
+  '-R[尽可能重新挂载，否则创建新会话]: :->detached-sessions' \
+  '-DR: :->any-sessions' \
+  '-dR: :->any-sessions' \
+  '-s[要执行的 shell（而非 $SHELL）]:shell 名称: _command_names -e' \
+  '-S[将会话命名为 <pid>.sockname 而非 <pid>.<tty>.<host>]:会话名:->any-sessions' \
+  "-t[设置标题（窗口名）]:标题" \
+  '-T[使用指定 term 作为窗口的 $TERM（而非 "screen"）]:终端类型:_terminals' \
+  '-U[告诉 screen 使用 UTF-8 编码]' \
+  '(- *)-v[打印 screen 版本]' \
+  '(- *)-wipe[什么也不做，清理 SockDir]: :->any-sessions' \
+  '-x[挂载到未分离的 screen（多显示模式）]: :->attached-sessions' \
+  '-Dx: :->any-sessions' \
+  '-dx: :->any-sessions' \
+  '-X[在指定会话中执行 screen 命令]:screen 命令:(${scr_cmds[@]})' \
+  '*:: :->normal' && ret=0
+
+if [[ -n $state ]]; then
+  case $state in
+    normal)
+      if (( CURRENT == 1 )) && [[ $PREFIX == /dev/* ]]; then
+	  _path_files -g '*(%)'
+      elif (( CURRENT == 2 )) && [[ ${words[1]} == /dev/* ]]; then
+	  _baudrates
+      elif (( CURRENT > 2 )) && [[ ${words[1]} == /dev/* ]]; then
+	  _message "no more parameters"
+      else
+	  _normal
+      fi
+    ;;
+    attached-sessions)
+      sessions=(
+        ${${${(M)${(f)"$(_call_program screen-sessions $words[1] \
+            -ls 2>/dev/null)"}:#*[Aa]ttached*}##[[:blank:]]}%%[[:blank:]]*}
+      )
+    ;;
+    detached-sessions)
+      sessions=(
+        ${${${(M)${(f)"$(_call_program screen-sessions $words[1] \
+            -ls 2>/dev/null)"}:#*[Dd]etached*}##[[:blank:]]}%%[[:blank:]]*}
+      )
+    ;;
+    any-sessions)
+      sessions=(
+        ${${${(M)${(f)"$(_call_program screen-sessions $words[1] \
+	    -ls 2>/dev/null)"}:#*tached*}##[[:blank:]]}%%[[:blank:]]*}
+      )
+  esac
+
+  # check if initial PID is necessary to make sessions unambiguous
+  if [[ ${#${(u)sessions#*.}} -lt $#sessions ]]; then
+    _wanted screen-sessions expl "${state%-*} screen process" \
+	compadd -a sessions
+  else
+    _wanted screen-sessions expl "${state%-*} screen process" \
+	compadd ${sessions#*.}
+  fi
+fi && ret=0
+
+return ret
