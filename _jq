@@ -1,0 +1,37 @@
+#compdef jq
+
+# last updated for jq-1.5-1-a5b5cbe (debian package 1.5+dfsg-1.3)
+
+# Note:
+#   Arguments to options must be in separate words.  Thus,
+#     {-f,--from-file}'[foo]'
+#   is correct like that, without the usual {-f+,--from-file=} suffixes.
+#
+_arguments -S -s : \
+  "--version[输出 jq 版本号]" \
+  "--seq[输入输出使用 application/json-seq ASCII RS/LF 方案]" \
+  "--stream[流式解析输入（改变输出方式）]" \
+  '(-s --slurp)'{-s,--slurp}'[将输入 JSON 对象合并为数组后再过滤]' \
+  '(-R --raw-input)'{-R,--raw-input}'[将每行输入视为 JSON 字符串]' \
+  '(-n --null-input)'{-n,--null-input}'[忽略输入]' \
+  '(-c --compact-output)'{-c,--compact-output}"[不美化输出]" \
+  '(--indent)--tab[使用 TAB 缩进输出]' \
+  '(--tab)--indent[使用指定空格数缩进输出]:空格数:(2 4 8)' \
+  '(-C --color-output -M --monochrome-output)'{-C,--color-output}'[彩色输出]' \
+  '(-C --color-output -M --monochrome-output)'{-M,--monochrome-output}'[无颜色输出]' \
+  '(-a --ascii-output)'{-a,--ascii-output}'[输出限制为 ASCII]' \
+  '--unbuffered[每个 JSON 对象后刷新输出]' \
+  '(-S --sort-keys)'{-S,--sort-keys}'[按排序顺序输出对象键]' \
+  '(-r --raw-output -j --join-output)'{-r,--raw-output}"[字符串值不经 JSON 转义]" \
+  '(-r --raw-output -j --join-output)'{-j,--join-output}"[类似 -r，但输出间不插入换行]" \
+  '(-f --from-file)'{-f,--from-file}'[从文件读取过滤器]:_files' \
+  '-L+[将目录添加到模块搜索路径前]:_directories' \
+  '(-e --exit-status)'{-e,--exit-status}'[将 "false" 和 "null" 结果通过退出码报告]' \
+  '*--arg[预设变量为字符串值]:变量名: :值（字符串）' \
+  '*--argjson[预设变量为 JSON 对象]:变量名: :值（JSON）' \
+  '*--slurpfile[从文件读取 JSON 文本并预设变量为数组]:变量名: :文件:_files' \
+  '*--rawfile[从文件读取内容并预设变量]:变量名: :文件:_files' \
+  '--args[剩余参数为字符串参数，非文件]' \
+  '--jsonargs[剩余参数为 JSON 参数，非文件]' \
+  "1: :_guard '|[^-]' filter" \
+  "*: :_files"
