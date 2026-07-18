@@ -1,0 +1,103 @@
+#compdef dig
+
+local curcontext="$curcontext" state line expl
+local -a alts args
+[[ -prefix + ]] && args=(
+  '*+'{no,}'tcp[使用 TCP 而非 UDP 查询]'
+  '*+'{no,}'ignore[忽略 UDP 响应中的截断]'
+  '*+domain=[设置搜索域列表为指定域]:domain:_hosts'
+  '*+dscp=[设置查询的 DSCP 码点]:码点 (0..63)'
+  '*+'{no,}'search[使用 resolv.conf 中的搜索列表]'
+  '*+'{no,}'showsearch[在域搜索中显示中间结果]'
+  '*+split[将 hex/base64 字段拆分为块]:宽度（字符）[56]'
+  '*+'{no,}'aaonly[在查询中设置 aa 标志]'
+  '*+'{no,}'additional[打印响应的附加部分]'
+  '*+'{no,}'adflag[在查询中设置 AD（认证数据）位]'
+  '*+'{no,}'badcookie[重试 BADCOOKIE 响应]'
+  '*+'{no,}'cdflag[在查询中设置 CD（禁用检查）位]'
+  '*+'{no,}'class[在打印记录时显示 CLASS]'
+  '*+'{no,}'cookie[向请求添加 COOKIE 选项]'
+  '*+'{no,}'crypto[显示 DNSSEC 记录中的加密字段]'
+  '*+edns=[指定查询的 EDNS 版本]:版本 (0-255)'
+  '*+noedns[清除要发送的 EDNS 版本]'
+  '*+ednsflags=[设置 EDNS 标志位]:标志'
+  '*+'{no,}'ednsnegotiation[设置 EDNS 版本协商]'
+  '*+ednsopt=[指定 EDNS 选项]:码点'
+  '*+noedns[清除要发送的 EDNS 选项]'
+  '*+'{no,}'expandaaaa[展开 AAAA 记录]'
+  '*+'{no,}'expire[发送 EDNS Expire 选项]'
+  '*+'{no,}'header-only[发送不含问题部分的查询]'
+  '*+'{no,}'idnin[设置输入时 IDN 域名的处理]'
+  '*+'{no,}'idnout[设置输出时 IDN punycode 的转换]'
+  '*+'{no,}'keepalive[请求 EDNS TCP 保活]'
+  '*+'{no,}'keepopen[在查询间保持 TCP 套接字打开]'
+  '*+'{no,}'mapped[允许 IPv4 映射到 IPv6 地址]'
+  '*+'{no,}'recurse[在查询中设置 RD（期望递归）位]'
+  '*+'{no,}'nssearch[搜索所有权威名称服务器]'
+  '*+opcode[设置请求的 DNS 消息 opcode]:opcode [QUERY]:(QUERY IQUERY STATUS NOTIFY UPDATE)'
+  '*+noopcode[清除 DNS 消息 opcode]'
+  '*+'{no,}'trace[从根向下追踪委托链]'
+  '*+'{no,}'cmd[输出中打印初始注释]'
+  '*+'{no,}'short[打印简洁输出]'
+  '*+'{no,}'identify[打印响应者的 IP 和端口]'
+  '*+'{no,}'comments[输出中打印注释行]'
+  '*+'{no,}'stats[打印统计信息]'
+  '*+padding[设置填充块大小]:大小 [0]'
+  '*+'{no,}'qr[打印已发送的查询]'
+  '*+'{no,}'question[打印查询的问题部分]'
+  '*+'{no,}'raflag[在查询中设置 RA 标志]'
+  '*+'{no,}'answer[打印响应的答案部分]'
+  '*+'{no,}'authority[打印响应的权威部分]'
+  '*+'{no,}'all[设置所有打印/显示标志]'
+  '*+'{no,}'subnet[发送 EDNS 客户端子网选项]:地址/前缀长度'
+  '*+'{no,}'tcflag[在查询中设置 TC 标志]'
+  '*+timeout=[设置查询超时]:超时（秒）[5]'
+  '*+tries=[指定 UDP 查询尝试次数]:尝试次数'
+  '*+retry=[指定 UDP 查询重试次数]:重试次数'
+  '*+'{no,}'rrcomments[设置每条记录的注释显示]'
+  '*+ndots=[指定视为绝对域名的点号数量]:点数'
+  '*+bufsize=[指定 UDP 缓冲区大小]:大小（字节）'
+  '*+'{no,}'multiline[详细多行输出]'
+  '*+'{no,}'onesoa[AXFR 只打印一条 SOA 记录]'
+  '*+'{no,}"fail[SERVFAIL 时不再尝试下一台服务器]"
+  '*+'{no,}'besteffort[尝试解析格式错误的消息]'
+  '*+'{no,}'dnssec[请求 DNSSEC 记录]'
+  '*+'{no,}'nsid[在查询中包含 EDNS 域名服务器 ID 请求]'
+  '*+'{no,}'ttlid[打印记录时显示 TTL]'
+  '*+'{no,}'ttlunits[以人类可读单位显示 TTL]'
+  '*+'{no,}'unexpected[打印来自意外来源的回复]'
+  '*+'{no,}'unknownformat[以 RFC 3597 "unknown" 格式打印 RDATA]'
+  '*+'{no,}'yaml[以 YAML 格式显示结果]'
+  '*+'{no,}'zflag[在查询中设置 Z 标志]'
+)
+_arguments -s -C $args \
+  '(- *)-h[显示帮助信息]' \
+  '(- *)-v[显示版本信息]' \
+  '*-c+[指定类别]:class:compadd -M "m\:{a-z}={A-Z}" - IN CS CH HS' \
+  '*-b+[指定源 IP]:IP' \
+  '*-f+[批处理模式，从文件读取参数]:file:_files' \
+  '*-m[启用内存使用调试]' \
+  '*-p+[指定端口号]:port:_ports' \
+  '*-4[仅使用 IPv4]' \
+  '*-6[仅使用 IPv6]' \
+  '*-t+[指定类型]:type:_dns_types' \
+  '*-q+[指定要查询的主机名]:host:_hosts' \
+  "-r[不读取 ~/.digrc]" \
+  '*-x+[反向查询]:IP 地址' \
+  '*-k+[指定 TSIG 密钥文件]:file:_files' \
+  '*-y+[指定 TSIG 密钥]:hmac\:name\:key' \
+  '*: :->args' && ret=0
+
+if [[ -n $state ]]; then
+  if compset -P @; then
+    _wanted hosts expl 'DNS server' _hosts && ret=0;
+  else
+    case $#line in
+      <3->) alts+=( 'classes:query class:compadd -M "m:{a-z}={A-Z}" - IN CS CH HS' ) ;&
+      2) alts+=( 'types:query type:_dns_types' ) ;;
+    esac
+    _alternative 'hosts:host:_hosts' $alts && ret=0
+  fi
+fi
+
+return ret
