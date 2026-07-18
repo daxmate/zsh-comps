@@ -1,0 +1,29 @@
+#compdef join gjoin
+
+local args variant
+args=(
+  '*-a+[从指定文件打印不可配对的行]:文件编号:(1 2)'
+  '-e+[用指定字符串替换缺失的输入字段]:替换字符串'
+  "(-1 -2)-j+[两个文件都使用指定字段连接]:字段编号"
+  '-o+[使用指定输出格式]:格式字符串'
+  '-t+[使用指定字符作为字段分隔符]:分隔符'
+  '*-v+[类似 -a，但抑制已连接输出的行]:文件编号:(1 2)'
+  '(-j -1 -j1)'{-j1,-1+}'[连接第一个文件的指定字段]:字段编号'
+  '(-j -2 -j2)'{-j2,-2+}'[连接第二个文件的指定字段]:字段编号'
+  '1:文件:_files' '2:文件:_files'
+)
+_pick_variant -r variant gnu=GNU $OSTYPE --version
+case $variant in
+  gnu)
+    args+=(
+      '(-i --ignore-case)'{-i,--ignore-case}'[比较字段时忽略大小写差异]'
+      '(-)--help[显示帮助信息]'
+      '(-)--version[输出版本信息]'
+      '(--check-order --nocheck-order)'{--check-order,--nocheck-order}
+      '--header[将每个文件的首行视为字段标题]'
+      '(-z --zero-terminated)'{-z,--zero-terminated}'[以 NUL 而非换行结束行]'
+    )
+  ;;
+esac
+
+_arguments -s $args
