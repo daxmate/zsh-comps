@@ -1,0 +1,59 @@
+#compdef base64 gbase64 base32 gbase32
+
+# Note: This does NOT cover `uuencode`/`uudecode`, which on some BSD systems
+# have the aliases `b64encode`/`b64decode` — those are sufficiently different
+# that they belong in another function. It DOES cover GNU's `base32`, since it
+# is essentially the same program as their `base64`.
+
+local variant type=base${service//[^2346]/}
+
+_pick_variant -r variant \
+  gnu='Free Soft' fourmilab=fourmi darwin=-D unix --version
+
+case $variant in
+  gnu)
+    _arguments -s -S : \
+      '(: -)--help[显示帮助信息]' \
+      '(: -)--version[显示版本信息]' \
+      + dec \
+      '(enc -d --decode)'{-d,--decode}"[解码 $type 输入]" \
+      '(enc -i --ignore-garbage)'{-i,--ignore-garbage}'[解码时忽略无关字符]' \
+      + '(enc)' \
+      '(dec)'{-w+,--wrap=}'[指定编码换行列数]:列数' \
+      + in \
+      '1:输入文件:_files'
+    return
+    ;;
+  darwin)
+    _arguments -s -S : \
+      '(: -)'{-h,--help}'[显示帮助信息]' \
+      + '(dec)' \
+      '(enc)'{-D,--decode}"[解码 $type 输入]" \
+      + '(enc)' \
+      '(dec)'{-b+,--break=}'[指定编码换行列数]:列数' \
+      + '(out)' \
+      {-o+,--output=}'[指定输出文件]:输出文件:_files' \
+      + '(in)' \
+      {-i+,--input=}'[指定输入文件]:输入文件:_files' \
+      '1:输入文件:_files'
+    return
+    ;;
+  fourmilab)
+    _arguments -s -S : \
+      '(: -)--copyright[显示版权信息]' \
+      '(: -)'{-u,--help}'[显示帮助信息]' \
+      '(: -)--version[显示版本信息]' \
+      + dec \
+      '(enc -d --decode)'{-d,--decode}"[解码 $type 输入]" \
+      '(enc -n --noerrcheck)'{-n,--noerrcheck}'[解码时忽略错误]' \
+      + '(enc)' \
+      '(dec)'{-e,--encode}"[编码到 $type]" \
+      + io \
+      '1:输入文件:_files' \
+      '2:输出文件:_files'
+    return
+    ;;
+esac
+
+# A few other implementations exist, though they are rarely encountered
+_default
