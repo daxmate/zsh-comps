@@ -1,0 +1,160 @@
+#compdef nslookup
+
+# This may also be called from the `nslookup' wrapper function during
+# `vared'iting a line.
+# In this case this function tries to call other user-defined functions
+# for certain contexts before adding completion. If these functions are
+# defined, they are called and the default completions from this function
+# are not added. The functions called are named `_nslookup_<state>', with
+# `<state>' being any of:
+#
+#  command
+#    When completing the first word on the line.
+#  redirect
+#    When completing after a redirection operator.
+#
+# Also, when completing after the first word, if the first word contains
+# only lower case letters, we try to call the function `_nslookup_<word>',
+# where `<word>' is the first word from the line. If the first word contains
+# other characters than lower case letters, we try to call the function
+# `_nslookup_host'.
+
+local state curcontext="$curcontext" expl ret=1 setopts
+typeset -A opt_args
+
+setopts=(
+  'all[打印当前值]' \
+  '(nodebug)debug[简单调试信息]' \
+  '(debug)nodebug[无简单调试信息]' \
+  '(nod2)d2[额外调试信息]' \
+  '(d2)nod2[无额外调试信息]' \
+  '(nodefname)defname[附加默认域名]' \
+  '(defname)nodefname[不附加默认域名]' \
+  '(nosearch)search[附加搜索列表]' \
+  '(search)nosearch[不附加搜索列表]' \
+  '(norecurse)recurse[名称服务器可查询其他服务器]' \
+  '(recurse)norecurse[名称服务器不可查询其他服务器]' \
+  '(novc)vc[使用虚拟电路]' \
+  '(vc)novc[不使用虚拟电路]' \
+  '(noignoretc)ignoretc[忽略数据包截断错误]' \
+  '(ignoretc)noignoretc[不忽略数据包截断错误]' \
+  'class[更改查询类别]:查询类别:((in\:Internet 类别 chaos\:CHAOS 类别 hesiod\:MIT Athena Hesiod 类别 any\:通配符（上述任意一种）))'
+  "domain[更改默认域]:默认域:_domains"
+  'srchlist[更改默认域和搜索列表]: :->srchlist'
+  'port[更改名称服务器端口]:名称服务器端口:'
+  {query,}type'[更改查询的信息类型]:查询信息类型:((a\:互联网地址 cname\:别名的规范名称 hinfo\:CPU 和操作系统类型 minfo\:邮箱或邮件列表信息 mx\:邮件交换器 ns\:区域名称服务器 ptr\:主机名或其他信息 soa\:域的权威记录信息 txt\:文本信息 uinfo\:用户信息 wks\:支持的知名服务))'
+  'retry[更改重试次数]:重试次数:'
+  'root[更改根服务器名称]:根服务器:_hosts'
+  'timeout[更改初始超时时间]:超时（秒）:'
+)
+
+if [[ -n "$compcontext" ]]; then
+  if [[ CURRENT -eq 1 ]]; then
+
+    _call_function ret _nslookup_command && return ret
+
+    _alternative \
+        'commands:命令:(server lserver root finger ls view help set exit)' \
+	'hosts:: _hosts' && ret=0
+    return ret
+  elif [[ "$compstate[context]" = redirect ]]; then
+
+    _call_function ret _nslookup_redirect && return ret
+
+    _tags -C redirection files || return 1
+
+    if [[ "$words[1]" != (finger|ls) ]]; then
+      _message "redirection not allowed for command \`$words[1]'"
+      return 1
+    elif [[ "$compstate[redirect]" = '>' ]]; then
+      _description files expl 'write to file'
+    elif [[ "$compstate[redirect]" = '>>' ]]; then
+      _description files expl 'append to file'
+    else
+      _message "unknown redirection operator \`$compstate[redirect]'"
+      return 1
+    fi
+
+    _files "$expl[@]"
+    return
+  fi
+
+  if [[ "$words[1]" = [a-z]## ]]; then
+    _call_function ret _nslookup_$words[1] && return ret
+  else
+    _call_function ret _nslookup_host && return ret
+  fi
+
+  case "$words[1]" in
+  (|l)server)
+    _wanted hosts expl 'new default server' _hosts
+    return
+    ;;
+  root|exit|help|\?)
+    return 1
+    ;;
+  finger)
+    _message -e names 'finger name'
+    return 1
+    ;;
+  ls)
+    _arguments -s \
+      '-t[指定类型的记录]:查询信息类型:((a\:互联网地址 cname\:别名的规范名称 hinfo\:CPU 和操作系统类型 minfo\:邮箱或邮件列表信息 mx\:邮件交换器 ns\:区域名称服务器 ptr\:主机名或其他信息 soa\:域的权威记录信息 txt\:文本信息 uinfo\:用户信息 wks\:支持的知名服务))' \
+     '-a[域中的主机别名]' \
+     '-d[所有记录]' \
+     '-h[CPU 和操作系统信息]' \
+     '-s[知名服务]' \
+     ":域:_domains"
+    return
+    ;;
+  view)
+    _description files expl 'view file'
+    _files "$expl[@]"
+    return
+    ;;
+  set)
+    typeset -A val_args
+
+    _values 'state information' "$setopts[@]" && ret=0
+
+    [[ -z "$state" ]] && return ret
+    ;;
+  *)
+    _wanted hosts expl 'server' _hosts
+    return
+  esac
+fi
+
+# Now comes the command line option completion part.
+
+if [[ -z "$state" ]]; then
+  local line
+  typeset -A opt_args
+
+  _arguments -C \
+    "-${(@)^${(@M)setopts:#*\]:*}/\[/=[}" \
+    "-${(@)^setopts:#(\(|*\]:)*}" \
+    "${(@)^${(@)${(@M)setopts:#\(*}/\)/)-}/\(/(-}" \
+    ':host to find:_hosts' \
+    ':server:_hosts' && ret=0
+fi
+
+# This is completion after `srchlist' for both types.
+
+if [[ -n "$state" ]]; then
+  _tags domains || return 1
+
+  if compset -P '*/'; then
+    _description domains expl 'search list entry'
+  else
+    _description domains expl 'default domain name and first search list entry'
+  fi
+  if [[ -n "$_vals_cache_multi" ]]; then
+    _domains "$expl[@]" -qS/ -r "/\\- \\t\\n$_vals_cache_multi"
+  else
+    _domains "$expl[@]" -qS/
+  fi
+  return
+fi
+
+return ret
