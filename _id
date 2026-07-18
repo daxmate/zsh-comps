@@ -1,0 +1,56 @@
+#compdef id gid
+
+local args choices
+
+if _pick_variant gnu=GNU $OSTYPE --version; then
+  choices='--help --version -Z --context -g --group -G --groups -u --user'
+  _arguments \
+    "($choices)"{-Z,--context}'[仅打印安全上下文]' \
+    "($choices)"{-g,--group}'[仅打印 EGID]' \
+    "($choices -r --real)"{-G,--groups}'[打印所有 GID]' \
+    '(-n --name --help --version)'{-n,--name}'[显示名称而非数字]' \
+    '(-r --real -g --groups --help --version)'{-r,--real}'[显示真实 ID 而非有效 ID]' \
+    "($choices)"{-u,--user}'[仅打印 EUID]' \
+    '(-z --zero --help --version)'{-z,--zero}'[以 NUL 字符分隔条目]' \
+    '(- :)--help[显示帮助信息]' \
+    '(- :)--version[显示版本]' \
+    ':用户:_users'
+else
+  choices="-A -a -c -G -g -M -p -P -R -u"
+  args=(
+    "($choices)-g[仅打印 EGID]"
+    "($choices -r)-G[打印所有 GID]"
+    "($choices)-u[仅打印 EUID]"
+    '(-A -c -M -P)-n[显示名称而非数字]'
+    '(-A -c -M -P)-r[显示真实 ID 而非有效 ID]'
+  )
+  case $OSTYPE in
+    solaris*)
+      args+=(
+        '(-g -G -u -n -r)-a[显示用户名、用户 ID 和所有组]'
+	'(-g -G -u -n -r)-p[显示项目成员身份]'
+      )
+    ;;
+    openbsd*)
+      args+=(
+        '(-)-c[显示登录类别]'
+        '(-)-p[使输出人类可读]'
+        '(-)-R[显示当前进程的路由表]'
+      )
+    ;;
+    darwin*|dragonfly*|freebsd*)
+      args+=( '(-)-P[以密码文件条目格式打印 ID]' )
+    ;|
+    darwin*|freebsd*)
+      args+=(
+	'(-)-A[打印进程审计用户 ID]'
+	'(-)-M[打印当前进程的 MAC 标签]'
+      )
+    ;|
+    freebsd*) args+=( '(-)-c[打印当前登录类别]' ) ;|
+    darwin*|dragonfly*|freebsd*|netbsd*|openbsd*)
+      args+=( '(-)-p[人类可读输出]' )
+    ;;
+  esac
+  _arguments -s $args ':用户:_users'
+fi
