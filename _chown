@@ -1,0 +1,117 @@
+#compdef chown chgrp gchown=chown gchgrp=chgrp zf_chown=chown zf_chgrp=chgrp
+
+local curcontext="$curcontext" state line expl ret=1 variant
+local suf usr grp req deref pattern arg args aopts=( -A '-*' )
+
+_pick_variant -r variant -b zsh gnu=Free\ Soft $OSTYPE --version
+case "$variant" in
+  gnu)
+    aopts=()
+    args=(
+      '(-c --changes -v --verbose)'{-c,--changes}'[报告所做的每一项更改]'
+      '(-c --changes -v --verbose)'{-v,--verbose}'[输出每个处理文件的信息]'
+      '(-h --no-dereference)--dereference[解引用符号链接（跟随符号链接）]'
+      '(-h --no-dereference --dereference)'{-h,--no-dereference}'[对符号链接本身进行操作]'
+      '(-f --silent --quiet)'{-f,--silent,--quiet}"[不报告错误]"
+      '--preserve-root[禁止对 / 进行递归操作]'
+      '--reference=[复制指定文件的所有权]:file:_files'
+      '(-R --recursive)'{-R,--recursive}'[递归更改文件和目录]'
+      '(-H -L -P)-L[跟随所有符号链接]'
+      '(-H -L -P)-H[跟随命令行上的符号链接]'
+      '(-H -L -P)-P[不跟随符号链接（默认）]'
+      '(- : *)--help[显示帮助信息]'
+      '(- : *)--version[显示版本信息]'
+    )
+    [[ $service = chown ]] &&
+        args+=( '--from=[仅更改当前所有者/组的文件]: :->owner' )
+    ;;
+  *)
+    args=(
+      '-h[对符号链接本身进行操作]'
+      '-R[递归更改文件和目录]'
+    )
+    ;|
+  zsh)
+    args+=(
+      '-s[启用偏执模式]'
+    )
+    ;;
+  *)
+    args+=(
+      '(-H -L -P)-L[跟随所有符号链接]'
+      '(-H -L -P)-H[跟随命令行上的符号链接]'
+      '(-H -L -P)-P[不跟随符号链接（默认）]'
+    )
+    ;|
+  dragonfly*|freebsd*)
+    args+=(
+      "-x[不跨文件系统遍历]"
+    )
+    ;|
+  darwin*|dragonfly*|freebsd*|netbsd*|solaris*)
+    args+=(
+      "-f[不报告错误]"
+    )
+    ;|
+  darwin*|dragonfly*|freebsd*|netbsd*)
+    args+=(
+       '-v[输出每个处理文件的信息]'
+    )
+    ;|
+  solaris2.<11->)
+    args+=(
+      '-s[所有者和/或组是 Windows SID 字符串]'
+    )
+    ;;
+esac
+
+(( $+words[(r)--reference*] )) || args+=( '(--reference)1: :->owner' )
+_arguments -C -s -S $aopts "$args[@]" '*: :->files' && ret=0
+
+case $state in
+  owner)
+    if [[ $service = chgrp ]] || compset -P '*[:.]'; then
+      if (( EGID && $+commands[groups] && ! $+_comp_priv_prefix )); then  # except for sudo
+       _wanted groups expl 'group' compadd -- $(groups) && return 0
+      fi
+      _groups && ret=0
+    else
+      if compset -S '[.:]*'; then
+        suf=()
+      elif [[ $OSTYPE = irix* ]]; then
+	suf=( -qS '.' )
+      else
+	suf=( -qS ':' )
+      fi
+      _users "$suf[@]" && ret=0
+    fi
+  ;;
+  files)
+    (( $+opt_args[-h] || $+opt_args[--no-dereference] )) || deref="-"
+    if (( $+opt_args[--reference] )); then
+      zmodload -F zsh/stat b:zstat 2>/dev/null
+      usr=$(zstat +uid $opt_args[--reference])
+      grp=$(zstat +gid $opt_args[--reference])
+      _wanted files expl file _files -g "*($deref^u$usr,$deref^g$grp)" && ret=0
+      return ret
+    fi
+    if [[ $service = chgrp ]]; then
+      grp=${line[1]}
+    else
+      usr=${line[1]%%[.:]*}
+      usr=${${(M)usr:#[0-9]#}:-${userdirs[$usr]:+.$usr.}}
+      grp=${${(M)line[1]%%[.:]*}#?}
+    fi
+    [[ -n $grp ]] && grp="${${(M)grp:#[0-9]#}:-.$grp.}"
+    req=( ${usr:+\^u$usr} ${grp:+\^g$grp} )
+    (( EUID )) && req=( u$EUID$^req )
+    req=( $deref$^req )
+    req="*(${(j:,:)req})"
+
+    ( : $~req ) 2> /dev/null || req='*'
+
+    _wanted files expl file _files -g "$req" && ret=0
+  ;;
+esac
+
+return ret

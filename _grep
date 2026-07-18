@@ -1,0 +1,142 @@
+#compdef grep egrep fgrep bsdgrep rgrep zgrep zegrep zfgrep ggrep gegrep gfgrep gzgrep gzegrep gzfgrep bzgrep bzegrep bzfgrep -value-,GREP_OPTIONS,-default-
+
+local command variant
+local -a arguments matchers
+
+if [[ $service = *GREP_OPT* ]]; then
+  compset -q
+  words=( fake "$words[@]" )
+  (( CURRENT++ ))
+  command=grep
+else
+  arguments=( '(-e --regexp -f --file)1: :_guard "^-*" pattern' )
+  if [[ $service = z* ]]; then
+    arguments+=( '*: :_files -g "*.gz(-.)"' )
+  elif [[ $service = bz* ]]; then
+    arguments+=( '*: :_files -g "*.bz2(-.)"' )
+  else
+    arguments+=( '*: :_files' )
+  fi
+  command="$words[1]"
+fi
+
+if [[ $service != (|g|z|gz|bz)[ef]grep ]]; then
+  matchers='(--extended-regexp --fixed-strings --basic-regexp --perl-regexp -E -F -G -P)'
+  arguments+=(
+    $matchers{--extended-regexp,-E}'[使用扩展正则表达式]'
+    $matchers{--fixed-strings,-F}'[使用文本字符串]'
+    $matchers{--basic-regexp,-G}'[使用基本正则表达式]'
+  )
+fi
+[[ $service = rgrep ]] || arguments+=(
+  '(--directories -d -r --recursive)'{--directories=,-d+}'[指定目录处理方式]:action on directory:(read skip recurse)'
+  '(--recursive -r --dereference-recursive -R -d --directories)'{--recursive,-r}'[递归子目录]'
+)
+
+arguments+=(
+  '(--after-context -A)'{--after-context=,-A+}'[指定尾随上下文的行数]:lines'
+  '(--text -a --binary-files -I)'{--text,-a}'[将二进制文件视为文本处理]'
+  '(--before-context -B)'{--before-context=,-B+}'[指定前置上下文的行数]:lines'
+  '(--context -C)'{--context=,-C-}'[指定上下文的行数]:lines'
+  '(--color --colour)--'{color,colour}'=-[区分匹配字符串]::when:(always never auto)'
+  '(--byte-offset -b -c)'{--byte-offset,-b}'[在输出行前打印字节偏移量]'
+  '(--text -a -I)--binary-files=[指定二进制文件的处理类型]:file type:(binary without-match text)'
+  '(--count -c --byte-offset -b --line-number -n)'{--count,-c}'[仅打印匹配行的计数]'
+  '(--devices -D)'{--devices=,-D+}'[指定设备、FIFO和套接字的处理方式]:action on device:(read skip)'
+  '(1)*'{--regexp=,-e+}'[指定匹配模式]:pattern'
+  '(1)*'{--file=,-f+}'[指定模式文件]:file:_files'
+  '(--with-filename -H --no-filename -h)'{--with-filename,-H}'[每个匹配前打印文件名]'
+  '(--no-filename -h --with-filename -H --null -Z --files-without-match -L --file-with-matches -l)'{--no-filename,-h}'[不打印文件名]'
+  '--label=[提供标准输入使用的文件名标签]:filename label for stdin'
+  '--line-buffered[每行输出后刷新缓冲区]'
+  '(--text -a --binary-files)-I[将二进制文件视为不匹配]'
+  '(--ignore-case -i -y)'{--ignore-case,-i,-y}'[忽略大小写]'
+  '(--files-without-match -L --file-with-matches -l --no-filename -h -o --only-matching)'{--files-without-match,-L}"[仅输出不匹配的文件名]"
+  '(--files-with-matches -l --files-without-match -L --no-filename -h -o --only-matching)'{--files-with-matches,-l}"[仅输出匹配的文件名]"
+  '(--max-count -m)'{--max-count=,-m+}'[每个文件匹配指定次数后停止]:max number of matches'
+  '(--line-number -n -c)'{--line-number,-n}'[在输出前加行号]'
+  '(--only-matching -o --files-with-matches -l --files-without-match -L)'{--only-matching,-o}'[仅显示行中匹配的部分]'
+  '(--quiet --silent -q)'{--quiet,--silent,-q}'[禁止正常输出]'
+  '*--include=[检查匹配指定模式的文件]:file pattern'
+  '*--exclude=[跳过匹配指定模式的文件]:file pattern'
+  '*--exclude-dir=[跳过匹配指定模式的目录]:directory pattern'
+  '(--no-messages -s)'{--no-messages,-s}'[禁止显示有关不可读或不存在的文件的消息]'
+  '(--version -V)'{--version,-V}'[显示版本信息]'
+  '(--invert-match -v)'{--invert-match,-v}'[选择不匹配的行]'
+  '(--word-regexp -w --line-regexp -x)'{--word-regexp,-w}'[强制模式仅匹配完整单词]'
+  '(--line-regexp -x --word-regexp -w)'{--line-regexp,-x}'[强制模式仅匹配整行]'
+  '(-)--help[显示帮助信息]'
+)
+
+_pick_variant -r variant -c "$command" gnu=gnu gpl2=2.5.1 unix --version
+case $variant:$OSTYPE in
+  (gnu:*|gpl2:freebsd*))
+    [[ $service != (|g|z|gz|bz)[ef]grep ]] && arguments+=(
+      $matchers{--perl-regexp,-P}'[使用Perl正则表达式]'
+    )
+  ;|
+  *:openbsd*|unix:freebsd*)
+    arguments=( # argument to context is optional and after = only
+      ${arguments:#((#s)|*\))-(C|-context)*}
+      '(--context -C)'{--context=-,-C-}'[指定上下文的行数]::lines'
+    )
+  ;|
+  (gnu:*|gpl2:(free|net)bsd*))
+    arguments+=(
+      '*--exclude-from=[跳过与指定文件中模式匹配的文件]:file:_files'
+      '(-z --null-data)'{-z,--null-data}'[输入数据以空字节分隔，非换行符]'
+    )
+  ;|
+  gpl2:(freebsd|darwin)*)
+    arguments+=(
+      '(--null --no-filename -h)--null[每个文件名后打印空字节]'
+      '(-Z --decompress -J --bz2decompress)'{-J,--bz2decompress}"[搜索前先解压bzip2压缩的输入]"
+      '(-Z --decompress -J --bz2decompress)'{-Z,--decompress}"[搜索前先解压gzip压缩的输入]"
+    )
+  ;|
+  (gpl2:darwin*|unix:freebsd*))
+    arguments+=(
+      '(-p -S)-O[递归命令行上的符号链接]'
+      "!(-O -S)-p[不递归符号链接]"
+      '(-O -p)-S[递归所有符号链接]'
+      '*--include-dir=[仅搜索匹配指定模式的目录]:directory pattern'
+    )
+  ;|
+  (gnu:*|gpl2:netbsd*|unix:freebsd*))
+    arguments+=(
+      '(--null -Z --no-filename -h)'{--null,-Z}'[每个文件名后打印空字节]'
+    )
+  ;|
+  gnu:*)
+    arguments+=(
+      '(--no-group-separator)--group-separator=[指定上下文块之间的分隔符]:separator [--]'
+      "(--group-separator)--no-group-separator[不分隔上下文块]"
+      '(-T --initial-tab)'{-T,--initial-tab}'[使制表符对齐（如果需要）]'
+      '(--recursive -r --dereference-recursive -R -d --directories)'{--dereference-recursive,-R}'[递归子目录，跟随符号链接]'
+    )
+  ;;
+  unix:freebsd*)
+    arguments+=(
+      '!(-U --binary --binary-files)'{-U,--binary}
+      '--mmap[使用 mmap(2) 而非 read(2) 读取输入]'
+    )
+    [[ $service = rgrep ]] || arguments+=(
+      '(--recursive -r -d --directories)-R[递归子目录]'
+    )
+  ;;
+  gpl2:*) arguments=( ${${arguments:#*\)-r}/\)-r/\)-R} ) ;;
+  *:openbsd*)
+    arguments=(
+      ${(M)arguments:#((#s)|*\))--(context|binary-files|line-buffered|label|max-count)*}
+      ${${arguments:#((#s)|*\))(\*|)-[d-]*}/\)-r/\)-R}
+      "-U[搜索二进制文件但不打印它们]"
+      '-Z[行为类似于 zgrep]'
+    )
+  ;;
+  *)
+    # remove long options and GNU specific short opts, this is right for solaris
+    arguments=( ${arguments:#((#s)|*\))(\*|)-[aABCdDfGHILmorVy-]*} )
+  ;;
+esac
+
+_arguments -S -s $arguments[@]

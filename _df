@@ -1,0 +1,111 @@
+#compdef df gdf
+
+local curcontext="$curcontext" state state_descr line args spec ret=1
+local -A opt_args
+
+if _pick_variant gnu=GNU unix --version; then
+  args=(
+    '--total[显示总计]'
+    '(-T --print-type)'{-T,--print-type}'[显示文件系统类型]'
+    '(-a --all)'{-a,--all}'[包含虚拟文件系统]'
+    '--direct[显示文件的统计信息而非挂载点]'
+    '(-l --local)'{-l,--local}'[仅列出本地文件系统]'
+    '*'{-t+,--type=}'[仅列出指定类型的文件系统]:file system type:_file_systems'
+    '*'{-x+,--exclude-type=}'[排除指定类型的文件系统]:file system type:_file_systems'
+    '(--no-sync)--sync[获取使用信息前调用sync]'
+    '(--sync)--no-sync[获取使用信息前不调用sync（默认）]'
+    '--output=-[输出所有或指定字段]::field:_values -s , "field"
+      source fstype itotal iused iavail ipcent size used avail pcent file target'
+    '!-v'
+    '(- : *)--help[显示帮助并退出]'
+    '(- : *)--version[输出版本信息并退出]'
+    '*: :_umountable'
+    - '(format)'
+    {-B+,--block-size=}'[指定块大小]:size (bytes)'
+    '-k[等同于 --block-size=1K]'
+    {-P,--portability}'[使用POSIX输出格式]'
+    {-h,--human-readable}'[以人类可读格式显示大小]'
+    {-H,--si}'[人类可读格式，使用1000进制而非1024]'
+    {-i,--inodes}'[显示inode信息而非块使用量]'
+  )
+elif [[ "$OSTYPE" == (darwin|dragonfly|freebsd|netbsd*|openbsd)* ]]; then
+  args=(
+    '(-b -g -H -h -k -m --si)-h[人类可读输出（二进制）]'
+    '(-b -g -H -h -k -m --si)-k[使用1024字节块]'
+    '(-G -i -P)-P[POSIX兼容输出]'
+    '(-G -i -P)-i[包含inode使用统计（默认）]'
+    '-l[仅显示本地挂载的文件系统]'
+    '-n[使用之前获取的统计信息]'
+    '*: :_umountable'
+  )
+  spec='[仅显示指定类型的文件系统]:file system type:->fslist'
+  case "$OSTYPE" in
+    (darwin*|dragonfly*|freebsd*|netbsd*)
+      args+=(
+        '-a[显示所有挂载点]'
+        '(-b -g -H -h -k -m --si)-g[使用1024^3字节块]'
+        '(-b -g -H -h -k -m --si)-m[使用1024*1024字节块]'
+      )
+      ;|
+    (darwin*|dragonfly*|freebsd*)
+      args+=(
+        '(-b -g -H -h -k -m --si)-b[使用512字节块（默认）]'
+        '(-b -g -H -h -k -m --si)-H[人类可读输出（十进制）]'
+      )
+      ;|
+    (darwin*|freebsd*)
+      args+=(
+        '-c[显示总计]'
+      )
+      ;|
+    (darwin*)
+      args+=(
+        "-T+$spec"
+        "!-t+$spec" # obsolete
+      )
+      ;;
+    (dragonfly*|freebsd*|netbsd*|openbsd*)
+      args+=(
+        "-t+$spec"
+      )
+      ;|
+    (dragonfly*|freebsd*)
+      args+=(
+        '-T[包含文件系统类型]'
+      )
+      ;|
+    (freebsd*)
+      args+=(
+        '--libxo[通过libxo生成输出]'
+        '(-b -g -H -h -k -m --si)--si[人类可读输出（十进制）]'
+        '-,[千位分隔]'
+      )
+      ;;
+    (netbsd*)
+      args+=(
+        '(-G -i -P)-G[显示statvfs中的所有字段]'
+      )
+      ;;
+  esac
+else
+  # POSIX
+  args=(
+    '-k[使用1024字节块]'
+    '-P[POSIX兼容输出]'
+    '-t[在输出中包含总分配空间数据]'
+    '*: :_umountable'
+  )
+fi
+
+_arguments -C -s -S : $args && ret=0
+
+case "$state" in
+  (fslist)
+    [[ ! -prefix *, ]] && ! compset -P 'no' &&
+        _describe -t list-prefixes 'prefix to list' \
+        '( no:exclude\ file\ system\ types\ in\ the\ list )' && ret=0
+    _sequence -s , _file_systems && ret=0
+    ;;
+esac
+
+return ret

@@ -1,0 +1,153 @@
+#compdef less -value-,LESS,-default- -value-,LESSCHARSET,-default-
+
+local curcontext="$curcontext" fgbg=foreground ret=1
+local -a state line expl files basic suf
+
+case $service in
+  *LESSCHARSET*)
+    _wanted charsets expl '字符集' compadd ascii iso8859 latin1 latin9 \
+        dos ebcdic IBM-1047 koi8-r next utf-8
+    return
+  ;;
+  *LESS*)
+    compset -q
+    words=( fake "$words[@]" )
+    (( CURRENT++ ))
+  ;;
+  *)
+    files=( '*:file:_files' )
+  ;;
+esac
+
+if compset -P '+[-0-9]#'; then
+  _describe 'less 命令' '(
+    g:转到指定行
+    F:滚动到末尾并持续读取文件
+    G:转到文件末尾
+    %:转到文件中指定位置
+    p:转到文件中指定位置
+  )'
+  return
+fi
+
+_arguments -S -s -A "[-+]*"  \
+  '(-? --help)'{-\?,--help}'[显示 less 命令摘要]' \
+  '(-a --search-skip-screen)'{-a,--search-skip-screen}'[搜索时跳过当前屏幕]' \
+  '(-A --SEARCH-SKIP-SCREEN)'{-A,--SEARCH-SKIP-SCREEN}"[从目标行之后开始搜索]" \
+  '(-b --buffers)'{-b+,--buffers=}'[指定每个文件使用的缓冲区空间量]:缓冲区空间（千字节）' \
+  '(-B --auto-buffers)'{-B,--auto-buffers}"[不为管道自动分配缓冲区]" \
+  '(-C --CLEAR-SCREEN -c --clear-screen)'{-c,--clear-screen}'[重绘屏幕而非滚动]' \
+  '!(-c --clear-screen)'{-C,--CLEAR-SCREEN} \
+  '(-d --dumb)'{-d,--dumb}'[如果终端功能有限则抑制错误信息]' \
+  '*'{-D+,--color=}'[设置屏幕颜色]: :->colors' \
+  '(-e -E --quit-at-eof --QUIT-AT-EOF)'{-e,--quit-at-eof}'[第二次到达文件末尾时退出]' \
+  '(-e -E --quit-at-eof --QUIT-AT-EOF)'{-E,--QUIT-AT-EOF}'[到达文件末尾时退出]' \
+  '(-f --force)'{-f,--force}'[强制打开非普通文件]' \
+  '(-F --quit-if-one-screen)'{-F,--quit-if-one-screen}'[如果整个文件适合第一屏则退出]' \
+  '(-G --HILITE-SEARCH -g --hilite-search)'{-g,--hilite-search}'[搜索时仅高亮一个匹配项]' \
+  '(-g --hilite-search -G --HILITE-SEARCH)'{-G,--HILITE-SEARCH}'[禁用搜索匹配高亮]' \
+  '(-h --max-back-scroll)'{-h+,--max-back-scroll=}'[指定向后滚动限制]:向后滚动限制（行）' \
+  '(-I --IGNORE-CASE -i --ignore-case)'{-i,--ignore-case}'[在无大写字母的搜索中忽略大小写]' \
+  '(-i --ignore-case -I --IGNORE-CASE)'{-I,--IGNORE-CASE}'[在所有搜索中忽略大小写]' \
+  '(-j --jump-target)'{-j+,--jump-target}'[指定目标行的屏幕位置]:位置（行）' \
+  '(-J --status-column)'{-J,--status-column}'[在左侧显示状态列]' \
+  \*{-k+,--lesskey-file=}'[使用指定的 lesskey 文件]:lesskey 文件:_files' \
+  '(-K --quit-on-intr)'{-K,--quit-on-intr}'[响应 ctrl-c 时退出 less]' \
+  '(-L --no-lessopen)'{-L,--no-lessopen}'[忽略 LESSOPEN 环境变量]' \
+  '(-M --LONG-PROMPT -m --long-prompt)'{-m,--long-prompt}'[详细显示提示]' \
+  '(-m --long-prompt -M --LONG-PROMPT)'{-M,--LONG-PROMPT}'[非常详细地显示提示]' \
+  '(-N --LINE-NUMBERS -n --line-numbers)'{-n,--line-numbers}"[不跟踪行号]" \
+  '(-n --line-numbers -N --LINE-NUMBERS)'{-N,--LINE-NUMBERS}'[显示行号]' \
+  '(* -O --LOG-FILE -o --log-file)'{-o+,--log-file=}'[将输入复制到文件]:文件:_files' \
+  '(* -o --log-file -O --LOG-FILE)'{-O+,--LOG-FILE=}'[将输入复制到文件，必要时覆盖]:文件:_files' \
+  '(-p --pattern)'{-p+,--pattern=}'[从指定模式开始]:模式' \
+  \*{-P+,--prompt=}'[指定提示格式]:提示:->prompts' \
+  '(-Q --QUIET --SILENT -q --quiet --silent)'{-q,--quiet,--silent}'[从不使用响铃]' \
+  '(-q --quiet --silent -Q --QUIET --SILENT)'{-Q,--QUIET,--SILENT}'[限制响铃的使用]' \
+  '(-r -R --raw-control-chars --RAW-CONTROL-CHARS)'{-r,--raw-control-chars}'[显示原始控制字符]' \
+  '(-r -R --raw-control-chars --RAW-CONTROL-CHARS)'{-R,--RAW-CONTROL-CHARS}'[显示控制字符；跟踪屏幕效果]' \
+  '(-s --squeeze-blank-lines)'{-s,--squeeze-blank-lines}'[将连续空行压缩为一行]' \
+  '(-S --chop-long-lines)'{-S,--chop-long-lines}'[截断长行而非折行]' \
+  '(-t --tag)'{-t+,--tag=}'[编辑包含标签的文件]:标签:->tags' \
+  '(-T --tag-file)'{-T+,--tag-file=}'[指定标签文件]:标签文件:_files' \
+  '(-u --underline-special)'{-u,--underline-special}'[将退格和回车字符发送到终端]' \
+  '(-U --UNDERLINE-SPECIAL)'{-U,--UNDERLINE-SPECIAL}'[将退格、制表和回车视为控制字符]' \
+  '(* -)'{-V,--version}'[显示版本信息]' \
+  '(-W --HILITE-UNREAD -w --hilite-unread)'{-w,--hilite-unread}'[向前翻页后高亮第一个未读行]' \
+  '(-w --hilite-unread -W --HILITE-UNREAD)'{-W,--HILITE-UNREAD}'[向前移动后高亮第一个未读行]' \
+  '(-x --tabs)'{-x+,--tabs=}'[设置制表位]:制表位' \
+  '(-X --no-init)'{-X,--no-init}'[禁用终端初始化字符串]' \
+  '--no-keypad[禁用小键盘终端初始化字符串]' \
+  '(-y --max-forw-scroll)'{-y,--max-forw-scroll}'[指定向前滚动限制]' \
+  '(-z --window)'{-z+,--window=}'[指定滚动窗口大小]:行数' \
+  '(-\" --quotes)'{'-\"+',--quotes=}'[更改引用字符]:引用字符' \
+  '(-~ --tilde)'{-~,--tilde}"[不在文件末尾后显示波浪线]" \
+  '(-\# --shift)'{'-\#+',--shift=}"[指定水平滚动时的移动量]:数字" \
+  '--file-size[自动确定输入文件的大小]' \
+  '--incsearch[每输入一个模式字符就搜索文件]' \
+  '--line-num-width=[设置行号字段的宽度]:宽度 [7]' \
+  '--follow-name[输入文件被重命名时 F 命令切换文件]' \
+  '--mouse[启用鼠标输入]' \
+  '--no-histdups[从命令历史中移除重复项]' \
+  '--rscroll=[设置用于标记截断行的字符]:字符 [>]' \
+  '--save-marks[在 less 多次调用间保留标记]' \
+  '--status-col-width=[设置 -J 状态列的宽度]:宽度 [2]' \
+  '--use-backslash[后续选项使用反斜杠作为转义字符]' \
+  '--use-color[启用彩色文本]' \
+  '--wheel-lines=[指定每次鼠标滚轮滚动的行数]:行数' \
+  "$files[@]" && ret=0
+
+
+if [[ -n "$state" ]]; then
+  case $state in
+    colors)
+      if compset -P 1 \?; then
+        [[ $IPREFIX[-1] != [a-z] ]] || compset -P 1 + || _describe '颜色应用' '( +:添加到现有属性 )'
+        suf=( -S '' )
+        compset -P 1 '([-a-zA-Z]|*.)' && fgbg=background && suf=()
+        basic=( B:蓝色 C:青色 G:绿色 K:黑色 M:品红 R:红色 W:白色 Y:黄色 )
+        _describe -t colors "$fgbg 颜色" \
+            "( -:默认 ${(j. .)${(@)basic/:/:亮\ }} ${(Lj. .)basic} )" "$suf[@]"  && ret=0
+      else
+        _describe '文本' '(
+          B:二进制字符
+          C:控制字符
+          E:错误和信息消息
+          M:状态列中的标记字母
+          N:通过 -N 选项启用的行号
+          P:提示
+          R:rscroll 字符
+          S:搜索结果
+          W:通过 -w 选项启用的高亮
+          d:粗体文本
+          k:闪烁文本
+          s:突出显示文本
+          u:下划线文本
+        )' -S '' && ret=0
+      fi
+    ;;
+    prompts)
+      if compset -p 1; then
+	_message -e prompt
+      else
+	_describe '提示' '(
+	  s:简短提示
+	  m:中等提示
+	  M:长提示
+	  h:帮助屏幕提示
+	  \=:\=\ 命令提示
+	  w:等待提示
+	)' && ret=0
+      fi
+    ;;
+    tags)
+      if (( $+LESSGLOBALTAGS )); then
+        _global_tags && ret=0
+      else
+        _ctags_tags && ret=0
+      fi
+    ;;
+  esac
+fi
+
+return ret

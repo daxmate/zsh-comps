@@ -48,16 +48,16 @@ ln -sfn /path/to/zsh-comps/* /path/to/.oh-my-zsh/custom/completions/
 - [ ] `find` — 搜索文件（选项极多）
 - [ ] `tar` — 归档压缩（选项多且容易忘）
 - [ ] `curl` — HTTP 请求（选项极多）
-- [ ] `grep` — 文本搜索
+✅ `grep` — 文本搜索
 - ✅ `cp` — 复制文件
 - ✅ `mv` — 移动/重命名
 - ✅ `rm` — 删除文件
 - ✅ `mkdir` — 创建目录
 - ✅ `ln` — 创建链接
-- [ ] `chmod` — 修改权限
-- [ ] `chown` — 修改所有者
+✅ `chmod` — 修改权限
+✅ `chown` — 修改所有者
 - ✅ `cat` — 连接输出文件
-- [ ] `less` — 分页查看
+✅ `less` — 分页查看
 - ✅ `head` / `tail` — 文件头尾
 - [ ] `file` — 识别文件类型
 - [ ] `locate` — 快速查找文件
@@ -70,9 +70,9 @@ ln -sfn /path/to/zsh-comps/* /path/to/.oh-my-zsh/custom/completions/
 - [ ] `time` — 计时
 - [ ] `zip` / `unzip` — ZIP 压缩
 - [ ] `gzip` / `gunzip` — GZip 压缩
-- [ ] `df` — 磁盘空间
-- [ ] `du` — 目录大小
-- [ ] `date` — 日期格式化
+✅ `df` — 磁盘空间
+✅ `du` — 目录大小
+✅ `date` — 日期格式化
 - ✅ `sort` — 排序
 - ✅ `uniq` — 去重
 - ✅ `wc` — 计数
@@ -80,7 +80,7 @@ ln -sfn /path/to/zsh-comps/* /path/to/.oh-my-zsh/custom/completions/
 - ✅ `tr` — 字符转换
 - [ ] `awk` — 文本处理与模式扫描
 - [ ] `sed` — 流编辑
-- [ ] `which` / `type` / `command` — 命令定位
+✅ `which` / `type` / `command` — 命令定位
 
 ## 维护
 
