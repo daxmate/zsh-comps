@@ -1,0 +1,65 @@
+#compdef xargs gxargs
+
+local args variant
+
+args=(
+  '(-l -L --max-lines -n --max-args -s --max-chars)'{-n+,--max-args=}'[指定每行最大参数个数]:参数个数' \
+  '(-l -L --max-lines -n --max-args -s --max-chars)'{-s+,--max-chars=}'[指定命令行最大字符数]:最大命令行长度'
+  '(-p --verbose -t --interactive)'{-p,--interactive}'[对每个命令提示用户确认]'
+  '(-p --verbose -t --interactive)'{-t,--verbose}'[详细模式 - 回显每个命令]'
+  '(-x --exit)'{-x,--exit}'[超出最大值时退出]'
+)
+
+_pick_variant -r variant gnu=GNU $OSTYPE --version
+
+case $variant in
+  gnu|darwin*|freebsd*|netbsd*|openbsd*)
+    args+=(
+      '(--max-procs -P)'{-P,--max-procs}'[并行模式]:最大进程数' '!-r'
+    )
+  ;|
+  dragonfly*|darwin*|freebsd*|netbsd*|openbsd*)
+    args=( "${(@)args:#(|\(*\))(|\*)--*}"
+      '-0[使用 NUL 字符作为输入分隔符]'
+      '-J[指定参数位置的标记]:标记'
+      '-R[指定 -I 最多替换的参数个数]:替换数'
+    )
+  ;|
+  freebsd*|netbsd*|dragonfly*)
+    args+=(
+      '-S[-I 可使用的替换空间大小]:大小（字节）[255]'
+    )
+  ;;
+  solaris*|gnu)
+    args+=(
+      '(-x -I)'{-i-,--replace}'[指定命令行的替换字符串]::替换字符串'
+      '(-n -L -x)-l-[对每 N 行调用命令一次]:输入行数'
+      '(-E -e --eof)'{-e-,--eof=}'[指定 EOF 标记]:EOF 标记'
+    )
+  ;|
+  solaris*) args=( "${(@)args:#(|\(*\))(|\*)--*}" ) ;|
+  solaris2.<11->)
+    args+=( '-0[使用 NUL 字符作为输入分隔符]' )
+  ;;
+  gnu)
+    args+=(
+      '(-a --arg-file)'{-a+,--arg-file=}'[从指定文件读取输入项]:文件:_files'
+      '(-0 --null -d --delimiter)'{-0,--null}'[使用 NUL 字符作为输入分隔符]'
+      '(-d --delimiter -0 --null)'{-d+,--delimiter=}'[指定输入项的分隔符]:分隔符'
+      '(-l -L --max-lines -n --max-args -s --max-chars)--max-lines=-[对每 N 行调用命令一次]::输入行数'
+      '(-o --open-tty)'{-o,--open-tty}'[执行命令前重新打开 stdin 为 /dev/tty]'
+      '--process-slot-var=[设置子进程中的环境变量为唯一值]:变量:_parameters -g "*export*"'
+      '(-r --no-run-if-empty)'{-r,--no-run-if-empty}"[没有输入时不执行命令]"
+      '(- *)--help[显示帮助信息]'
+      '(- *)--version[显示版本信息]'
+      '--show-limits[显示操作系统对命令行长度的限制]'
+    )
+  ;;
+esac
+
+_arguments -s $args \
+  '-E[指定 EOF 标记]:EOF 标记' \
+  '(-x -i)-I[指定命令行的替换字符串]:替换字符串' \
+  '(-n -l)-L[对每 N 行调用命令一次]:输入行数' \
+  '(-):命令: _command_names -e' \
+  '*::参数: _normal'
