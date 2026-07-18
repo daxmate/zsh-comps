@@ -1,0 +1,20 @@
+#compdef timeout gtimeout
+
+local args
+
+if [[ $service = g* || $OSTYPE != *(freebsd|netbsd|openbsd)* ]]; then
+  # GNU coreutils or DFly as opposed to Free/Net/OpenBSD implementation
+  args=(
+    '(-v --verbose)'{-v,--verbose}'[超时时指示已发送信号]'
+    '(- *)--help[显示用法信息]'
+    '(- *)--version[显示版本信息]'
+  )
+fi
+
+_arguments -S -A "-" $args \
+  '--preserve-status[始终以命令的相同状态退出，即使超时]' \
+  "--foreground[不向命令子进程传播超时]" \
+  '(-s --signal)'{-s,--signal}'[指定超时时发送的信号]:信号:_signals' \
+  '(-k --kill-after)'{-k,--kill-after}'[在首次信号后若命令仍运行则发送 SIGKILL]:时间' \
+  '1: :_numbers -f -u seconds duration :s:秒 m:分钟 h:小时 d:天' \
+  '*:::命令:_normal'
