@@ -1,0 +1,83 @@
+#compdef od god
+
+local curcontext="$curcontext" state state_descr line args ret=1
+local -A opt_args
+
+args=(
+  '(-A --address-radix)'{-A+,--address-radix=}'[文件偏移基数]:基数:((d\:十进制 o\:八进制 x\:十六进制 n\:无))'
+  '(-j --skip-bytes)'{-j+,--skip-bytes=}'[跳过指定字节]:字节数'
+  '(-N --read-bytes)'{-N+,--read-bytes=}'[最多输出指定字节]:字节数'
+  '*'{-t+,--format=}'[指定输出格式]:格式字符串:->format'
+  '(-v --output-duplicates)'{-v,--output-duplicates}'[不使用 * 标记省略行]'
+  '-a[输出命名字符（-t a）]'
+  '-b[输出八进制字节（-t o1）]'
+  '-c[以 C 风格转义输出字符（-t c）]'
+  '-d[输出无符号十进制短整数（-t u2）]'
+  '-f[输出单精度浮点数（-t fF）]'
+  {-h,-x}'[输出十六进制短整数（-t x2）]'
+  '-i[输出十进制整数（-t dI）]'
+  {-l,-I,-L}'[输出十进制长整数（-t dL）]'
+  {-o,-B}'[输出八进制短整数（-t o2）]'
+  '-s[输出十进制短整数（-t d2）]'
+)
+
+if _pick_variant gnu=GNU unix --version; then
+  # -h -B -I and -L are obsolescent and undocumented
+  args=( ${(R)args:#(|\*)(|\(*\))-[hBIL]*} )
+  args+=(
+    '--traditional'
+    '--endian=[交换输入字节序]:字节序:(big little)'
+    {-S+,--strings=-}'[输出至少指定字节长度的字符串]:长度'
+    {-w-,--width=-}'[每行输出指定字节数]:字节数'
+    '(- : *)--help[显示帮助并退出]'
+    '(- : *)--version[输出版本信息并退出]'
+  )
+else
+  args=( ${(R)args:#(|\*)(|\(*\))--*} )    # remove long options
+  case "$OSTYPE" in
+    darwin*|freebsd*|dragonfly*|openbsd*)
+      args+=(
+        '-D[输出无符号十进制整数（-t u4）]'
+        {-e,-F}'[输出双精度浮点数（-t fD）]'
+        {-H,-X}'[输出十六进制整数（-t x4）]'
+        '-O[输出八进制整数（-t o4）]'
+      )
+    ;;
+    solaris*)
+      args=(
+        ${(M)args:#(|\*)(|\(*\))-[AjNtvbcdosx]*}
+	'-C[输出所有可打印字符并使用 C 风格转义]'
+	'-D[输出无符号十进制长字（-t u4）]'
+	'-F[输出双精度浮点数（-t f8）]'
+	'-O[输出八进制整数（-t o4）]'
+	'-S[输出十进制整数（-t d4）]'
+	'-X[输出十六进制整数（-t x4）]'
+      )
+    ;;
+    (*)
+      # POSIX options only
+      args=( ${(M)args:#(|\*)(|\(*\))-[AjNtvbcdosx]*} )
+    ;;
+  esac
+fi
+
+_arguments -C -s -S : "$args[@]" '*: :_files' && return 0
+
+case "$state" in
+  (format)
+    compset -P '*[acCSIL1248FDL]'
+    if compset -P '*[doux]'; then
+      args=( 'C:字符' 'S:短整数' 'I:整数' 'L:长整数' 1 2 4 8 )
+      _describe -t integer-size '整数大小' args && ret=0
+    elif compset -P '*f'; then
+      args=( 'F:单精度' 'D:双精度' 'L:长双精度' )
+      _describe -t float-size '浮点数大小' args && ret=0
+    fi
+    args=( 'a:命名字符' 'c:字符（C 风格转义）'
+           'd:十进制' 'o:八进制' 'u:无符号十进制'
+           'x:十六进制' 'f:浮点数' )
+    _describe -t type-specifier '类型说明符' args && ret=0
+  ;;
+esac
+
+return ret
