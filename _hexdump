@@ -1,0 +1,35 @@
+#compdef hexdump hd
+
+local -a args fmts optpar
+fmts=(
+ {--one-byte-octal,-b}'[单字节八进制显示]'
+ {--one-byte-char,-c}'[单字节字符显示]'
+ {--two-bytes-decimal,-d}'[双字节十进制显示]'
+ {--two-bytes-octal,-o}'[双字节八进制显示]'
+ {--two-bytes-hex,-x}'[双字节十六进制显示]'
+ {--format=,-e+}'[指定数据显示格式字符串]:格式'
+ {--format-file=,-f+}'[包含格式字符串的文件]:file:_files'
+)
+args=(
+ '(H -n --length)'{--length=,-n+}'[仅解释指定数量的输入]:长度（字节）'
+ '(H -s --skip)'{--skip=,-s+}'[跳过开头指定字节数]:偏移（字节）'
+ '(H -v --no-squeezing)'{--no-squeezing,-v}'[输出重复行]'
+)
+
+[[ $service = hexdump ]] && fmts+=( {--canonical,-C}'[规范十六进制+ASCII 显示]' )
+
+if [[ $OSTYPE = linux* ]]; then
+  args+=(
+    '(-L --color)'{-L+,--color=}'[解释颜色格式说明符，默认启用颜色]:模式'
+    + H
+    '(- *)'{-h,--help}'[显示用法信息]'
+    '(- *)'{-V,--version}'[显示版本信息]'
+  )
+else
+  # strip long options by taking every second element
+  print -v fmts -f '%2$s' -- "$fmts[@]"
+  print -v args -f '%2$s' -- "$args[@]"
+  optpar=( -A "-*" )
+fi
+
+_arguments -s -S $optpar '*:file:_files' $args + '(formats)' '(H)'$^fmts
