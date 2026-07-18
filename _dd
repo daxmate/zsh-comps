@@ -1,0 +1,101 @@
+#compdef dd gdd
+
+local -a vals conv flags units
+local variant
+
+units=( w:word b:block k:1024 m g t )
+_pick_variant -r variant gnu=GNU $OSTYPE --version
+
+vals=(
+  '(ibs obs)bs[块大小]: :_numbers -u bytes "block size" $units'
+  'cbs[转换缓冲区大小]: :_numbers -u bytes "buffer size" $units'
+  'conv[指定要应用的转换]: :_values -s , conversion $conv'
+  'count[要复制的输入块数]:块数'
+  '(bs)ibs[输入块大小]: :_numbers -u bytes -d 512 "block size" $units'
+  'if[指定输入文件]:输入文件:_tilde_files'
+  '(bs)obs[输出块大小]: :_numbers -u bytes -d 512 "block size" $units'
+  'of[指定输出文件]:输出文件:_tilde_files'
+  'seek[初始跳过的输出块]:块数'
+  'skip[初始跳过的输入块]:块数'
+)
+conv=(
+  '(ascii asciib oldascii ebcdic ebcdicb oldebcdic ibm ibmb oldibm)'{ascii,ebcdic,ibm}
+  '(unblock)block' '(block)unblock'
+  '(ucase)lcase' '(lcase)ucase'
+  swab sync noerror notrunc
+)
+
+case $variant in
+  ^gnu)
+    vals+=(
+      'files[指定要复制和拼接的输入文件数]:文件数'
+    )
+  ;|
+  (gnu|darwin|dragonfly|(free|net)bsd*)
+    conv+=( sparse )
+  ;|
+  gnu|netbsd*)
+    vals+=(
+      '*iflag[指定读取标志]:标志:_sequence compadd - $flags'
+      '*oflag[指定写入标志]:标志:_sequence compadd - $flags'
+    )
+    flags=( append direct directory dsync sync nonblock noctty nofollow )
+  ;|
+  darwin*|dragonfly*|(free|net)bsd*)
+    vals+=(
+      'oseek[初始跳过的输出块]:块数'
+    )
+    conv+=(
+      '(ascii oldascii ebcdic oldebcdic oldibm)'old{ascii,ebcdic,ibm}
+    )
+  ;|
+  (darwin|dragonfly|freebsd|netbsd|solaris)*)
+    vals+=(
+      'iseek[初始跳过的输入块]:块数'
+    )
+  ;|
+  (open|free)bsd*)
+    vals+=(
+      'status[指定打印到 stderr 的信息级别]:级别:(none noxfer)'
+    )
+    conv+=( osync )
+  ;|
+
+  freebsd*)
+    vals+=(
+      'fillchar[指定填充字符]:字符'
+      'speed[限制复制速度]: :_numbers -u bytes/second speed $units'
+    )
+    conv+=(
+      '(pareven parnone parodd parset)'{pareven,parnone,parodd,parset}
+    )
+  ;;
+  gnu)
+    vals+=(
+      'status[指定打印到 stderr 的信息级别]:级别:(none noxfer progress)'
+    )
+    flags+=( fullblock noatime nocache count_bytes skip_bytes seek_bytes )
+    conv+=( excl nocreat fdatasync fsync )
+    units=( c:1 w:2 b:512 kB:1000 K:1024 MB:1000^2 M:1024\^2 GB G TB T PB P EB E ZB Z YB Y )
+  ;;
+  netbsd*)
+    vals+=(
+      'msgfmt[指定信息摘要的格式]:格式:(quiet posix human)'
+      'progress[启用进度显示]:启用:(1)'
+    )
+    flags+=(
+      wronly rdwr creat trunc excl shlock exlock cloexec nosigpipe rsync alt_io async
+    )
+  ;;
+  solaris*)
+    vals+=(
+      'files[指定要复制和拼接的输入文件数]:文件数'
+      'oseek[初始跳过的输出块（通过 seek，而非 NUL 填充）]:块数'
+    )
+    conv+=(
+      '(ascii asciib ebcdic ebcdicb ibmb)'{ascii,ebcdic,ibm}b
+    )
+  ;;
+esac
+
+_values -w 'option' $vals
