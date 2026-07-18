@@ -1,0 +1,28 @@
+#compdef ln
+
+# ln Zsh 补全函数
+# 描述：创建链接（macOS BSD 版本）
+# 支持：硬链接、符号链接、交互确认
+
+_ln() {
+  local curcontext="$curcontext" state state_descr line ret=1
+  local -a options
+
+  options=(
+    '(-P)-L[硬链接到符号链接的目标（默认行为）]'
+    '(-L)-P[硬链接到符号链接本身]'
+    '(-s)-F[若目标已存在且是目录，先删除再链接（需配合 -f 或 -i）]'
+    '(-i -w)-f[强制链接，目标存在则先解链]'
+    '(-f -w)-i[目标存在时交互确认]'
+    '(-n)-h[若目标是符号链接则不跟随]'
+    '(-h)-n[同 -h，兼容性选项]'
+    '(-F)-s[创建符号链接]'
+    '-v[显示处理的文件]'
+    '(-f -i)-w[符号链接源不存在时发出警告]'
+    '*:源文件:_files'
+  )
+
+  _arguments -s $options
+}
+
+_ln "$@"
