@@ -1,0 +1,32 @@
+#compdef tee gtee
+
+local ret=1
+local -a context line state state_descr args
+local -A opt_args
+
+args=(
+  '(: -)--help[显示帮助信息]'
+  '(: -)--version[显示版本信息]'
+  '(-a --append)'{-a,--append}'[追加到文件而非覆盖]'
+  '(-i --ignore-interrupts)'{-i,--ignore-interrupts}'[忽略中断信号]'
+  '(--output-error)-p[写入非管道出错时告警]'
+  '(-p)--output-error=[指定写入错误处理方式]: :->errmodes'
+)
+
+# Filter out non-GNU options if applicable
+_pick_variant gnu='Free Soft' unix --version ||
+args=( ${(@M)args:#(|*\))-[ai]\[*} )
+
+_arguments -s -S : $args '*: :_files' && ret=0
+
+[[ $state == errmodes ]] && {
+  args=(
+    'exit[写入任何输出出错时退出]'
+    'exit-nopipe[写入非管道出错时退出]'
+    'warn[写入任何输出出错时告警]'
+    'warn-nopipe[写入非管道出错时告警]'
+  )
+  _values 'error mode' $args && ret=0
+}
+
+return ret
