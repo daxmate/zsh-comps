@@ -1,0 +1,69 @@
+#compdef truncate
+
+local curcontext=$curcontext variant rs ret=1
+local -a state state_descr line specs optA
+typeset -A opt_args
+
+_pick_variant -r variant gnu=GNU $OSTYPE --version
+[[ $variant != gnu ]] && rs='-r -s' # -r/-s mutually exclusive
+
+# common specs
+specs=(
+  '(hv -c --no-create)'{-c,--no-create}'[不创建文件]'
+  "(hv $rs -r --reference)"{-r+,--reference=}'[基于指定文件的大小]:参考文件:_files'
+  "(hv $rs -s --size)"{-s+,--size=}'[设置或调整文件大小为指定字节]:大小:->size'
+  '(hv)*: :_files'
+)
+
+case $variant in
+  gnu) # GNU coreutils 8.32
+    specs+=(
+      '(hv -o --io-blocks)'{-o,--io-blocks}'[将大小视为 IO 块数而非字节数]'
+      + 'hv'
+      '(- *)--help[显示帮助并退出]'
+      '(- *)--version[输出版本信息并退出]'
+    )
+    ;;
+  *) # FreeBSD/DragonFly
+    specs=( ${specs:#(|*\))--*} )    # remove long options
+    optA=( -A '-*' )
+    ;;
+esac
+
+_arguments -C -s -S : $specs && ret=0
+
+case $state in
+  size)
+    local unit=bytes
+    (( ${#opt_args[(I)(-o|--io-blocks)]} )) && unit=blocks
+    local -a suffix=( K:1024 M G T )
+    local -a prefix=( '+:扩展' '-:缩小' )
+    local prefix_char='[-+]'
+    case $variant in
+      gnu|freebsd*)
+	prefix+=( '/:向下舍入到倍数' '%:向上舍入到倍数' )
+	;|
+      gnu)
+	suffix=( K:1024 KB:1000 {M,G,T,P,E,Z,Y}{,B} )
+	prefix+=( '<:最多' '>:至少' )
+	prefix_char='([-+/%]|\\[<>])'
+	;;
+      freebsd*)
+	prefix_char='[-+/%]'
+	;;
+    esac
+    local -a numbers=( _numbers -u $unit size $suffix )
+
+    if compset -P "$prefix_char"; then
+      $numbers && ret=0
+    elif (( ${#opt_args[(I)(-r|--reference)]} )); then
+      # prefix is required if the reference file is given
+      _describe -t 'prefixes' 'prefix' prefix && ret=0
+    else
+      _alternative "prefixes:前缀:((${(@q)prefix}))" \
+      		   "sizes: :$numbers" && ret=0
+    fi
+  ;;
+esac
+
+return ret
