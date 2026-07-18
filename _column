@@ -1,0 +1,82 @@
+#compdef column
+
+# Note: BSD and util-linux disagree on how to describe the behaviour of the -x
+# option. We use our own wording to avoid confusion
+
+local variant ret=1
+local -a context state line expl args columns MATCH aopts=( -A '-*' )
+local -i MBEGIN MEND
+local -A opt_args
+
+# Debian and its derivatives (as of 2019) ship with a slightly customised
+# version of the BSD column instead of the util-linux one. It can be identified
+# by the presence of the custom option -n in the synopsis
+_pick_variant -r variant \
+  util-linux='(#i)util-linux' \
+  debian='\[-[A-Za-z]#n[A-Za-z]#\]' \
+  $OSTYPE \
+--version
+
+case $variant in
+  util-linux)
+    aopts=()
+    args=(
+      '(info json -c --output-width)'{-c+,--output-width=}'[格式化输出适应指定宽度]:宽度'
+      '(info)'{-L,--table-empty-lines}"[不忽略空行]"
+      + fill
+      '(info table text json -x --fillrows)'{-x,--fillrows}'[先横向再纵向输出]'
+      + table
+      '(info fill -t --table)'{-t,--table}'[创建表格]'
+      '(info fill -o --output-separator)'{-o+,--output-separator=}'[指定表格输出列分隔符]:分隔符 [两个空格]'
+      '(info fill -s --separator)'{-s+,--separator=}'[指定输入数据列分隔符]:分隔符'
+      '(info fill -O --table-order)'{-O+,--table-order=}'[指定输出列顺序]: :->columns'
+      '(info fill -N --table-columns)'{-N+,--table-columns=}'[指定列名]:名称'
+      '(info fill -H --table-hide)'{-H+,--table-hide=}"[不打印指定列]: :->columns"
+      + text
+      '(info fill json -d --table-noheadings)'{-d,--table-noheadings}"[不打印表头]"
+      '(info fill json -E --table-noextreme)'{-E+,--table-noextreme}"[指定可忽略长度的列]: :->columns"
+      '(info fill json -e --table-header-repeat)'{-e,--table-header-repeat}'[每页重复表头]'
+      '(info fill json -H --table-hide)'{-H+,--table-hide=}"[不打印指定列]: :->columns"
+      '(info fill json -R --table-right)'{-R+,--table-right=}'[这些列右对齐]: :->columns'
+      '(info fill json -T --table-truncate)'{-T+,--table-truncate=}'[必要时截断这些列的文字]: :->columns'
+      '(info fill json -W --table-wrap)'{-W+,--table-wrap=}'[必要时换行这些列的文字]: :->columns'
+      '(info fill json -r --tree)'{-r+,--tree=}'[指定以树状格式显示的列]: :->columns'
+      '(info fill json -i --tree-id)'{-i+,--tree-id=}'[指定包含 ID 的列（父子关系）]: :->columns'
+      '(info fill json -p --tree-parent)'{-p+,--tree-parent=}'[指定包含父引用的列]: :->columns'
+      + json
+      '(info fill text -n --table-name -c --output-width)'{-n+,--table-name=}'[指定 JSON 输出的表名]:名称'
+      '(info fill text -J --json -c --output-width)'{-J,--json}'[使用 JSON 输出格式]'
+      + info
+      '(- *)'{-h,--help}'[显示用法信息]'
+      '(- *)'{-V,--version}'[显示版本信息]'
+    )
+  ;;
+  debian)
+    aopts=()
+    args=(
+      "(-x)-n[不合并多个相邻分隔符]"
+      "-e[不忽略空行]"
+    )
+  ;& # FALL THROUGH
+  *)
+    args+=(
+      '(-t -s)-c+[格式化输出适应指定宽度]:宽度'
+      '(-c -x)-t[创建表格]'
+      '(-c -x)-s+[指定输入数据列分隔符]:分隔符'
+      '(-n -t -s)-x[先横向再纵向输出]'
+    )
+  ;;
+esac
+
+_arguments -s -S $aopts '*:file:_files' $args && ret=0
+
+if [[ -n $state ]]; then
+  columns=( ${(s.,.)${(Q)${opt_args[table--N]:-$opt_args[table---table-columns]}//(#m)\\([\\:])/${MATCH[2]}}} )
+  if (( $#columns )); then
+    ${${(M)state:#*s}:+_sequence} _wanted -C "$context[1]" columns expl column compadd -a - columns && ret=0
+  else
+    _message -e columns "$state"
+  fi
+fi
+
+return ret
