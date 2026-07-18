@@ -1,0 +1,45 @@
+#compdef touch gtouch
+
+local args variant
+_pick_variant -r variant gnu=GNU $OSTYPE --version
+
+args=(
+  '-a[修改访问时间（atime）]'
+  '-m[修改修改时间（mtime）]'
+  '(-r -d --date --reference 1)-t+[使用指定时间]:时间 ([[CC]YY]MMDDhhmm[.SS])'
+)
+case $variant in
+  gnu)
+    args+=(
+      '(-c --no-create)'{-c,--no-create}"[文件不存在时不创建]"
+      '(-h --no-dereference)'{-h,--no-dereference}'[操作符号链接本身]'
+      '(-t -d --date -r --reference)'{-r+,--reference=}'[使用指定参考文件的对应时间]:文件:_files'
+      '(-t -d --date -r --reference)'{-d+,--date=}'[使用指定的日期/时间]:日期/时间'
+      '*--time=[更改指定的时间戳]:时间:(atime access use mtime modify)'
+      '(-)--help[显示帮助信息]'
+      '(-)--version[显示版本信息]'
+    )
+  ;;
+  darwin*|dragonfly*|freebsd*)
+    args+=(
+      '(-c 1)-A+[按相对值调整时间戳]:时间偏移 ([[-][hh]mm]SS)'
+    )
+  ;|
+  darwin*|dragonfly*|freebsd*|netbsd*)
+    args+=( '-h[操作符号链接本身]' )
+  ;|
+  dragonfly*|freebsd*|openbsd*|solaris*)
+    args+=( '(-r -t 1)-d+[使用指定的日期/时间]:日期/时间' )
+  ;|
+  darwin*|dragonfly*|freebsd*|netbsd*|solaris*)
+    args+=( '1:: :_guard "[0-9]#" "时间规范 (MMDDhhmm[YY])"' )
+  ;|
+  *) # not GNU
+    args=( -A "-*" $args
+      "(-A)-c[文件不存在时不创建]"
+      '(-t -d 1)-r+[使用指定参考文件的对应时间]:文件:_files'
+    )
+  ;;
+esac
+
+_arguments -s -S $args '*:file:_files'
