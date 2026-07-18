@@ -1,0 +1,60 @@
+#compdef fmt gfmt
+
+local variant
+local -a args
+local copt="[保留前两行的缩进]"
+local wopt="[指定最大行宽]:宽度 [75]"
+local sopt="[不合并短行：仅拆分]"
+
+args=( -A "-*" "(1 2)-w+$wopt" '*:file:_files' )
+_pick_variant -r variant gnu=GNU $OSTYPE --version
+case $variant in
+  gnu)
+    args=(
+      '(-c --crown-margin)'{-c,--crown-margin}$copt
+      '(-w --width)'{-w+,--width=}$wopt
+      '(-p --prefix)'{-p+,--prefix=}'[仅重新格式化带指定前缀的行]:前缀'
+      '(-s --split-only)'{-s,--split-only}$sopt
+      '(-t --tagged-paragraph)'{-t,--tagged-paragraph}'[首行缩进与后续行不同]'
+      '(-u --uniform-spacing)'{-u,--uniform-spacing}'[单词间一个空格，句末两个空格]'
+      '(-g --goal)'{-g,--goal=}'[指定目标宽度]:目标宽度 [宽度的 93%]'
+      '(- *)--help[显示帮助信息]'
+      '(- *)--version[显示版本信息]'
+      '*:file:_files'
+    )
+  ;;
+  solaris*)
+    args=(
+      "-c$copt"
+      "-s$sopt"
+    )
+  ;;
+  netbsd*)
+    args+=(
+      '-C[居中文本]'
+      '(1 2)-g+[指定目标宽度]:目标宽度'
+      '(1 2)-m+[指定最大宽度]:最大宽度'
+      '-r[格式化所有行]'
+    )
+  ;|
+  darwin*|dragonfly*|freebsd*|openbsd*)
+    args+=(
+      '-c[逐行居中对齐]'
+      '-m[智能格式化邮件头行]'
+      '-n[格式化以 .（点号）开头的行]'
+      "-p[缩进变化不另起新段落]"
+      '-s[合并行内空白]'
+      '-d+[指定句子结束字符]:句末字符 [.?!]'
+      '-l+[将前导空格替换为制表符]:制表宽 [8]'
+      '-t+[指定输入文件制表符宽度]:制表宽 [8]'
+    )
+  ;& # fall-through
+  netbsd*)
+    args+=( ':: :_guard "[0-9]#" goal width' )
+    (( ${(M)#words[1,CURRENT-1]:#[0-9]##} )) && args+=(
+      ':: :_guard "[0-9]#" maximum width'
+    )
+  ;;
+esac
+
+_arguments -s -S $args
