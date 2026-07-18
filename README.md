@@ -52,7 +52,7 @@ ln -sfn /path/to/zsh-comps/* /path/to/.oh-my-zsh/custom/completions/
 - [ ] `cp` — 复制文件
 - [ ] `mv` — 移动/重命名
 - [ ] `rm` — 删除文件
-- [ ] `mkdir` — 创建目录
+- ✅ `mkdir` — 创建目录
 - [ ] `ln` — 创建链接
 - [ ] `chmod` — 修改权限
 - [ ] `chown` — 修改所有者

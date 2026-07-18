@@ -1,0 +1,21 @@
+#compdef mkdir
+
+# mkdir Zsh 补全函数
+# 描述：创建目录（macOS BSD 版本）
+# 支持：权限模式、父目录创建
+
+_mkdir() {
+  local curcontext="$curcontext" state state_descr line ret=1
+  local -a options
+
+  options=(
+    '-m[设置目录权限模式]:权限模式'
+    '-p[递归创建父目录（如有必要）]'
+    '-v[显示创建的每个目录]'
+    '*:目录:_files -/'
+  )
+
+  _arguments -s $options
+}
+
+_mkdir "$@"
