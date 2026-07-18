@@ -1,0 +1,22 @@
+#compdef mv
+
+# mv Zsh 补全函数
+# 描述：移动或重命名文件（macOS BSD 版本）
+
+_mv() {
+  local curcontext="$curcontext" state state_descr line ret=1
+  local -a options
+
+  options=(
+    '(-i -n)-f[强制覆盖，不提示确认]'
+    '(-f -n)-i[覆盖前交互确认]'
+    '(-f -i)-n[不覆盖已存在的文件]'
+    '-h[不跟随符号链接（若目标是指向目录的符号链接）]'
+    '-v[显示移动后的文件名]'
+    '*:源文件或目录:_files'
+  )
+
+  _arguments -s $options
+}
+
+_mv "$@"
