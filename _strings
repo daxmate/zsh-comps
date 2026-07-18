@@ -1,0 +1,73 @@
+#compdef strings gstrings eu-strings
+
+local args variant format bytes
+format='[在每个字符串前加字节偏移量]:格式:((d\:十进制 o\:八进制 x\:十六进制))'
+bytes='[指定最小字符串长度]:长度（字节）[4]'
+args=(
+  '(-t --radix)-o[在每个字符串前加十进制字节偏移]'
+  '!(-n --bytes)-'{1,2,3,4,5,6,7,8,9}
+)
+
+if _pick_variant -r variant binutils=GNU elftoolchain=elftoolchain elfutils=elfutils unix -V; then
+  args+=(
+    '(-a --all -d --data)'{-a,--all}'[扫描整个文件，不仅限于目标文件的初始化数据段]'
+    '(-e --encoding)'{-e+,--encoding=}'[选择字符大小和字节序]:字符类型:((
+      s\:7-bit
+      S\:8-bit
+      b\:16-bit\ 大端
+      l\:16-bit\ 小端
+      B\:32-bit\ 大端
+      L\:32-bit\ 小端))'
+    '(-f --print-file-name)'{-f,--print-file-name}'[在每个字符串前打印文件名]'
+    '(-n --bytes)'{-n+,--bytes=}"$bytes"
+    '(-d -t --radix)'{-t+,--radix=}"$format"
+    '(- *)--help[显示帮助信息]'
+    '(- *)--version[显示版本信息]'
+  )
+  case $variant in
+    elfutils|binutils)
+      args+=( '(- *)-V[显示版本信息]' )
+    ;|
+    elftoolchain|binutils)
+      args+=(
+        '(- *)-h[显示帮助信息]'
+	'(- *)-v[显示版本信息]'
+      )
+    ;|
+    binutils)
+      args+=(
+	'(-a --all -d --data)'{-d,--data}'[仅从文件数据段打印字符串]'
+	'(-w --include-all-whitespace)'{-w,--include-all-whitespace}'[将所有空白字符视为合法字符串字符]'
+	'(-T --target)'{-T+,--target=}'[指定二进制文件格式]:格式:compadd - ${(z)${(M)${(f)"$(_call_program targets strings --help)"}##* supported targets*}##*\: }'
+	'(-s --output-separator)'{-s+,--output-separator=}'[指定用于分隔输出的字符串]:分隔符'
+      )
+    ;;
+    elfutils)
+      args+=(
+	'(- *)--usage[显示简短用法信息]'
+	'(- *)-?[显示帮助信息]'
+      )
+    ;;
+  esac
+else
+  args+=(
+    "(-d)-t+$format"
+    "-n+$bytes"
+    '-a[扫描整个文件，不仅限于目标文件的初始化数据段]'
+  )
+  case $OSTYPE in
+    darwin*)
+      local -a arch
+      arch=( ${(z)${${"$(_call_program architectures strings -arch - 2>&1)"}#*flags are: }%%$'\n'*} all )
+      args+=( '-arch[指定架构]:architecture:compadd -a arch' )
+    ;;
+  esac
+fi
+
+if compset -P '@'; then
+  _files
+  return
+fi
+
+_arguments -S -s $args \
+  '*:file:_files'
