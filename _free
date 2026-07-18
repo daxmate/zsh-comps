@@ -1,0 +1,25 @@
+#compdef free
+
+_arguments -s \
+  '(-l --lohi)'{-l,--lohi}'[显示详细的高低内存统计]' \
+  '(-t --total)'{-t,--total}'[显示 RAM + 交换空间总计]' \
+  '(-w --wide)'{-w,--wide}'[宽模式]' \
+  '(-s --seconds)'{-s,--seconds}'[指定显示刷新间隔]:秒数: ' \
+  '(-c --count)'{-c+,--count=}'[指定显示次数]:次数: ' \
+  '(-C --full-cache)'{-C,--full-cache}'[为主缓存增加更多缓存行]' \
+  '--si[使用 1000 为单位（而非 1024）]' \
+  '(-)--help[打印帮助并退出]' \
+  '(-)'{-V,--version}'[打印版本信息并退出]' \
+  + '(unit)' \
+  {-b,--bytes}'[以字节显示内存量]' \
+  {-k,--kibi}'[以 KiB 显示内存量（默认）]' \
+  {-m,--mebi}'[以 MiB 显示内存量]' \
+  {-g,--gibi}'[以 GiB 显示内存量]' \
+  '--tebi[以 TiB 显示内存量]' \
+  '--pebi[以 PiB 显示内存量]' \
+  '(--si)--kilo[以 KB 显示内存量]' \
+  '(--si)--mega[以 MB 显示内存量]' \
+  '(--si)--giga[以 GB 显示内存量]' \
+  '(--si)--tera[以 TB 显示内存量]' \
+  '(--si)--peta[以 PB 显示内存量]' \
+  {-h,--human}'[自动选择单位]'
