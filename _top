@@ -1,0 +1,190 @@
+#compdef top
+
+local curcontext="$curcontext" state state_descr line ret=1
+local -A opt_args
+local -a specs fields order opts
+
+opts=( -s -w -C )
+
+case $OSTYPE in
+  *linux*)
+    # based on procps-ng-3.3.15
+    fields=(
+      '%CPU:CPU 使用率' '%MEM:内存使用率（常驻）' 'CGROUPS:控制组'
+      'CODE:代码大小' 'COMMAND:命令名称/命令行' 'DATA:数据+栈大小'
+      'ENVIRON:环境变量' 'Flags:任务标志' 'GID:组 ID'
+      'GROUP:组名' 'NI:nice 值' 'P:最后使用的 CPU (SMP)'
+      'PGRP:进程组 ID' 'PID:进程 ID' 'PPID:父进程 PID' 'PR:优先级'
+      'RES:常驻内存大小' 'RUID:真实用户 ID' 'RUSER:真实用户 ID'
+      'S:进程状态' 'SHR:共享内存大小' 'SID:会话 ID'
+      'SUID:保存的 UID' 'SUPGIDS:辅助 GID'
+      'SUPGRPS:辅助组名' 'SUSER:保存的用户名'
+      'SWAP:交换大小' 'TGID:线程 GID' 'TIME:CPU 时间'
+      'TIME+:CPU 时间（百分秒）' 'TPGID:TTY GID' 'TTY:控制 TTY'
+      'UID:用户 ID' 'USED:已用内存' 'USER:用户名'
+      'VIRT:虚拟内存大小' 'WCHAN:睡眠内核函数'
+      'nDRT:脏页计数' 'nMaj:主缺页计数' 'nMin:次缺页计数'
+      'nTH:线程数' 'nsIPC:IPC 命名空间' 'nsMNT:MNT 命名空间'
+      'nsNET:NET 命名空间' 'nsPID:PID 命名空间' 'nsUSER:USER 命名空间'
+      'nsUTS:UTS 命名空间' 'vMj:主缺页增量'
+      'vMn:次缺页增量' 'LXC:LXC 容器名'
+      'OOMa:OOM 调整因子' 'OOMs:OOM 来源'
+      'Rsan:常驻匿名内存大小'
+      'RSfd:常驻文件支持内存大小' 'RSlk:常驻锁定内存大小'
+      'RSsh:常驻共享内存大小' 'CGNAME:控制组名'
+      'NU:最后已知 NUMA 节点'
+    )
+    order=( '+:降序（默认）' '-:升序' )
+    local -a units=( 'k:KiB' 'm:MiB' 'g:GiB' 't:TiB' 'p:PiB' 'e:EiB' )
+    specs=(
+      '(-)-'{h,v}'[显示版本和用法]'
+      '-b[批处理模式]'
+      '-c[命令行/程序名切换]'
+      '-d+[刷新间隔]:间隔'
+      '-E+[指定内存缩放单位]: : _describe -V -t units unit units'
+      '-H[线程模式]'
+      '-i[空闲进程切换]'
+      '-n+[迭代次数]:迭代次数'
+      '-o+[覆盖排序字段]:字段名:->sortkey'
+      '-O[输出字段名]'
+      '(-u -U)*-p+[监视指定 PID]: :_sequence -s , _pids'
+      '-s[安全模式]'
+      '-S[累计时间切换]'
+      '(-U -p)-u+[有效用户过滤]: :_users'
+      '(-u -p)-U+[用户过滤模式]: :_users'
+      '-w+[覆盖输出宽度]::数字'
+      '-1[单/分离 CPU 状态切换]'
+    );;
+  freebsd*|openbsd*)
+    fields=( cpu size res time pri pid )
+    specs=(
+      '-b[批处理模式]'
+      '-d+[仅显示指定次数后退出]:次数:'
+      '-H[显示各线程]'
+      '-I[不显示空闲进程]'
+      '-i[交互模式]'
+      '-n[非交互模式（等同批处理模式）]'
+      '-p+[按 PID 过滤]: :_pids'
+      '-q[将 top 的 nice 值设为 -20]'
+      '-S[显示系统进程]'
+      '-s+[指定刷新间隔]:秒数:'
+      '-u[不将 UID 转换为用户名]'
+      '1: :_guard "^-*" "要显示的进程数"'
+    );|
+  freebsd*)
+    fields+=( threads total read write fault vcsw ivcsw jid swap )
+    specs+=(
+      '-C[CPU 显示模式]'
+      '-a[通过 argv 显示命令名]'
+      '-j[显示 jail ID]'
+      '-t[不显示 top 进程]'
+      '-m+[指定统计类型]:类型:(( cpu\:默认 io ))'
+      '-o+[按指定字段排序]:字段:( $fields )'
+      '-P[每 CPU CPU 使用统计]'
+      '(1 -)-v[输出版本号并退出]'
+      '-w[显示近似交换使用]'
+      "-z[不显示系统空闲进程]"
+      '-J+[显示指定 jail 的进程]:jail:_jails -0'
+      '-U+[显示指定用户名的进程]: :_users'
+    );;
+  openbsd*)
+    fields+=( command )
+    order=( '-:逆序' )
+    specs+=(
+      '-1[将 CPU 统计合并为一行]'
+      '-t[显示路由表而非等待通道]'
+      '-C[同时显示命令行参数和进程名]'
+      '-g+[按字符串过滤进程]:字符串'
+      '-o+[按指定字段排序]:字段:->sortkey'
+      '-T+[按指定路由表过滤进程]:路由表:_routing_tables'
+      '-U+[按指定用户过滤进程]: :_users -M "L\:|-="'
+    );;
+  darwin*)
+    local -a modes
+    opts=( -C )   # no option stacking
+    modes=(
+      'a:累计计数事件'
+      'd:相对前一次采样计数事件'
+      'e:使用绝对计数器计数事件'
+      'n:非事件模式（默认）'
+    )
+    fields=(
+      'pid:进程 ID'
+      'command:命令名'
+      'cpu:CPU 使用率'
+      'cpu_me:其他进程向我支付的 CPU 时间'
+      'cpu_others:我向其他进程支付的 CPU 时间'
+      'csw:上下文切换次数'
+      'time:执行时间'
+      {threads,th}':线程数'
+      {ports,prt}':Mach 端口数'
+      {mregion,mreg,reg}':内存区域数'
+      'mem:内部内存大小'
+      'rprvt:常驻私有地址空间大小'
+      'purg:可回收内存大小'
+      'vsize:总内存大小'
+      'vprvt:私有地址空间大小'
+      'kprvt:私有内核内存大小'
+      'kshrd:共享内核内存大小'
+      'pgrp:进程组 ID'
+      'ppid:父进程 ID'
+      {state,pstate}':进程状态'
+      'uid:用户 ID'
+      {wq,'#wq',workqueue}':工作队列总数/运行数'
+      {faults,fault}':缺页数'
+      {cow,cow_faults}':写时复制缺页'
+      {user,username}':用户名'
+      'msgsent:Mach 消息发送总数'
+      'msgrecv:Mach 消息接收总数'
+      'sysbsd:BSD 系统调用总数'
+      'sysmach:Mach 系统调用总数'
+      'pageins:页面调入总数'
+      'boosts:进程持有提升次数'
+      'instrs:进程退休指令数'
+      'cycles:进程花费的周期数'
+    )
+    order=( '-:降序（默认）' '+:升序' )
+    specs=(
+      '-a[累计计数事件]'
+      '-c[设置事件计数模式]:mode:(( $modes ))'
+      '-d[相对前一次采样计数事件]'
+      '-e[使用绝对计数器计数事件]'
+      '-F[不计算共享库统计信息]'
+      '-f[计算共享库统计信息]'
+      '(-)-h[打印用法信息并退出]'
+      '-i+[指定 -f 选项的采样间隔]:间隔'
+      '-l+[日志模式。定期输出指定数量的采样]:采样数'
+      '-ncols[在日志模式下输出指定列数]:列数'
+      '-n+[仅显示最多指定进程数]:进程数:'
+      '-O+[指定次要排序键]:键:->sortkey'
+      '-o+[指定主要排序键]:键:->sortkey'
+      '-R[不遍历和报告每个进程的内存对象映射]'
+      '-r[遍历并报告每个进程的内存对象映射]'
+      '-S[显示交换和可回收内存的全局统计]'
+      '-s[设置刷新间隔]:秒数'
+      '-stats[仅显示指定字段]:字段列表:->fieldlist'
+      '*-pid[仅显示指定进程]:pid:_pids'
+      {-user,-U+}'[仅显示指定用户的进程]:user:_users'
+      '-u[等同于 -o cpu -O time]'
+    );;
+esac
+
+if (( $#specs == 0 )); then
+  _default
+  return
+fi
+
+_arguments $opts : "$specs[@]" && ret=0
+
+case $state in
+  (sortkey)
+    compset -P '(+|-)' && order=()
+    _alternative 'sort-orders:sort order:(( $order ))' \
+	'sort-keys:sort key:(( $fields ))' && ret=0
+    ;;
+  (fieldlist)
+    _sequence -s , _describe -t fields 'field' fields && ret=0
+    ;;
+esac
+
+return ret
