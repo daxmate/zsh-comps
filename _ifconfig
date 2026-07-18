@@ -1,0 +1,90 @@
+#compdef ifconfig
+
+local curcontext="$curcontext" state line ret=1
+local -a opts args alias debug updownlist
+
+alias=( '(-alias alias)'{,-}'alias[删除或设置接口的别名地址]' )
+debug=( '(-debug debug)'{,-}'debug[禁用或启用调试代码]' )
+updownlist=(
+  '(-a -d -C)-u[仅限已启用的接口]'
+  '(-a -u -C)-d[仅限已禁用的接口]'
+  '(-a -C -m -L 1 *)-l[列出接口]'
+)
+
+case $OSTYPE in
+  darwin*)
+    args=( -s $updownlist )
+    opts=(
+      $alias $debug delete dest_address ipdst nsellength
+      {,-}trailers {,-}link{0,1,2}
+    )
+  ;;
+  freebsd*|dragonfly*)
+    args=( -s $updown
+      '(-a -l -u -d -m -L 1 *)-C[列出接口克隆器]'
+      '(-l -C)-m[列出支持的介质]'
+      '(-l -C)-L[以时间偏移量显示地址生命周期]'
+    )
+    listopts=(
+        active caps chan countries mac mesh regdomain roam txparam txpower
+        scan sta wme
+    )
+    opts=( $alias $debug $listopts
+      anycast lladdr media {,-}mediaopt {,delete}tunnel create destroy
+      {,un}plumb vlan {,-}vlandev metric prefixlen range phase ssid muid
+      stationname channel authmode {,-}powersave powersavesleep wepmode
+      {,-}wep {,-}nwkey add delete ether {,-}link{0,1,2} list wme wmm
+      roam roam:rssi roam:rate roaming
+    )
+  ;|
+  dragonfly*)
+    args+=( '-n[禁止自动加载内核网络接口驱动]' )
+  ;;
+  irix5*) opts=( $debug ) ;;
+  irix6*)
+    opts=( $debug {-,}highbw {,-}link{0,1,2} primary rspace sspace  )
+    args=( '-w[显示额外信息]' )
+  ;;
+  linux*)
+    opts=(
+      '(-promisc promisc)'{,-}'promisc[禁用或启用混杂模式]'
+      '(-allmulti allmulti)'{,-}'allmulti[禁用或启用全部多播]'
+      'media[设置物理端口类型]:medium type:(auto 10base2 10baseT AUI)'
+      'hw[设置硬件类别]:hardware class:(ether ax25 ARCnet netrom)'
+      add del dst_addr io_addr irq mem_start multicast pointopoint
+      tunnel txqueuelen
+    )
+  ;;
+  solaris*)
+    args=(
+      '-ad[应用于所有已禁用接口]'
+      '-adD[应用于不受 DHCP 控制的所有已禁用接口]'
+      '-au[应用于所有已启用接口]'
+      '-auD[应用于不受 DHCP 控制的所有已启用接口]'
+    )
+    opts=(
+      'auto-revarp[使用 RARP 获取地址]'
+      {,-}trailers {,-}private {,un}plumb
+      '(dhcp auto-dhcp)'{,auto-}'dhcp[使用 dhcp]'
+      primary wait drop extend ping release start status
+    )
+  ;;
+esac
+
+_arguments -C "$args[@]" \
+  '-a[应用于所有接口]' \
+  '1:network interface:_net_interfaces -r ": \t\n\-"' \
+  '::address family:(atalk ether inet inet6 ax25 ddp ipx netrom)' \
+  '*:option:->options' && ret=0
+  
+[[ -n "$state" ]] && _values -S ' ' -w 'option' "$opts[@]" \
+  '(down)up[激活接口]' \
+  '(up)down[关闭接口]' \
+  '(-arp arp)'{,-}'arp[禁用或启用地址解析协议]' \
+  'metric[设置接口路由度量]:路由度量' \
+  'mtu[设置最大传输单元]:mtu' \
+  'netmask[指定网络掩码]:netmask' \
+  'broadcast[指定广播地址]:广播地址' \
+  'address[指定接口 IP 地址]:IP 地址' && ret=0
+
+return ret
