@@ -1,0 +1,27 @@
+#compdef basename gbasename
+
+local args variant
+_pick_variant -r variant gnu=GNU $OSTYPE --version
+
+case $variant in
+  gnu)
+    args=( -s -S -A "-*"
+      '(2 -a --multiple)'{-a,--multiple}'[支持多个参数，逐个处理]'
+      '(2 -a --multiple -s --suffix)'{-s+,--suffix=}'[移除尾部后缀]:后缀'
+      '(-z --zero)'{-z,--zero}'[输出以 NUL 而非换行分隔]'
+      '(- *)--version[显示版本信息]'
+      '(- *)--help[显示帮助信息]'
+    )
+  ;;
+  darwin*|dragonfly*|freebsd*)
+    args=( -s -S -A "-*"
+      '(2)-a[支持多个参数，逐个处理]'
+      '(-a 2)-s+[移除尾部后缀]:后缀'
+    )
+  ;;
+esac
+
+_arguments $args \
+  '1:文件:_files' \
+  '(*)2:后缀' \
+  '*:文件:_files'
