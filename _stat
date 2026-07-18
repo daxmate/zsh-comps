@@ -1,0 +1,90 @@
+#compdef stat gstat zstat
+
+# Notes:
+# - @todo It would be nice to complete the -c/-f format strings some day
+# - @todo It should be possible to complete NFS file handles on FreeBSD and
+#   Dragonfly by parsing the output of `lsof -N`, but it's not available by
+#   default — is there another way?
+
+local expl variant ret=1
+local -a context line state state_descr args aopts=( -A '-*' )
+local -A opt_args
+
+_pick_variant -r variant -b zsh gnu='Free Soft' $OSTYPE --version
+
+case $variant in
+  zsh)
+    args=(
+      "(-H)-A[将结果赋给数组，不打印]:数组变量:_parameters -g '*array*'"
+      - set1
+      +device +inode +mode +nlink +uid +gid +rdev
+      +size +atime +mtime +ctime +blksize +block +link
+      "(-A)-H[将结果赋给关联数组，不打印]:关联数组变量:_parameters -g '*association*'"
+      '(:)-f[统计指定文件描述符]:文件描述符:_file_descriptors'
+      '(-s)-F[指定 strftime(3) 格式字符串]: :_date_formats zsh'
+      '(-s)-g[以 GMT/UTC 显示时间]'
+      # Note that this has the *opposite* effect of other variants' -L option!
+      "-L[不跟踪符号链接；使用 lstat(2)]"
+      '(-N)-n[始终显示文件名]'
+      '(-n)-N[从不显示文件名]'
+      '-o[以八进制而非十进制打印文件模式]'
+      '-r[打印原始数据]'
+      '(-o)-s[以字符串形式打印模式、UID、GID 和时间]'
+      '(-T)-t[始终显示类型名]'
+      '(-t)-T[从不显示类型名]'
+      '*: :_files'
+      - set2
+      '-l[列出 stat 类型]'
+    )
+    ;;
+  gnu)
+    aopts=( )
+    args=(
+      '*: :_files'
+      '(: * -)--help[显示帮助信息]'
+      '(: * -)--version[显示版本信息]'
+      '(-L --dereference)'{-L,--dereference}'[跟踪符号链接]'
+      + '(d)' # Display options
+      {-c+,--format=}'[按指定格式字符串显示]:格式字符串'
+      {-f,--file-system}'[显示文件系统状态而非文件状态]'
+      '--printf=[类似 -c，但解释反斜杠转义（如 printf(3)）]'
+      {-t,--terse}'[以简洁格式显示]'
+    )
+    ;;
+  darwin*|dragonfly*|*bsd*)
+    args=(
+      '*: :->files-or-handles'
+      '(-H)-L[跟踪符号链接]'
+      '-q[抑制 lstat(2)/stat(2) 失败的错误消息]'
+      + '(d)' # Primary display options
+      '(-F)-f+[按指定格式字符串显示]:格式字符串'
+      '-l[以 `ls -lT` 格式显示]'
+      '(-F -t)-r[以原始（数字）格式显示]'
+      '(-F -t)-s[以 shell 变量赋值格式显示]'
+      '(-F)-x[以详细（Linux 风格）格式显示]'
+      + D # Secondary display options
+      '(-f -r -s -x)-F[追加文件类型指示符（隐含 -l）]'
+      '-n[抑制尾部换行]'
+      '(-r -s)-t+[指定 strftime(3) 格式字符串]: :_date_formats'
+    )
+    ;| # MATCH AGAIN
+  dragonfly*|freebsd*)
+    args+=(
+      + df
+      '(-L)-H[将参数视为十六进制格式的 NFS 文件句柄]'
+    )
+    ;;
+esac
+
+(( $#args )) || args=( '*: :_files' )
+
+_arguments -s -S $aopts : $args && ret=0
+
+[[ $state == files-or-handles ]] &&
+if [[ -n ${opt_args[(i)*--H]} ]]; then
+  _message -e nfs-handles 'NFS file handle'
+else
+  _files && ret=0
+fi
+
+return ret
