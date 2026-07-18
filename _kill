@@ -1,0 +1,25 @@
+#compdef kill
+
+# kill Zsh 补全函数
+# 描述：发送信号给进程
+
+local curcontext="$curcontext" line state ret=1
+typeset -A opt_args
+
+_arguments -C \
+  '(-s -l 1)-n[指定信号编号]:信号编号' \
+  '(-n -l 1)-s[指定信号名称]:信号:_signals -s' \
+  '(-n -s)-l[列出信号名称或指定信号的编号]:*:信号:_signals' \
+  '(-n -s -l)1::信号:_signals -p -s' \
+  '*:进程:->processes' && ret=0
+
+if [[ -n "$state" ]]; then
+  local pgrp='process-groups:: _wanted '
+  [[ -n "$opt_args[(i)-[ns]]${${(@)line:#--}}" && -prefix - ]] && pgrp+='-x '
+  pgrp+="process-groups expl 'process-group' compadd - 0"
+  _alternative \
+    'processes:: _pids' \
+    'jobs:: _jobs -t' $pgrp && ret=0
+fi
+
+return ret

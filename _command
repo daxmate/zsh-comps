@@ -1,0 +1,10 @@
+#compdef command
+
+# command Zsh 补全函数
+# 描述：执行命令或显示命令信息
+
+_arguments \
+  '-v[显示命令查找结果]:*:命令:_path_commands' \
+  '-V[详细显示命令查找结果]:*:命令:_path_commands' \
+  '(-)-p[使用默认 PATH 查找命令]' \
+  '*:: : _normal -p $service'

@@ -1,0 +1,174 @@
+#compdef find gfind
+
+# find Zsh 补全函数
+# 描述：在目录层次结构中搜索文件
+
+local curcontext="$curcontext" state_descr variant default ret=1
+local -a state line args alts disp smatch
+
+_pick_variant -r variant gnu=GNU $OSTYPE -version
+
+case $variant in
+  solaris*)
+    args+=(
+      '*-'{n,}'cpio:设备:_files'
+      '*-local'
+    )
+  ;|
+  solaris*|darwin*)
+    args+=( '*-xattr' )
+  ;|
+  solaris2.<10->|freebsd*|darwin*)
+    args+=( '*-acl' )
+  ;|
+  solaris2.<11->|freebsd*|dragonfly*|darwin*|openbsd*|gnu)
+    args+=(
+      '*-amin:访问时间（分钟）'
+      '*-cmin:inode 更改时间（分钟）'
+      '*-mmin:修改时间（分钟）'
+      '*-iname:匹配的名称模式（不区分大小写）'
+      '*-print0'
+    )
+  ;|
+  solaris*|freebsd*|dragonfly*|darwin*|gnu)
+    args+=( '*-mount' )
+  ;|
+  netbsd*|freebsd*|dragonfly*|darwin*|gnu)
+    args+=( '(-H -L)-P[从不跟随符号链接]' )
+  ;|
+  darwin*|freebsd*|gnu)
+    args+=(
+      '*-Bmin:创建时间（分钟）'
+      '*-Bnewer:比较文件（创建时间）:_files'
+      '*-Btime:创建时间（小时）'
+    )
+  ;|
+  netbsd*|freebsd*|dragonfly*|openbsd*|darwin*|gnu)
+    args+=(
+      '-d[深度优先遍历]'
+      '*-anewer:比较文件（访问时间）:_files'
+      '*-cnewer:比较文件（inode 更改时间）:_files'
+      '*-empty'
+      '*-execdir:程序: _command_names -e:*\;::程序参数: _normal'
+      '*-maxdepth:最大搜索深度'
+      '*-mindepth:最小搜索深度'
+      '*-path:要搜索的路径模式:'
+    )
+  ;|
+  freebsd*|dragonfly*|darwin*|gnu)
+    args+=(
+      '*-delete'
+      '*-gid:数字组 ID'
+      '*-uid:数字用户 ID'
+      '*-noleaf'
+      '*-lname:要搜索的链接模式'
+      '*-ilname:要搜索的链接模式（不区分大小写）'
+      '*-ipath:要搜索的路径模式（不区分大小写）'
+      '*-regex:要搜索的正则表达式'
+      '*-iregex:要搜索的正则表达式（不区分大小写）'
+      '*-wholename:要搜索的完整路径模式'
+      '*-iwholename:要搜索的完整路径模式（不区分大小写）'
+      '*-ignore_readdir_race'
+      '*-mnewer:比较文件（修改时间）:_files'
+      '*-noignore_readdir_race'
+      '*-okdir:程序: _command_names -e:*\;::程序参数: _normal'
+      '*-samefile:比较 inode 的文件:_files'
+      '*-true'
+      '*-false'
+      '*-and'
+      '*-or'
+      '*-not'
+    )
+  ;|
+  freebsd*|dragonfly*|gnu) args+=( '*-quit' ) ;|
+  netbsd*|freebsd*|dragonfly*|darwin*)
+    args+=(
+      '-E[对 -regex/-iregex 使用扩展正则表达式]'
+      '-s[按排序顺序遍历目录]'
+    )
+  ;|
+  netbsd*|freebsd*|dragonfly*|openbsd*|darwin*)
+    args+=(
+      '-X[如果文件名包含 xargs 特殊字符则警告]'
+      '-f[指定要遍历的文件层次]:路径:_directories'
+      "-x[不跨文件系统]"
+      '*-flags:标志:_chflags'
+    )
+  ;|
+  freebsd*|dragonfly*) args+=( '*-sparse' ) ;|
+  darwin*) args+=( '*-xattrname:名称' ) ;|
+  gnu)
+    args+=(
+      '(- *)-help' '(-)--help'
+      '(- *)-version' '(-)--version'
+      '-D[打印诊断信息]:调试选项:(exec opt rates search stat time tree all help)'
+      '-O+[启用查询优化]:级别:(1 2 3)'
+      '*-daystart'
+      '-regextype:正则语法:(help findutils-default awk egrep ed emacs gnu-awk grep posix-awk posix-basic posix-egrep posix-extended posix-minimal-basic sed)'
+      '*-warn'
+      '*-nowarn'
+      '*-xautofs'
+      '*-used:inode 更改后的访问时间（天）'
+      '*-executable'
+      '*-readable'
+      '*-writable'
+      '*-xtype:文件类型:((b\:块特殊文件 c\:字符特殊文件 d\:目录 p\:命名管道 f\:普通文件 l\:符号链接 s\:套接字))'
+      '*-fls:输出文件:_files'
+      '*-fprint:输出文件:_files'
+      '*-fprint0:输出文件:_files'
+      '*-fprintf:输出文件:_files:输出格式'
+      '*-printf:输出格式'
+    )
+    [[ $OSTYPE = linux-gnu ]] && args+=( '*-context:SELinux 上下文（glob 模式）:_selinux_contexts' )
+  ;;
+esac
+
+_arguments -C $args \
+  '(-L -P)-H[仅在解析命令行参数时跟随符号链接]' \
+  '(-H -P)-L[跟随符号链接]' \
+  '*-atime:访问时间（天）:->times' \
+  '*-ctime:inode 更改时间（天）:->times' \
+  '*-depth' \
+  '*-exec:程序: _command_names -e:*\;::程序参数: _normal' \
+  '*-follow' \
+  '*-fstype:文件系统类型:_file_systems' \
+  '*-group:组:_groups' \
+  '*-inum:inode 编号:' \
+  '*-links:链接数:' \
+  '*-ls' \
+  '*-mtime:修改时间（天）:->times' \
+  '*-name:名称模式' \
+  '*-newer:比较文件（修改时间）:_files' \
+  '*-nogroup' \
+  '*-nouser' \
+  '*-ok:程序: _command_names -e:*\;::程序参数: _normal' \
+  '*-perm: :_file_modes' \
+  '*-print' \
+  '*-prune' \
+  '*-size:文件大小（块）' \
+  '*-type:文件类型:((b\:块特殊文件 c\:字符特殊文件 d\:目录 p\:命名管道 f\:普通文件 l\:符号链接 s\:套接字))' \
+  '*-user:用户:_users' \
+  '*-xdev' \
+  '*-a' '*-o' \
+  '(-D -E -H -L -O -P -f -s -x --help --version)*:目录:_files -/' \
+&& ret=0
+
+if [[ $state = times ]]; then
+  if ! compset -P '[+-]' || [[ -prefix '[0-9]' ]]; then
+    compstate[list]+=' packed'
+    if zstyle -t ":completion:${curcontext}:senses" verbose; then
+      zstyle -s ":completion:${curcontext}:senses" list-separator sep || sep=--
+      default=" [default exactly]"
+      disp=( "+ $sep before (older files)" "- $sep since (newer files)" )
+      smatch=( - + )
+    else
+      disp=( before exactly since )
+      smatch=( + '' - )
+    fi
+    alts=( "senses:sense${default}:compadd -V times -S '' -d disp -a smatch" )
+  fi
+  alts+=( "times:${state_descr}:_dates -f d" )
+  _alternative $alts && ret=0
+fi
+
+return ret

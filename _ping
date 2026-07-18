@@ -1,0 +1,242 @@
+#compdef ping ping6
+
+# ping Zsh 补全函数
+# 描述：向网络主机发送 ICMP ECHO_REQUEST 包
+
+local variant
+local -a args
+
+_pick_variant -r variant iputils=iputils $OSTYPE -V
+
+case ${variant}:${${service#ping}:-4} in
+  iputils*) args=( -A "-*" ) ;|
+  *)
+    args+=(
+      '-d[在套接字上设置 SO_DEBUG]'
+      '-n[将网络地址显示为数字]'
+      '-v[详细输出]'
+    )
+  ;|
+  iputils*|aix*|*bsd*|darwin*|dragonfly*)
+    args+=(
+      '-c+[指定发送的数据包数量]:数量'
+      '-f[洪泛 ping]'
+      '-i+[指定数据包之间的延迟]:间隔（秒）[1]'
+      '-l+[快速发送指定数量的初始数据包]:数据包数'
+      '-p+[指定填充发送数据包的字节]:填充模式'
+      '-q[安静]'
+      '-s+[指定数据包大小]:大小（字节）[56]'
+    )
+  ;|
+  iputils:*|solaris:*|(*bsd|darwin|dragonfly)*:4)
+    args+=(
+      '-L[禁用多播数据包的环回]'
+      '-R[记录路由]'
+    )
+  ;|
+  iputils:*|solaris:*|((free|net)bsd|darwin|dragonfly)*:4)
+    args+=( '-r[绕过常规路由表]' )
+  ;|
+  (iputils|freebsd<13->.*):*|(freebsd<-12>.|netbsd|darwin|dragonfly)*:4)
+    args+=( '-a[每个数据包发出声音通知]' )
+  ;|
+  iputils:*|netbsd*:4|openbsd*)
+    args+=( '-w+[指定 ping 退出超时]:截止时间（秒）' )
+  ;|
+  iputils:*|openbsd*:4|solaris*)
+    args+=(
+      '-t+[设置传出数据包的 IP 生存时间]:ttl'
+    )
+  ;|
+  (*bsd|darwin|dragonfly)*)
+    args+=( '-I+[为多播数据包指定源接口]:接口:_net_interfaces' )
+  ;|
+  freebsd<13->.*|openbsd*)
+    args+=( '-H[尝试地址的反向查找]' )
+  ;|
+  freebsd*|darwin*|dragonfly*|netbsd*:6)
+    args+=( '-S+[指定源地址]:源地址' )
+  ;|
+  freebsd*|darwin*|dragonfly*:4|netbsd*:4)
+    args+=( '-o[收到一个数据包后退出]' )
+  ;|
+  (*bsd|darwin|dragonfly)*:4)
+    args+=( "-D[设置不分片位]" )
+  ;|
+  (freebsd|openbsd|darwin)*:6)
+    args+=( '-D[禁用 IPv6 分片]' )
+  ;|
+  ((free|net)bsd|darwin|dragonfly)*:4)
+    args+=( '-Q[较安静]')
+  ;|
+  freebsd<-12>.*:6|darwin*:6|solaris*|netbsd*)
+    args+=(
+      '*-g+[指定作为下一跳的网关]:网关:_hosts'
+    )
+  ;|
+  (*bsd|darwin|dragonfly)*:6)
+    args+=( '-h+[设置 IPv6 跳数限制]:跳数' )
+  ;|
+  ((free|net)bsd|darwin|dragonfly)*:6)
+    args+=(
+      '-b+[设置套接字缓冲区大小]:缓冲区大小'
+      '-N[探测节点信息多播组地址]'
+    )
+  ;|
+  (freebsd<-12>.|netbsd|darwin|dragonfly)*:6)
+    args+=(
+      '-a+[生成 ICMPv6 节点信息节点地址查询]:地址类型:(a c g s l A)'
+      '-H[尝试 IPv6 地址的反向查找]'
+      '(-s)-t[生成 ICMPv6 节点信息支持查询类型查询]'
+      '(-s)-w[生成 ICMPv6 节点信息 DNS 名称查询]' '!(-s)-W'
+    )
+  ;|
+  (*bsd|darwin)*:6)
+    args+=( '*-m[禁止将数据包分片为最小 IPv6 MTU]' )
+  ;|
+  freebsd*|darwin*|netbsd*:6)
+    args+=( '-P+[指定探测使用的 IPsec 策略]:策略' )
+  ;|
+  solaris2.<11->)
+    args+=(
+      '-b[绕过全局 IPsec 策略以明文收发数据包]'
+      '-N+[指定探测数据包应经过的下一跳路由器]:路由器:_hosts'
+    )
+  ;|
+  freebsd<13->.*:6|(freebsd|darwin|dragonfly)*:4)
+    args+=(
+      '-A[无数据包时发出声音通知]'
+      '-t+[指定 ping 退出超时]:截止时间（秒）'
+      '-W+[指定等待响应的时间]:等待时间（毫秒）'
+    )
+  ;|
+  (freebsd|darwin|dragonfly)*:4)
+    args+=(
+      '-G+[指定扫描 ping 的 ICMP 有效负载最大大小]:大小'
+      '-g+[指定扫描 ping 的 ICMP 有效负载最小大小]:大小 [0]'
+      '-h+[指定扫描 ping 的 ICMP 有效负载大小增量]:大小 [1]'
+      '-M+[使用 ICMP_MASKREQ 或 ICMP_TSTAMP 替代 ICMP_ECHO]:ICMP:(mask time)'
+      '-m+[设置传出数据包的 IP 生存时间]:ttl'
+      '-T+[设置多播数据包的 IP 生存时间]:ttl'
+      '-z+[指定服务类型]:服务类型'
+    )
+  ;|
+  (freebsd<-12>.*|darwin*):6)
+    args+=(
+      '-R[无数据包时发出声音通知]'
+      '-r[每个数据包发出声音通知]'
+    )
+  ;|
+  (iputils|freebsd<13->.*):4)
+    args+=(
+      '(-F -N)-4[仅使用 IPv4]'
+      '-6[仅使用 IPv6]'
+    )
+  ;|
+  freebsd<13->.*:4)
+    args+=(
+      '-C+[发送数据包时添加 802.1p 以太网优先级代码点]:pcp:(-1 0 1 2 3 4 5 6 7)'
+    )
+  ;|
+  freebsd<13->.*:6)
+    args+=(
+      '*-e+[指定作为下一跳的网关]:网关:_hosts'
+      '-k+[生成 ICMPv6 节点信息节点地址查询]:地址类型:(a c g s l A)'
+      '(-s)-O[生成 ICMPv6 节点信息支持查询类型查询]'
+      '*-u[禁止分片到最小 MTU]'
+      '(-s)-Y[使用旧数据包格式生成 ICMPv6 节点信息 DNS 名称查询]'
+      '(-s)-y[生成 ICMPv6 节点信息 DNS 名称查询]'
+      '-E[启用传输模式 IPsec 封装安全有效负载]'
+      '-Z[启用传输模式 IPsec 认证头]'
+    )
+  ;|
+  freebsd<-12>.*:6)
+    args+=(
+      '-x+[指定等待响应的时间]:等待时间（毫秒）'
+      '-X+[指定 ping 退出超时]:截止时间（秒）'
+    )
+  ;;
+  netbsd*:4)
+    args+=(
+      '-C[以兼容格式发送时间戳]'
+      '-E+[指定探测使用的 IPsec 策略]:策略'
+      '-h+[指定目标主机]:主机:_hosts'
+      '-P+[为数据使用伪随机序列]'
+      '-T+[设置传出数据包的 IP 生存时间]:ttl'
+      '-t+[指定服务类型]:服务类型'
+    )
+  ;;
+  (dragonfly|netbsd)*:6)
+    args+=( '-R[为目标主机/第一跳注入可达性确认提示]' )
+  ;;
+  darwin*:4)
+    args+=( '-b+[绑定套接字到指定接口发送]:接口:_net_interfaces')
+  ;|
+  darwin*:6)
+    args+=(
+      '-B+[绑定套接字到指定接口发送]:接口:_net_interfaces'
+      '-G+[指定扫描 ping 的 ICMP 有效负载的最大、最小、增量大小]:最大,最小,增量（默认最小=0 增量=1）'
+      '-z+[指定流量类别]:流量类别'
+    )
+  ;|
+  darwin*)
+    args+=(
+      '-C[禁止套接字使用蜂窝网络接口]'
+      '-K+[指定发送 ICMP 数据包的网络服务类型]:服务类型:(BK_SYS BK BE RV AV RD OAM VI SIG VO)'
+      '-k+[指定发送 ICMP 数据包使用的流量类别]:流量类别 [CTL]:(BK_SYS BK BE RD OAM AV RV VI VO CTL)'
+      '--apple-connect[将套接字连接到目标地址]'
+      '--apple-time[打印数据包接收时间]'
+    )
+  ;;
+  openbsd*)
+    args+=(
+      '-E[无数据包时发出声音通知]'
+      '-e[每个数据包发出声音通知]'
+      '-g[提供接收和丢失数据包的视觉显示]'
+      '-T+[更改 TOS 值]:TOS 值:(critical inetcontrol lowdelay netcontrol throughput reliability ef af cs)'
+      '-V+[指定使用的路由表]:路由表:_routing_tables'
+    )
+  ;;
+  iputils:*)
+    args+=(
+      '-A[自适应]'
+      '-b[允许 ping 广播地址]'
+      "-B[不允许 ping 更改源地址]"
+      '-D[在每行前打印时间戳]'
+      '(-4)-F+[分配并设置 20 位流标签]:流标签（十六进制）'
+      '(-)-h[显示用法信息]'
+      '-I+[指定源接口]:接口:_net_interfaces'
+      '-m+[指定标记以标记传出数据包]:标记'
+      "-M+[指定路径 MTU 发现策略]:策略:((\
+        do\:禁止分片，包括本地\
+	want\:执行 PMTU 发现\
+	dont\:不设置 DF 标志))"
+      '(-4)-N+[发送 ICMPv6 节点信息查询替代回显请求]:子选项'
+      '-O[在发送下一数据包前报告未处理的 ICMP ECHO 回复]'
+      '-Q+[在 ICMP 数据报中设置服务质量相关位]:QoS TOS 位'
+      '-S+[设置套接字发送缓冲区]:sndbuf'
+      '-T+[设置特殊 IP 时间戳选项]:时间戳选项:(tsonly tsandaddr tsprespec)'
+      '-U[打印完整的用户到用户延迟]'
+      '(-)-V[显示版本信息]'
+      '-W+[指定等待响应的时间]:等待时间（秒）'
+    )
+  ;;
+  solaris*)
+    args+=(
+      '-A+[指定地址族]:地址族:(inet inet6)'
+      '-F+[指定探测数据包的流标签]:数字'
+      '-I+[指定数据包之间的延迟]:间隔（秒）[1]'
+      '-P+[指定服务类型]:服务类型 (0-255) [0]'
+      '-U[发送 UDP 数据包替代 ICMP]'
+      '-a[ping 多宿主目标的所有 IPv4 和 IPv6 地址]'
+      '-c+[指定探测数据包的流量类别]:流量类别 (0-255)'
+      '-i+[指定源接口]:接口:_net_interfaces'
+      '-l[使用松散源路由发送探测]'
+      '-p+[设置基本 UDP 端口]:端口 [33434]'
+      '-s[每秒发送一个数据报并收集统计信息]'
+    )
+  ;;
+esac
+
+_arguments -s -S $args \
+  '*:主机:_hosts'

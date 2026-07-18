@@ -1,0 +1,9 @@
+#compdef curl
+
+# curl Zsh 补全函数
+# 描述：传输数据的命令行工具
+#
+# 从 7.43.0 开始，curl 上游提供了自己的 _curl 定义。
+# 此补全作为后备，应放在 fpath 中 curl 提供版本之后。
+
+_gnu_generic || _urls "$@"

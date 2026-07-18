@@ -1,0 +1,225 @@
+#compdef wget
+
+# wget Zsh 补全函数
+# 描述：非交互式网络下载工具
+
+local curcontext="$curcontext" state line expl
+typeset -A opt_args
+
+_arguments -C -s \
+  '(- *)'{--version,-V}'[显示版本信息]' \
+  '(- *)'{--help,-h}'[显示帮助]' \
+  '(--background -b)'{--background,-b}'[后台运行]' \
+  '(--execute -e)'{--execute=,-e+}'[执行 .wgetrc 命令]:.wgetrc 命令' \
+  '(--output-file -o --append-output -a)'{--output-file=,-o+}'[指定输出日志文件]:日志文件:_files' \
+  '(--append-output -a --output-file -o)'{--append-output=,-a+}'[指定追加的日志文件]:追加日志:_files' \
+  '(--debug -d)'{--debug,-d}'[启用调试输出]' \
+  '(--quiet -q --verbose -v --no-verbose -nv)'{--quiet,-q}'[关闭输出]' \
+  '(--quiet -q --verbose -v --no-verbose -nv)'{--verbose,-v}'[启用详细输出]' \
+  '*-n+[关闭标志]:标志:->noflags' \
+  '--report-speed=:类型:(bits)' \
+  '(--input-file -i)'{--input-file=,-i+}'[指定输入文件]:包含 URL 的文件:_files' \
+  '--input-metalink=[下载本地 Metalink 文件中包含的文件]:文件:_files' \
+  '(--force-html -F)'{--force-html,-F}'[将输入文件视为 HTML]' \
+  '(--base -B)'{--base=,-B+}'[为相对链接添加基 URL]:基 URL:_urls' \
+  '--config=[指定配置文件]:配置文件:_files' \
+  '(--config)--no-config' '--rejected-log=:文件:_files' \
+  '(--tries -t)'{--tries=,-t+}'[设置重试次数]:重试次数' \
+  '--retry-connrefused[即使连接被拒绝也重试]' \
+  '--retry-on-http-error=[指定要重试的 HTTP 错误列表]:HTTP 错误' \
+  '(--output-document -O)'{--output-document=,-O+}'[指定文档写入文件]:输出文件:_files' \
+  '(--continue -c)'{--continue,-c}'[继续下载已有文件]'  \
+  '--start-pos=:偏移量' '--show-progress' \
+  '--progress=[设置进度条类型]:进度类型:->gauge' \
+  '(--timestamping -N)'{--timestamping,-N}'[仅下载比已有文件新的文件]' \
+  '--no-if-modified-since' \
+  "--no-use-server-timestamps[不将本地文件时间戳设为服务器时间]" \
+  '(--server-response -S)'{--server-response,-S}'[打印服务器响应]' \
+  "--spider[不下载任何内容]" \
+  '(--timeout -T)'{--timeout=,-T+}'[设置所有超时值]:超时（秒）' \
+  '--dns-servers=[指定要查询的 DNS 服务器]:DNS 服务器:_sequence _hosts' \
+  '--bind-dns-address=[将 DNS 解析器绑定到指定地址]:本地主机名或 IP' \
+  '(--timeout -T)--dns-timeout=[设置 DNS 查找超时]:DNS 查找超时（秒）' \
+  '(--timeout -T)--connect-timeout=[设置连接超时]:连接超时（秒）' \
+  '(--timeout -T)--read-timeout=[设置读取超时]:读取超时（秒）' \
+  '(--wait -w)'{--wait=,-w+}'[指定检索之间的等待时间]:时间（秒）' \
+  '(--random-wait)--waitretry=:时间（秒）' \
+  '(--waitretry)--random-wait[检索之间随机等待]' \
+  '--no-proxy[显式关闭代理]' \
+  '(--quota -Q)'{--quota=,-Q+}'[设置检索配额]:数量' \
+  '--bind-address=[指定绑定的地址]:绑定地址:_bind_addresses' \
+  '--limit-rate=[指定下载速率限制]:下载速率' \
+  '--no-dns-cache[禁用 DNS 查找缓存]' \
+  '--restrict-file-names=[限制文件名字符为系统允许的字符]:系统:->restrict' \
+  '--ignore-case[匹配文件/目录时忽略大小写]' \
+  '(-4 --inet4-only -6 --inet6-only)'{-4,--inet4-only}'[仅连接 IPv4 地址]' \
+  '(-4 --inet4-only -6 --inet6-only)'{-6,--inet6-only}'[仅连接 IPv6 地址]' \
+  '--prefer-family=[优先连接指定地址族]:地址族:(IPv6 IPv4 none)' \
+  '(--http-user --ftp-user)--user[设置 ftp 和 http 用户名]:用户名' \
+  '(--http-password --ftp-password)--password[设置 ftp 和 http 密码]:密码' \
+  '(--password --http-password --ftp-password)--ask-password:[提示输入密码]' \
+  '--use-askpass=:命令:_command_names -e' \
+  '--no-iri[关闭 IRI 支持]' \
+  '--local-encoding=[指定 IRI 的本地编码]:编码' \
+  '--remote-encoding=[指定默认远程编码]:编码' \
+  '--unlink[覆盖前先删除文件]' \
+  '--keep-badhash[保留校验和不匹配的文件（追加 .badhash）]' \
+  '--metalink-index=[metalink application/metalink4+xml metaurl 序号]:数字' \
+  '--metalink-over-http[从 HTTP 响应头使用 Metalink 元数据]' \
+  '--preferred-location[Metalink 资源的首选位置]' \
+  '--xattr[启用扩展文件属性中的元数据存储]' \
+  '(-nd --no-directories)'{-nd,--no-directories}"[不创建目录]" \
+  '(--force-directories -x)'{--force-directories,-x}'[强制创建目录]' \
+  '(-nH --no-host-directories)'{-nH,--no-host-directories}"[不创建主机目录]" \
+  '--protocol-directories[在目录中使用协议名]' \
+  '(--directory-prefix -P)'{--directory-prefix=,-P+}'[指定保存文件的前缀]:前缀:_files -/' \
+  '--cut-dirs=:数字:' \
+  '(--user)--http-user=:用户名' \
+  '(--password --ask-password)--http-password=:密码' \
+  '--no-cache[禁止使用服务器缓存数据]' \
+  '--default-page=[指定默认页面名称，通常为 index.html]:默认页面 [index.html]' \
+  '(--adjust-extension -E)'{--adjust-extension,-E}'[使用适当扩展名保存所有 HTML/CSS 文档]' \
+  "--ignore-length[忽略 Content-Length 头字段]" \
+  '*--header=[发送自定义 HTTP 头]:头:->header' \
+  '--compression=:压缩:(auto gzip none)' \
+  '--max-redirect=:数字' \
+  '--proxy-user=:用户名' \
+  '--proxy-password=:密码' \
+  '--referer=:URL:_urls' \
+  '--save-headers[保存 HTTP 头]' \
+  '(--user-agent -U)'{--user-agent=,-U+}'[指定用户代理标识]:用户代理' \
+  '--no-http-keep-alive[禁用 HTTP keep-alive]' \
+  '--no-cookies[关闭 cookies]' \
+  '--load-cookies=[指定要加载 cookies 的文件]:cookie 文件:_files' \
+  '--save-cookies=[指定要保存 cookies 的文件]:cookie 文件:_files' \
+  '--keep-session-cookies[加载和保存会话 cookies]' \
+  '--post-data=[使用 POST 方法发送指定数据]:要发送的数据' \
+  '--post-file=[使用 POST 方法发送文件内容]:文件:_files' \
+  '--method=[使用指定的 HTTP 方法]:方法:(GET POST HEAD DELETE)' \
+  '(--body-file)--body-data=[发送字符串作为数据]:字符串' \
+  '(--body-data)--body-file=[发送文件内容]:文件:_files' \
+  '--content-disposition[选择本地文件名时遵循 Content-Disposition 头]'  \
+  '--content-on-error[服务器错误时仍输出接收内容]' \
+  "--auth-no-challenge[无需等待服务器质询即发送基本 HTTP 认证]" \
+  '--secure-protocol=[选择安全协议]:协议:(SSLv2 SSLv3 TLSv1 TLSv1_1 TLSv1_2 PFS)' \
+  --https-only \
+  "--no-check-certificate[不检查服务器证书]" \
+  '--certificate=[指定客户端证书]:客户端证书文件:_files' \
+  '--certificate-type=[指定客户端证书类型]:证书类型:(PEM DER)' \
+  '--private-key=[指定私钥文件]:密钥文件:_files' \
+  '--private-key-type=[指定私钥类型]:密钥类型:(PEM DER)' \
+  "--ca-certificate=[指定 CA 证书包文件]:文件:_files" \
+  "--ca-directory=[指定 CA 哈希列表存储目录]:目录:_directories" \
+  '--crl-file=[指定 CRL 绑定文件]:文件:_files' \
+  '--pinnedpubkey=:文件:_files' \
+  '--random-file[指定用于种子生成器的随机数据文件]:文件:_files' \
+  '--egd-file=[指定 EGD 套接字文件名]:文件:_files' \
+  '--ciphers=[直接设置优先级字符串（GnuTLS）或密码列表字符串（OpenSSL）]:字符串' \
+  '--no-hsts[禁用 HSTS]' \
+  '--hsts-file[指定 HSTS 数据库路径]:文件:_files' \
+  '(--user)--ftp-user=:用户名' \
+  '(--password --ask-password)--ftp-password=:密码' \
+  "--no-remove-listing[不删除 .listing 文件]" \
+  '--no-glob[关闭 FTP 文件名通配]' \
+  '--no-passive-ftp' \
+  '--preserve-permissions[保留 FTP 远程文件权限]' \
+  --retr-symlinks --ftps-implicit --ftps-resume-ssl \
+  --ftps-clear-data-connection --ftps-fallback-to-ftp \
+  '--warc-file=:文件:_files' --warc-header=:字符串 --warc-max-size=:数字 \
+  --warc-cdx --warc-dedup=:文件:_files --no-warc-compression --no-warc-digests \
+  --no-warc-keep-log --warc-tempdir=:目录:_directories \
+  '(--recursive -r)'{--recursive,-r}'[递归子目录]' \
+  '(--level -l)'{--level=,-l+}'[指定最大递归深度]:深度' \
+  '--delete-after' \
+  '(--convert-links -k)'{--convert-links,-k}'[转换链接为相对路径]' \
+  --convert-file-only \
+  '--backups=:最大备份数' \
+  '(--backup-converted -K)'{--backup-converted,-K}'[转换前备份文件]' \
+  '(--mirror -m -r -N -l)'{--mirror,-m}'[镜像（-r -N -l inf --no-remove-listing）]' \
+  '(--page-requisites -p)'{--page-requisites,-p}'[获取显示页面所需的所有图片]' \
+  '--strict-comments[启用 HTML 注释的严格（SGML）处理]' \
+  '(--accept -A)'{--accept=,-A+}'[指定接受的扩展名]:扩展名' \
+  '(--reject -R)'{--reject=,-R+}'[指定拒绝的扩展名]:扩展名' \
+  --{accept,reject}-regex=:正则 '--regex-type=:正则类型:(posix pcre)' \
+  '(--domains -D)'{--domains=,-D+}'[指定接受的域名]:域名:_domains' \
+  '--exclude-domains=:拒绝的域名:_sequence _domains' \
+  '--follow-ftp' \
+  '--follow-tags=:HTML 标签:' \
+  '--ignore-tags=[指定忽略的 HTML 标签]:HTML 标签' \
+  '(--span-hosts -H)'{--span-hosts,-H}'[跨主机]' \
+  '(--relative -L)'{--relative,-L}'[仅跟随相对链接]' \
+  '(--include-directories -I)'{--include-directories=,-I+}'[包含的目录]:允许的目录' \
+  '--trust-server-names' \
+  '(--exclude-directories -X)'{--exclude-directories=,-X+}'[排除的目录]:排除的目录' \
+  '(-np --no-parent)'{-np,--no-parent}"[不升到父目录]" \
+  '--no-verbose' \
+  '--no-clobber' \
+  '--no-netrc' \
+  '--no-use-server-timestamps[不将时间戳设为服务器提供的值]' \
+  '--htmlify=:htmlify:' \
+  '--no:no:->noflags' \
+  '*:URL:_urls' && return 0
+
+case "$state" in
+  gauge)
+    _values -S : '进度条类型' \
+      'dot:样式:(default binary mega giga micro)' \
+      'bar:强制:(force)'
+  ;;
+  noflags)
+    _values -s '' '选项' \
+      'v[非详细]' \
+      'H[无主机目录]' \
+      'd[无目录]' \
+      'c[不覆盖]' \
+      'p[无父目录]'
+  ;;
+  restrict)
+    _values -s , '文件名字符限制' \
+      '(windows)unix' \
+      '(unix)windows' \
+      '(unix windows)nocontrol' \
+      ascii \
+      '(uppercase)lowercase' \
+      '(lowercase)uppercase'
+  ;;
+  header)
+    local -a headers
+    local suf=': '
+    compquote suf
+    headers=(
+             Accept{,-{Charset,Encoding,Language,Datetime}}
+             Authorization
+             Cache-Control
+             Connection
+             Cookie
+             Content-{Length,MD5,Type}
+             Date
+             Expect
+             From
+             Host
+             If-Match
+             If-Modified-Since
+             If-None-Match
+             If-Range
+             If-Unmodified-Since
+             Max-Forwards
+             Pragma
+             Proxy-Authorization
+             Range
+             Referer
+             TE
+             Upgrade
+             User-Agent
+             Via
+             Warning
+             X-Requested-With
+             X-Do-Not-Track
+             DNT
+             X-Forwarded-For
+             X-ATT-DeviceId
+             X-Wap-Profile
+             )
+    _wanted headers expl 'HTTP 头' compadd -S $suf -a headers
+  ;;
+esac

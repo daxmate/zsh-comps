@@ -1,0 +1,148 @@
+#compdef tar gtar star bsdtar
+
+# tar Zsh 补全函数
+# 描述：归档工具
+#
+# 特性：
+#  - 从第二位参数、单字母选项和长选项中收集 tar 命令
+#  - 使用 _tar_archive 函数补全归档文件
+#  - 尝试检测是否使用压缩归档
+#  - 补全归档内的文件，像普通目录层次一样
+#  - -- 后列出 tar 本身提供的长选项（GNU tar）
+
+local _tar_cmd tf tmp tmpb del index
+
+if _pick_variant gnu=GNU libarchive=libarchive unix --version; then
+  case "$($service --version)" in
+    ("tar (GNU tar) "(#b)([0-9.-]##)*)
+    autoload -z is-at-least
+    is-at-least 1.14.91 "$match[1]" || _cmd_variant[$service]="gnu-old"
+    ;;
+  esac
+fi
+
+tmp=("${(@M)words:#-[^-]*}")
+_tar_cmd="${(j::)tmp#-}"
+
+(( $words[(I)--(un|)gzip] ))     && _tar_cmd="z$_tar_cmd"
+(( $words[(I)--(un|)compress] )) && _tar_cmd="Z$_tar_cmd"
+(( $words[(I)--bzip2] ))         && _tar_cmd="j$_tar_cmd"
+(( $words[(I)--xz] ))            && _tar_cmd="J$_tar_cmd"
+(( $words[(I)--list] ))          && _tar_cmd="t$_tar_cmd"
+(( $words[(I)--(extract|get)] )) && _tar_cmd="x$_tar_cmd"
+(( $words[(I)--create] ))        && _tar_cmd="c$_tar_cmd"
+
+if [[ "$words[2]" = *[txcdruA]*~-* ]]; then
+  _tar_cmd="$words[2]$_tar_cmd"
+elif [[ $_tar_cmd != *[txcdruA]* && CURRENT -gt 2 ]]; then
+  (( $words[(I)--(diff|compare)] )) && _tar_cmd="d$_tar_cmd"
+  (( $words[(I)--append] ))         && _tar_cmd="r$_tar_cmd"
+  (( $words[(I)--update] ))         && _tar_cmd="u$_tar_cmd"
+  (( $words[(I)--(con|)catenate] )) && _tar_cmd="A$_tar_cmd"
+  (( $words[(I)--delete] ))         && del=1
+fi
+
+tmp="$words[(I)--file=*]"
+tmpb="$words[(I)-*Cf*~--*]"
+
+if (( tmp )); then
+  tf=${~words[tmp][8,-1]}
+  _tar_cmd="f$_tar_cmd"
+elif [[ "$words[2]" != -* && "$words[2]" = *f* ]]; then
+  tf=${~words[3]}
+  _tar_cmd="f$_tar_cmd"
+elif (( tmpb )); then
+  tf=${~words[tmpb+2]}
+  wdir=${~words[tmpb+1]}
+  _tar_cmd="Cf$_tar_cmd"
+else
+  tmp="${words[(I)-*f*~--*]}"
+  if (( tmp )); then
+    tf=${~words[tmp+1]}
+    _tar_cmd="f$_tar_cmd"
+  fi
+fi 2>/dev/null
+
+tmp=${words[(r)--dir[a-z]#=*]}
+if [[ -n $tmp ]]; then
+  eval "wdir=(${tmp#*=})"
+fi
+
+if [[ "$PREFIX" = --* ]]; then
+  _arguments '-f+:' '-C+:' '*: : true' -- -l '--owner=*:用户:_users' \
+		 '--group=*:组:_groups' \
+		 '--atime-preserve*::方法:(replace system)' \
+		 '--*-script=名称:脚本文件:_files' \
+		 '--format=*:格式:(gnu oldgnu pax posix ustar v7)' \
+		 '--quoting-style=*:引用风格:(literal shell shell-always c c-maybe escape locale clocale)' \
+		 '--totals*=信号*::信号:(HUP QUIT INT USR1 USR2)' \
+                 '*=(PROG|COMMAND)*:程序:_command_names -e' \
+		 '*=ARCHIVE*:归档: _tar_archive' \
+		 '*=FILE*:文件:_files' \
+		 '*=DIR*:目录:_files -/' \
+		 '*=CONTROL*::版本控制:(t numbered nil existing never simple)'
+
+elif [[ ( CURRENT -gt 2 && "$words[CURRENT-1]" = -[^C]#f* &&
+          "$words[CURRENT-1]" != --* ) ||
+        ( CURRENT -eq 3 && "$words[2]" = [^C]#f* && "$words[2]" != -* ) ||
+        ( CURRENT -gt 2 && "$words[CURRENT-2]" = -*C*f* &&
+          "$words[CURRENT-2]" != --* && "$words[CURRENT-1]" != --* ) ||
+        ( CURRENT -eq 4 && "$words[2]" = *C*f* && "$words[2]" != -* ) ]]; then
+  _tar_archive
+
+elif [[ ( CURRENT -gt 2 && "$words[CURRENT-1]" = -[^f]#C*) ||
+        ( CURRENT -eq 3 && "$words[2]" = [^f]#C* ) ]]; then
+  _directories
+
+elif [[ ( "$_tar_cmd" = *[xt]* || -n $del ) && -n "$tf" ]]; then
+  local largs=-tf expl
+
+  if [[ $_tar_cmd = *z* ]]; then
+    largs=-tzf
+  elif [[ $_tar_cmd = *j* ]]; then
+    largs=-tjf
+  elif [[ $_tar_cmd = *y* ]]; then
+    largs=-tyf
+  elif [[ $_tar_cmd = *Z* ]]; then
+    largs=-tZf
+  elif [[ $_tar_cmd = *I* ]]; then
+    largs=-tIf
+  elif [[ $_tar_cmd = *J* ]]; then
+    largs=-tJf
+  else
+    tmp="${words[(r)--use-comp*]}"
+    [[ -n $tmp ]] && largs=($tmp -tf)
+  fi
+
+  if [[ $tf != $_tar_cache_name && -f $tf ]]; then
+    _tar_cache_list=("${(@f)$($words[1] $largs $tf)}")
+    _tar_cache_name=$tf
+  fi
+
+  _wanted files expl '归档中的文件' _multi_parts / _tar_cache_list
+elif (( CURRENT == 2 )); then
+  compset -P -
+  _values -s '' 'tar 功能' \
+    '(c t u x)A[追加到归档]' \
+    '(A t u x)c[创建新归档]' \
+    '(A c u x)t[列出归档内容]' \
+    '(A c t x)u[更新归档]' \
+    '(A c t u)x[从归档提取文件]' \
+    'v[详细输出]' \
+    'f[指定归档文件或设备]'
+else
+  if ! (( index=$words[(I)-*C*] )); then
+    if [[ $words[2] = [^f]#C* ]]; then
+      index=1
+    elif [[ $words[2] = *f*C* ]]; then
+      index=2
+    fi
+  fi
+  if (( index )); then
+    index=${~${(Q)words[index+1]}}
+    [[ $index = (.|..|)/* ]] || index=~+/$index
+    _files -W $index
+  else
+    _files
+  fi
+fi

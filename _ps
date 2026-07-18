@@ -1,0 +1,247 @@
+#compdef ps
+
+# ps Zsh 补全函数
+# 描述：报告当前进程快照
+
+_ps_props() {
+  local opts
+
+  if [[ $1 = -s ]]; then
+    shift
+    compset -P '[+-]' || _describe -t modifiers modifier \
+	'( +:升序排序 -:降序排序 )' -S ''
+  fi
+
+  case $OSTYPE in
+    linux-gnu) opts=( ${${(f)"$(_call_program properties $words[1] L)"}%% *} ) ;;
+    *bsd*|dragonfly*|darwin*) opts=( $(_call_program properties $words[1] L) ) ;;
+    solaris*) opts=( ${=${(f)"$(_call_program properties $words[1] - 2>&1)"}[-3,-1]} ) ;;
+  esac
+
+  compadd "$@" -a opts
+}
+
+local curcontext="$curcontext" state line expl ret=1
+local short long pids
+local -a args bsd bsdarg
+local -A equivs
+
+args=(
+  '-a[选择除会话领导者以外的有 tty 的进程]'
+  {-A,-e}'[选择每个进程]'
+  '-d[选择除会话领导者以外的所有进程]'
+  '*-p+[按进程 ID 选择]:进程 ID:_sequence -s , _pids'
+  '*-G+[按真实组选择]:组:_sequence -s , _groups'
+  '*-g+[按有效组或会话选择]:组:_sequence -s , _groups'
+  '*-s+[按会话领导者选择]:会话领导者:_sequence -s , _pids'
+  '*-t+[按附加终端选择]:终端:_sequence -s , _ttys -Do'
+  '*-u+[按有效用户选择]:用户:_sequence -s , _users'
+  '*-U+[按真实用户选择]:用户:_sequence -s , _users'
+  '-o+[指定输出格式]:属性:_sequence -s , _ps_props -'
+
+  '-c[显示调度器属性]'
+  '-f[完整格式]'
+  '-j[显示会话 ID 和进程组 ID]'
+  '-l[长格式]'
+  '-L[显示每个轻量级进程的信息]'
+  '-y[显示 RSS 替代 ADDR（与 -l 配合使用）]'
+)
+
+bsd=(
+  'a[包含属于其他用户的进程]'
+  '(j s u v X)l[以长格式输出]'
+  '(l s u v X)j[以作业控制格式输出]'
+  'x[包含没有控制终端的进程]'
+  '(j l s u X)v[以虚拟内存格式输出]'
+  '*w[宽输出]'
+  'L[显示所有格式说明符]'
+  'S[包含子进程数据随父进程]'
+  'T[选择附加到当前终端的进程]'
+)
+bsdarg=(
+  '*p[按进程 ID 选择]'
+  '*t[按附加终端选择]'
+  'O[指定附加输出字段]'
+  'o[指定输出格式]'
+)
+
+case $OSTYPE in
+  solaris2.<11->)
+    args+=(
+      '-h[选择归属于指定 lgrp 的进程]:lgrp 列表'
+      '-H[显示进程的归属 lgroup]'
+    )
+  ;|
+  solaris*)
+    args+=(
+      '-P[显示进程或 lwp 绑定的处理器]'
+      '*-z[按区域选择进程]:区域列表:_sequence _zones'
+      '-Z[显示进程关联的区域]'
+    )
+  ;;
+  linux-gnu|dragonfly*|freebsd*|netbsd*|openbsd*)
+    bsd+=(
+      'e[在命令后显示环境]'
+      '(j l s v X)u[以资源使用格式输出]'
+    )
+    bsdarg+=(
+      'N[为 WCHAN 显示设置名称列表文件]'
+      '*U[按有效用户选择进程]'
+    )
+  ;|
+  linux-gnu|dragonfly*|freebsd*|openbsd*)
+    bsd+=( 'H[将线程显示为进程]' )
+  ;|
+  darwin*|dragonfly*|freebsd*|netbsd*|openbsd*)
+    bsd+=(
+      'A[选择每个进程]'
+      'c[仅显示命令的可执行名称]'
+      'h[每页输出重复一次标题行]'
+      '(r)m[按内存使用排序]'
+      '(m)r[按 CPU 使用排序]'
+    )
+  ;|
+  darwin*|dragonfly*|freebsd*|netbsd*)
+    bsd+=( 'C[CPU 百分比忽略驻留时间]' )
+  ;|
+  dragonfly*|freebsd*|netbsd*|openbsd*)
+    bsdarg+=( 'M[从指定 core 提取值]' )
+  ;|
+  linux-gnu|netbsd*) bsdarg+=( 'k[指定排序顺序]' ) ;|
+  darwin*|freebsd*)
+    bsd+=( 'X[跳过没有控制终端的进程]' )
+    bsdarg+=( '*G[按真实组选择]' )
+  ;|
+  freebsd*|dragonfly*)
+    bsd+=( 'f[显示被换出进程的命令和环境]' )
+  ;|
+  netbsd*|openbsd*)
+    bsdarg+=( 'W[从指定文件提取交换信息]' )
+  ;|
+  freebsd*|netbsd*)
+    bsd+=(
+      'd[显示进程层级]'
+    )
+  ;|
+  darwin*)
+    bsd+=(
+      'd[选择除会话领导者以外的所有进程]'
+      'E[在命令后显示环境]'
+      'f[完整格式]'
+      'M[显示每个进程对应的线程]'
+    )
+    bsdarg+=(
+      '*g[按进程组领导者选择]'
+      '*U[按真实用户选择]'
+    )
+    if [[ $words[CURRENT] = -* ]]; then
+      bsd+=( 'e[选择每个进程]' )
+      bsdarg+=( 'u[按用户 ID 选择]' )
+    else
+      bsd+=(
+        'e[在命令后显示环境]'
+        '(j l v)u[以资源使用格式输出]'
+      )
+    fi
+  ;;
+  dragonfly*)
+    bsd+=( 'R[按父子链子排序]' )
+  ;;
+  freebsd*)
+    bsd+=(
+      '*J[按 jail ID 选择进程]'
+      'Z[显示 mac 标签]'
+    )
+  ;;
+  netbsd*) bsd+=( '(j l u v)s[以线程格式输出]' ) ;;
+  openbsd*)
+    bsd+=(
+      'k[显示内核线程信息]'
+    )
+  ;;
+  linux-gnu)
+    args+=(
+      '-O+[指定附加输出字段]:属性:_sequence -s , _ps_props -'
+      '(-N --deselect)'{-N,--deselect}'[否定选择：选中未选择的进程]'
+      '*-C[按命令名选择]:命令:_sequence -s , _command_names -e'
+      '*--ppid[按父进程 ID 选择]:父进程:_sequence -S , _pids'
+      '(-f)-F[超完整格式]'
+      '--context[显示 SELinux 安全上下文格式]'
+      '-M[显示安全数据]'
+      '(--forest -H)'{--forest,-H}'[显示进程层级]'
+      '--headers[每页输出重复一次标题行]'
+      '(--cols --columns --width)'{--cols,--columns,--width}'[设置屏幕宽度]:宽度'
+      '(--lines --rows)'{--lines,--rows}'[设置屏幕高度]'
+      '--cumulative[包含子进程数据随父进程]'
+      '-n[为 WCHAN 显示设置名称列表文件]:文件:_files'
+      '(--no-headers --no-heading)'{--no-headers,--no-heading}'[禁止显示标题]'
+      '(-q --quick-pid -a -A -d -e -N --deselect -C -p --pid --ppid -G --Group -g --group -s --sid -t --tty -u --user -U --User --forest -H --sort)'{-q+,--quick-pid=}'[按 ID 快速选择进程]:进程 ID:_sequence -s , _pids'
+      '--sort=[指定排序顺序]:顺序:_sequence -s , _ps_props -s'
+      '-w[宽输出]'
+      '-m[在进程后显示线程]'
+      '-T[显示线程，带有 SPID 列]'
+      '-Z[显示安全上下文格式（SELinux）]'
+      '(- *)--help[显示帮助信息]::主题:(simple list output threads misc all)'
+      '(- *)--info[显示调试信息]'
+      '(- *)'{-V,--version}'[显示版本信息]'
+    )
+    equivs=( G Group g group p pid s sid t tty U User u user o format )
+    for short long in ${(kv)equivs}; do
+      args+=( ${${(M)args:#(\*|)-$short*}/$short+/-$long=} )
+    done
+    bsd+=(
+      'c[显示真实命令名称]'
+      'f[显示进程层级]'
+      'h[禁止标题]'
+      'm[在进程后显示线程]'
+      'n[WCHAN 和 USER 的数字输出]'
+      'r[选择运行中的进程]'
+      '(j l u v X)s[以信号格式输出]'
+      'V[显示版本信息]'
+      '(j l s u v)X[以寄存器格式输出]'
+      'Z[显示安全数据]'
+    )
+    bsdarg+=( 'q[按 ID 快速选择进程]' )
+  ;;
+esac
+
+if (( CURRENT > 1 )) && [[ $OSTYPE != (solaris*|linux-gnu) ||
+              ( $OSTYPE = linux-gnu && $words[CURRENT-1] != -* ) ]]; then
+  case $words[CURRENT-1] in
+    *k)
+      local sopt
+      [[ $OSTYPE = linux-gnu ]] && sopt='-s'
+      _wanted -C option-k-1 properties expl '属性' \
+		_sequence -s , _ps_props $sopt - && return ;;
+    *g) [[ $OSTYPE = darwin* ]] && _wanted -C option-g-1 processes \
+		expl '进程 ID' _sequence -s , _pids && return ;;
+    *G) _sequence -s , _groups && return ;;
+    *J) _sequence _jails -0 && return ;;
+    *[MNW]) _files && return ;;
+    *t)
+      _wanted -C option-t-1 ttys expl '终端' _sequence -s , _ttys -Do && return
+    ;;
+    *[pq]) _wanted -C "option-${words[CURRENT-1][-1]}-1" processes \
+	expl '进程 ID' _sequence -s , _pids && return ;;
+    *U) _wanted -C option-U-1 users expl '用户' _sequence -s , _users && return ;;
+    *u) [[ $OSTYPE = darwin* && $words[CURRENT-1] = -* ]] && \
+	_wanted -C option-u-1 users expl '用户' _sequence -s , _users && return ;;
+    *[oO]) _wanted -C "option-${words[CURRENT-1][-1]}-1" properties \
+        expl '属性' _sequence -s , _ps_props - && return ;;
+  esac
+fi
+
+if [[ $OSTYPE = (*bsd*|darwin*|dragonfly*) ]]; then
+  compset -P - && pids=1
+else
+  [[ $OSTYPE = solaris* ]] || args+=( '*:: :->rest' )
+  _arguments -C -s $args && ret=0
+  [[ -z "$state" ]] && return ret
+fi
+
+_values -s '' -S ' ' 'option' $bsd && ret=0
+_values -S ' ' 'option' $bsdarg && ret=0
+if [[ -z $pids ]]; then
+  _pids && ret=0
+fi
+return ret

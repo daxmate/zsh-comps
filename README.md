@@ -45,9 +45,9 @@ ln -sfn /path/to/zsh-comps/* /path/to/.oh-my-zsh/custom/completions/
 
 ## Todo（按优先级排序）
 
-- [ ] `find` — 搜索文件（选项极多）
-- [ ] `tar` — 归档压缩（选项多且容易忘）
-- [ ] `curl` — HTTP 请求（选项极多）
+✅ `find` — 搜索文件（选项极多）
+✅ `tar` — 归档压缩（选项多且容易忘）
+✅ `curl` — HTTP 请求（选项极多）
 ✅ `grep` — 文本搜索
 - ✅ `cp` — 复制文件
 - ✅ `mv` — 移动/重命名
@@ -59,17 +59,17 @@ ln -sfn /path/to/zsh-comps/* /path/to/.oh-my-zsh/custom/completions/
 - ✅ `cat` — 连接输出文件
 ✅ `less` — 分页查看
 - ✅ `head` / `tail` — 文件头尾
-- [ ] `file` — 识别文件类型
-- [ ] `locate` — 快速查找文件
-- [ ] `ssh` — 远程登录
-- [ ] `scp` — 远程复制
-- [ ] `wget` — 下载
-- [ ] `ping` — 网络连通性测试
-- [ ] `ps` — 进程列表
-- [ ] `kill` / `killall` — 发送信号
-- [ ] `time` — 计时
-- [ ] `zip` / `unzip` — ZIP 压缩
-- [ ] `gzip` / `gunzip` — GZip 压缩
+⚠️ `file`（无系统补全） — 识别文件类型
+✅ `locate` — 快速查找文件
+✅ `ssh` — 远程登录
+⚠️ `scp`（无系统补全） — 远程复制
+✅ `wget` — 下载
+✅ `ping` — 网络连通性测试
+✅ `ps` — 进程列表
+✅ `kill` / `killall` — 发送信号
+⚠️ `time`（无系统补全） — 计时
+✅ `zip` / `unzip` — ZIP 压缩
+✅ `gzip` / `gunzip` — GZip 压缩
 ✅ `df` — 磁盘空间
 ✅ `du` — 目录大小
 ✅ `date` — 日期格式化
@@ -78,8 +78,8 @@ ln -sfn /path/to/zsh-comps/* /path/to/.oh-my-zsh/custom/completions/
 - ✅ `wc` — 计数
 - ✅ `cut` — 列提取
 - ✅ `tr` — 字符转换
-- [ ] `awk` — 文本处理与模式扫描
-- [ ] `sed` — 流编辑
+✅ `awk` — 文本处理与模式扫描
+✅ `sed` — 流编辑
 ✅ `which` / `type` / `command` — 命令定位
 
 ## 维护

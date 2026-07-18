@@ -1,0 +1,115 @@
+#compdef gzip gunzip gzcat=gunzip pigz unpigz -redirect-,<,gunzip=gunzip -redirect-,>,gzip=gunzip -redirect-,<,gzip=gzip -value-,GZIP,-default-
+
+# gzip Zsh 补全函数
+# 描述：文件压缩与解压缩
+
+local decompress files expl curcontext="$curcontext" state line ret=1
+local -a pigz
+typeset -A opt_args
+local excl="--decompress --uncompress -1 -2 -3 -4 -5 -6 -7 -8 -9 -11 --best"
+
+files=( '*:files:->files' )
+case "$service" in
+unpigz|pigz)
+  pigz=(
+    '(-A --alias)'{-A+,--alias=}'[指定 zip 条目中用于标准输入的别名]:文件名'
+    '(-C --comment)'{-C+,--comment=}'[向 gzip 或 zip 头部添加注释]'
+    '(-H --huffman -U --rle)'{-H,--huffman}'[仅使用哈夫曼编码压缩]'
+    '(-U --rle -H --huffman)'{-U,--rle}'[使用游程编码压缩]'
+    '(-K --zip -z --zlib)'{-K,--zip}'[压缩为 PKWare zip 格式]'
+    '(-b --blocksize)'{-b+,--blocksize}'[设置压缩块大小]:大小 (KiB)'
+    '(-p --processes)'{-p,--processes}'[指定使用的进程数]'
+    '(-z --zlib -K --zip)'{-z,--zlib}'[压缩为 zlib (.zz) 格式]'
+    '(-m --no-time)'{-m,--no-time}"[不在头部存储/恢复修改时间]"
+    '(-M --time)'{-M,--time}"[在头部存储/恢复修改时间]"
+    '(--synchronous)-Y[强制将输出文件写入永久存储]'
+  )
+;|
+pigz)
+  pigz+=(
+    '(-i --independent)'{-i,--independent}'[独立压缩块以便损坏恢复]'
+    "($excl)-11"
+    '(--rsyncable)-R[生成 rsync 友好的归档]'
+    "($excl)"{-F,--first}'[块分割前先迭代]'
+    "($excl)"{-I+,--iterations}'[指定优化迭代次数]:迭代次数 [15]'
+    "($excl)"{-J+,--maxsplits}'[指定最大分割块数]:分割块数 [15]'
+    "($excl)"{-O,--oneblock}"[不分拆为更小块]"
+  )
+;|
+*GZIP*)
+  compset -q
+  words=( fake "$words[@]" )
+  (( CURRENT++ ))
+  files=()
+  ;&
+gunzip|zcat|unpigz)
+  decompress=yes
+  ;&
+gzip|pigz)
+  _arguments -C -s -S \
+    '(--to-stdout --stdout)-c[输出到标准输出]' \
+    '(-c --stdout)--to-stdout[输出到标准输出]' \
+    '(-c --to-stdout)--stdout[输出到标准输出]' \
+    "($excl)"{-d,--decompress,--uncompress}'[解压缩]' \
+    '(--force)-f[强制覆盖]' \
+    '(-f)--force[强制覆盖]' \
+    '(- *)'{-h,--help}'[显示帮助信息]' \
+    "(--keep)-k[不删除输入文件]" \
+    "(-k)--keep[不删除输入文件]" \
+    '(--list)-l[列出压缩文件内容]' \
+    '(-l)--list[列出压缩文件内容]' \
+    '(- *)'{-L,--license}'[显示软件许可证]' \
+    "(--no-name)-n[不保存或恢复原始文件名和时间戳]" \
+    "(-n)--no-name[不保存或恢复原始文件名和时间戳]" \
+    '(--name)-N[保存或恢复原始文件名和时间戳]' \
+    '(-N)--name[保存或恢复原始文件名和时间戳]' \
+    '(--quiet --silent)-q[抑制所有警告]' \
+    '(-q --silent)--quiet[抑制所有警告]' \
+    '(-q --quiet)--silent[抑制所有警告]' \
+    '(--recursive)-r[递归操作目录]' \
+    '(-r)--recursive[递归操作目录]' \
+    '(-R)--rsyncable[生成 rsync 友好的归档]' \
+    '(--suffix)-S+[指定压缩文件后缀]:后缀:' \
+    '(-S)--suffix=[指定压缩文件后缀]:后缀:' \
+    '(-Y)--synchronous[强制将输出写入永久存储]' \
+    '(--test)-t[测试压缩文件完整性]' \
+    '(-t)--test[测试压缩文件完整性]' \
+    '(--verbose)-v[详细模式]' \
+    '(-v)--verbose[详细模式]' \
+    '(- *)'{-V,--version}'[显示版本号]' \
+    "($excl)"-{-fast,1,2,3,4,5,6,7,8,9,-best} \
+    "$pigz[@]" "$files[@]" && ret=0
+  ;;
+esac
+
+case "$state" in
+files)
+  (( $+opt_args[-d] || $+opt_args[--decompress] || $+opt_args[--uncompress] ||
+     $+opt_args[-l] || $+opt_args[--list] ||
+     $+opt_args[-t] || $+opt_args[--test] )) &&
+    decompress=yes
+  if (( $+opt_args[-r] || $+opt_args[--recursive] )); then
+    if [[ -z "$decompress" ]]; then
+      _description directories expl '要压缩的目录'
+      _files "$expl[@]" -/ && return
+    else
+      _description directories expl '已压缩的目录'
+      _files "$expl[@]" -/ && return
+    fi
+  else
+    if [[ -z "$decompress" ]]; then
+      _description files expl '要压缩的文件'
+      _files "$expl[@]" -g '^*.(([tT]|)[gG]|)[zZ](-.)' && return
+    else
+      _description files expl '已压缩的文件'
+      if (( $+opt_args[-f] )); then
+	_files "$expl[@]" && return
+      else
+	_files "$expl[@]" -g '*.(([tT]|)[gG]|)[zZ](-.)' && return
+      fi
+    fi
+  fi
+  ;;
+esac
+
+return ret

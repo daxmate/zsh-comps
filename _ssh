@@ -1,0 +1,746 @@
+#compdef ssh slogin=ssh scp ssh-add ssh-agent ssh-copy-id ssh-keygen ssh-keyscan sftp
+
+# ssh Zsh 补全函数
+# 描述：OpenSSH SSH 客户端
+
+_ssh () {
+  local curcontext="$curcontext" state line expl suf arg ret=1
+  local args sigargs common common_transfer options algopt tmp p1 file cmn cmds sdesc tdesc
+  typeset -A opt_args tsizes
+
+  common=(
+    '(-6)-4[强制 ssh 仅使用 IPv4 地址]'
+    '(-4)-6[强制 ssh 仅使用 IPv6 地址]'
+    '-A[启用认证代理连接转发]'
+    '-C[压缩数据]'
+    '-c+[选择加密密码]:加密密码:->ciphers'
+    '-F+[指定替代配置文件]:配置文件:_files'
+    '*-i+[选择身份文件]:SSH 身份文件:_files -g "*(-.^AR)"'
+    '*-o+[指定额外选项]:选项字符串:->option'
+  )
+  common_transfer=(
+    '-J+[通过跳板主机连接]: :->userhost'
+    '-l+[限制使用的带宽]:带宽（Kbit/s）'
+    '-P+[指定远程主机端口]:远程主机端口号'
+    '-p[保留修改时间、访问时间和模式]'
+    '-q[禁用进度条和警告]'
+    '-r[递归复制目录（跟随符号链接）]'
+    '-S+[指定 ssh 程序]:ssh 路径:_command_names -e' \
+    '-v[详细模式]'
+  )
+  algopt='-E+[指定指纹哈希算法]:算法:(md5 sha256)'
+
+  case "$service" in
+  ssh)
+    (( $+words[(r)-[^-]#t*] )) && tdesc='，即使没有控制 tty 也分配'
+    _arguments -C -s \
+      '(-A)-a[禁用认证代理连接转发]' \
+      '-B+[连接前绑定到指定接口]:接口:_net_interfaces' \
+      '(-P)-b+[指定传输接口]:绑定地址:_bind_addresses' \
+      '-D+[指定动态端口转发]:动态端口转发:->dynforward' \
+      '-e+[设置转义字符]:转义字符（或 none）:' \
+      '-E+[将日志输出追加到文件而非 stderr]:_files' \
+      '(-n)-f[转到后台]' \
+      '-g[允许远程主机连接到本地转发端口]' \
+      '-G[输出配置并退出]' \
+      '-I+[指定智能卡设备]:设备:_files' \
+      '-J+[通过跳板主机连接]: :->userhost' \
+      '-K[启用基于 GSSAPI 的认证和转发]' \
+      '-k[禁用 GSSAPI 凭据转发]' \
+      '*-L+[指定本地端口转发]:本地端口转发:->forward' \
+      '-l+[指定登录名]:登录名:_ssh_users' \
+      '-M[主模式用于连接共享]' \
+      '-m+[指定 MAC 算法]: :->macs' \
+      "-N[不执行远程命令]" \
+      '-n[从 /dev/null 重定向标准输入]' \
+      '-O+[控制活动连接多路复用主进程]:多路复用控制命令:((check\:"检查主进程是否在运行" exit\:"请求主进程退出" forward\:"不执行命令请求转发" stop\:"请求主进程停止接受更多多路复用请求" cancel\:"取消 -L 和/或 -R 的现有转发" proxy))' \
+      '-P[使用非特权端口]' \
+      '-p+[指定远程主机端口]:远程主机端口号' \
+      '(-v)*-q[安静操作]' \
+      '*-R+[指定远程端口转发]:远程端口转发:->forward' \
+      '-S+[指定连接共享的控制套接字路径]:控制套接字路径:_files' \
+      '-Q+[查询参数]:查询选项:((cipher\:"支持的对称密码" cipher-auth\:"支持身份验证的对称密码" mac\:"支持的消息完整性代码" kex\:"密钥交换算法" key\:"密钥类型" key-cert\:"证书密钥类型" key-plain\:"非证书密钥类型" protocol-version\:"支持的 SSH 协议版本" sig\:"支持的签名算法" help\:"显示支持的查询"))' \
+      '-s[调用子系统]' \
+      '(-t)-T[禁用伪 tty 分配]' \
+      "(-T)*-t[强制分配伪 tty${tdesc}]" \
+      '-V[显示版本号]' \
+      '(-q)*-v[详细模式（多次增加详细程度，最多 3 级）]' \
+      '-W+[将标准输入输出转发到主机]:stdio 转发:->hostport' \
+      '-w+[请求隧道设备转发]:local_tun[\:remote_tun]（整数或 any）:' \
+      '(-x -Y)-X[启用（不受信任的）X11 转发]' \
+      '(-X -Y)-x[禁用 X11 转发]' \
+      '(-x -X)-Y[启用受信任的 X11 转发]' \
+      '-y[通过 syslog 而非 stderr 发送日志信息]' \
+      ':远程主机名:->userhost' \
+      '*::args:->command' "$common[@]" && ret=0
+    ;;
+  scp)
+    _arguments -C -s \
+      '-3[通过本地主机复制，不直接在远程主机之间传输]' \
+      '-B[批处理模式（不询问密码短语）]' \
+      '-T[禁用严格文件名检查]' \
+      '*:文件:->file' "$common[@]" "$common_transfer[@]" && ret=0
+    ;;
+  ssh-add)
+    if [[ $OSTYPE != darwin* || $APPLE_SSH_ADD_BEHAVIOR == openssh ]]; then
+      args=(
+        '-K[从 FIDO 认证器加载常驻密钥]'
+      )
+    else
+      [[ ${APPLE_SSH_ADD_BEHAVIOR:-macos} == macos ]] && args=(
+        '-A[从钥匙串添加身份]'
+        '-K[添加/删除身份时更新钥匙串]'
+      )
+    fi
+    [[ $OSTYPE == darwin<20->.* ]] && args+=(
+      '--apple-load-keychain[从钥匙串添加身份]'
+      '--apple-use-keychain[添加/删除身份时更新钥匙串]'
+    )
+    _arguments -s : $args \
+      '-c[身份须通过 SSH_ASKPASS 确认]' \
+      '-D[删除所有身份]' \
+      '-d[移除身份]' \
+      $algopt \
+      '-e+[移除 PKCS#11 共享库提供的密钥]:库:_files -g "*.(so|dylib)(|.<->)(-.)"' \
+      '-k[仅加载纯私钥，跳过证书]' \
+      '-K[从 FIDO 认证器加载常驻密钥]' \
+      '-L[列出代理中所有身份的公钥参数]'\
+      '-l[列出所有身份]' \
+      '-m+[指定最大更改前的最小剩余签名数]:数字' \
+      '-M+[指定最大签名数]:数字' \
+      '-S+[添加 FIDO 认证器托管的密钥时使用指定库]:库:_files' \
+      '-s+[添加 PKCS#11 共享库提供的密钥]:库:_files -g "*.(so|dylib)(|.<->)(-.)"' \
+      '-t+[设置身份的最大生存期]:最大生存期（秒或时间格式）:' \
+      "-T[测试身份文件私钥的可用性]:*:公钥文件:_files -g '*.pub(-.)'" \
+      '*-v[详细模式]' \
+      '-q[操作成功后保持安静]' \
+      '-X[解锁代理]' \
+      '-x[用密码锁定代理]' \
+      '*:SSH 身份文件:_files'
+    return
+    ;;
+  ssh-agent)
+    _arguments -s \
+      '(-k)-a+[指定绑定代理的 UNIX 域套接字]:UNIX 域套接字:_files' \
+      '(-k -s)-c[强制 csh 风格 shell]' \
+      '(-k)-d[调试模式]' \
+      '(-k)-D[前台模式]' \
+      "(-k)$algopt" \
+      '-k[杀掉当前代理]' \
+      '(-k)-P[指定 PKCS#11 共享库白名单]:PKCS#11 库白名单模式' \
+      '(-k -c)-s[强制 sh 风格 shell]' \
+      '-t[设置身份默认最大生存期]:最大生存期（秒或时间格式）:' \
+      '-v[详细模式]' \
+      '*::命令: _normal'
+    return
+    ;;
+  ssh-keygen)
+    (( CURRENT == 2 )) && p1='!'
+    args=( '!-z:数字' )
+    options=(
+      application
+      'challenge\:路径\:_files'
+      device
+      no-touch-required
+      resident
+      user
+      verify-required
+      'write-attestation\:路径\:_files'
+    )
+    sdesc='用 CA 密钥为证书签名'
+    if (( $+words[(r)-[IhUDnV]*] )); then
+      args=( '-z[指定序列号]:序列号' )
+      options=(
+        clear critical\:名称 extension\:名称 force-command\:命令\:_cmdstring
+        no-agent-forwarding no-port-forwarding no-pty no-user-rc no-x11-forwarding
+        permit-agent-forwarding permit-port-forwarding permit-pty permit-user-rc
+        permit-x11-forwarding source-address\:源地址
+      )
+    fi
+    (( $+words[(r)-[ku]] )) && args=( '-z[指定版本号]:版本号' ) &&
+        sdesc='指定 CA 公钥文件'
+    file=key
+    (( $+words[(r)-[FHR]] )) && file=known_hosts
+    if (( $+words[(r)-M*] )); then
+      file=input
+      args+=( '*:输出文件:_files' )
+      options=(
+        lines:数字
+        'start-line\:行号'
+        checkpoint\:文件:_files
+        'memory\:大小（兆字节）'
+        'start\:起始点（十六进制值）'
+        generator\:值
+      )
+    fi
+    (( $+words[(r)-A] )) && file='主机密钥前缀'
+    if (( $+words[(r)-[kIQ]] )); then
+      file=krl
+      args+=( '*:文件:_files' )
+    fi
+    if (( arg = $words[(I)-Y*] )); then
+      [[ $words[arg] = -Y?* ]] || (( arg++ ))
+      case ${words[arg]#-Y} in
+        ^find-*) sigargs+=( "$p1-n+[指定命名空间]:命名空间" ) ;|
+	check*|find*|verify)
+	  sigargs+=( "$p1-s+[指定签名文件]:签名文件:-files" )
+	;|
+	sign) sigargs+=( '*:文件:_files' ) ;;
+	verify)
+	  args=()
+	  sigargs+=(
+	    '-I+[指定签名者身份]:身份'
+	    '-r+[指定吊销文件]:吊销文件:_files'
+	  )
+	;;
+      esac
+    fi
+    cmds=( -p -i -e -y -c -l -B -D -F -H -K -R -r -M -s -L -A -k -Q -Y )
+    cmn=( -a -b -P -N -C -l -m -O -v -w -Z )
+    cms=( -E -q -t -g -M -I -h -n -V -u -U )
+    tsizes=(
+      dsa 1024
+      ecdsa '256 384 521'
+      rsa '1024 2048 4096'
+    )
+    _arguments -s $args \
+      "${p1}(${${(@)cmds:#-[pcKAO]}} ${${(@)cms:#-[t]}} -O)-a+[指定轮数]:轮数 [16]" \
+      "(${${(@)cmds:#-M}} -P ${${(@)cms:#-[MS]}})-b+[指定密钥位数]:密钥位数 [2048]:"'compadd ${expl\:/-X/-x} ${_comp_mesg\:=-} ${=tsizes[${opt_args[create--t]\:-rsa}]}' \
+      "$p1(${${(@)cmds:#-[pc]}} -b $cms)-P+[提供旧密码短语]:旧密码短语" \
+      "(${${(@)cmds:#-p}} -v ${${(@)cms:#-[qt]}})-N+[提供新密码短语]:新密码短语" \
+      "(${${(@)cmds:#-c}} -v $cms)-C+[提供新注释]:新注释" \
+      "(-D -I -h -n -V -A)-f+[$file 文件]:$file 文件:_files" \
+      "$p1(${${(@)cmds:#-[FE]}} ${${(@)cmn:#-v}} ${${(@)cms:#-E}})-l[显示密钥文件指纹]" \
+      "$p1(${${(@)cmds:#-[iep]}} $cms)-m+[指定转换格式]:格式 [RFC4716]:(PEM PKCS8 RFC4716)" \
+      "$p1*-O+[指定键/值选项]: : _values 'option' $options" \
+      "(${${(@)cmds:#-[lGT]}} ${${(@)cmn:#-[bv]}} -f)*-v[详细模式]" \
+      "$p1(${${(@)cmds:#-K}} -P ${${(@)cms:#-[qt]}})-w+[指定用于创建 FIDO 认证器托管密钥的库]:库:_files -g '*.(so|dylib)(|.<->)(-.)'" \
+      "$p1(${${(@)cmds:#-p}} -l ${${(@)cms:#-[qt]}})-Z+[指定写入私钥文件时使用的加密密码]:密码:compadd - $(_call_program ciphers ssh -Q cipher)" \
+      - '(commands)' \
+      "(-b -l -C -O -v -w)-p[更改私钥文件的密码短语]" \
+      "(${${(@)cmn:#-m}})-i[导入密钥到 OpenSSH 格式]" \
+      "(${${(@)cmn:#-m}})-e[导出密钥为 SECSH 文件格式]" \
+      "($cmn)-y[从私钥获取公钥]" \
+      "(${${(@)cmn:#-[aCP]}})-c[更改私钥和公钥文件中的注释]" \
+      "($cmn)-B[显示密钥的 bubblebabble 摘要]" \
+      "(-)-D+[下载智能卡中存储的密钥]:读卡器" \
+      "(${${(@)cmn:#-[lv]}})-F+[在 known_hosts 文件中搜索主机]:主机:_ssh_hosts" \
+      "($cmn)-H[哈希 known_hosts 文件中的名称]" \
+      "(${${(@)cmn:#-[aw]}} -f)-K[从 FIDO 认证器下载常驻密钥]" \
+      "($cmn)-R+[从 known_hosts 文件中移除主机]:主机:_ssh_hosts" \
+      "(${${(@)cmn:#-O}})-M+[模数生成]:动作:((
+          generate\:生成 DH-GEX 模数候选
+          screen\:筛选 DH-GEX 模数候选
+      ))" \
+      "($cmn)-L[打印证书内容]" \
+      "(${${(@)cmn:#-a}})-A[为所有密钥类型生成主机密钥]" \
+      "($cmn)-Q[测试密钥是否已在 KRL 中被吊销]" \
+      "($cmn)-Y+[签名动作]:动作:((
+        find-principals\:查找与签名公钥关联的主体
+        sign\:使用 SSH 密钥为文件签名
+        verify\:验证使用 sign 选项生成的签名
+        check-novalidate\:检查签名结构
+      ))" \
+      - finger \
+      "$p1($cmn)$algopt" \
+      - create \
+      '(-P -l)-q[静默 ssh-keygen]' \
+      "(-P -l)-t+[指定要创建的密钥类型]:密钥类型:(rsa dsa ecdsa ed25519 ecdsa-sk ed25519-sk)" \
+      - dns \
+      "($cmn)-r[打印 DNS 资源记录]:主机名:_hosts" \
+      "$p1($cmn)-g[使用通用 DNS 格式]" \
+      - certify \
+      "($cmn)-s[$sdesc]:CA 密钥:_files" \
+      "$p1($cmn -f -k -u)-I+[指定要包含在证书中的密钥标识符]:密钥 ID" \
+      "$p1($cmn -f -k -u)-h[生成主机证书而非用户证书]" \
+      "$p1($cmn -f -k -u -D)-U[指示 CA 密钥由 ssh-agent 持有]" \
+      "$p1($cmn -f -k -u -U)-D+[指示 CA 密钥存储在 PKCS#11 令牌中]:PKCS11 共享库:_files -g '*.(so|dylib)(|.<->)(-.)'" \
+      "$p1($cmn -f -k -u)-n+[指定证书中包含的用户/主机主体名称]:主体" \
+      "$p1($cmn -f -u)-V+[指定证书有效期间隔]:间隔" \
+      "($cmn -I -h -n -D -O -U -V)-k[生成 KRL 文件]" \
+      "$p1($cmn -I -h -n -D -O -U -V)-u[更新 KRL]" \
+      - signature \
+      $sigargs
+    return
+  ;;
+  ssh-keyscan)
+    _arguments \
+      '(-6)-4[强制 ssh 仅使用 IPv4 地址]' \
+      '(-4)-6[强制 ssh 仅使用 IPv6 地址]' \
+      '-c[从目标主机请求证书而非普通密钥]' \
+      '-D[将找到的密钥打印为 SSHFP DNS 记录]' \
+      '*-f+[从文件读取主机，每行一个]:文件:_files' \
+      '-H[哈希输出中的所有主机名和地址]' \
+      '-p+[指定远程主机端口]:远程主机端口号' \
+      '-T+[指定超时]:超时（秒）[5]' \
+      '-t+[指定从扫描主机获取的密钥类型]:密钥类型:_sequence compadd - rsa dsa ecdsa ed25519' \
+      '-v[详细模式]'
+    return
+  ;;
+  sftp)
+    _arguments -C -s \
+      '-a[尝试继续中断的传输]' \
+      '-B+[指定缓冲区大小]:缓冲区大小（字节）[32768]' \
+      '-b+[指定要读取的批处理文件]:批处理文件:_files' \
+      '-D+[直接连接到本地 sftp 服务器]:sftp 服务器路径' \
+      '-f[请求传输后立即刷新文件]' \
+      '-N[禁用由 -b 设置的隐式安静模式]' \
+      '-R+[指定未完成的请求数]:请求数 [64]' \
+      '-s+[指定 SSH2 子系统或远程主机上 sftp 服务器的路径]:子系统/路径' \
+      '1:文件:->rfile' '*:文件:->file' "$common[@]" "$common_transfer[@]" && ret=0
+    ;;
+  ssh-copy-id)
+    _arguments \
+      '-i+[选择身份文件]:SSH 身份文件:_files -g "*(-.^AR)"' \
+      '-f[复制密钥而不先检查是否已安装]' \
+      '-n[空运行 — 不实际复制任何密钥]' \
+      '*-o+[指定 ssh 选项]:选项字符串:->option' \
+      '-p+[指定远程主机端口]:远程主机端口号' \
+      '(- 1)'{-h,-\?}'[显示用法信息]' \
+      ':远程主机名:->userhost' && ret=0
+    ;;
+  esac
+
+  while [[ -n "$state" ]]; do
+    lstate="$state"
+    state=''
+
+    case "$lstate" in
+    option)
+      if compset -P 1 '*='; then
+        case "${IPREFIX#-o}" in
+          (#i)(ciphers|macs|kexalgorithms|hostkeyalgorithms|pubkeyacceptedkeytypes|hostbasedkeytypes)=)
+          if ! compset -P '[+-]'; then
+            _wanted prefix expl '相对于默认值' compadd - + - && ret=0
+          fi
+          ;;
+        esac
+        case "${IPREFIX#-o}" in
+        (#i)(afstokenpassing|batchmode|canonicalizefallbacklocal|challengeresponseauthentication|checkhostip|clearallforwardings|compression|enablesshkeysign|exitonforwardfailure|fallbacktorsh|forward(agent|x11)|forwardx11trusted|gatewayports|gssapiauthentication|gssapidelegatecredentials|gssapikeyexchange|gssapirenewalforcesrekey|gssapitrustdns|hashknownhosts|hostbasedauthentication|identitiesonly|kbdinteractiveauthentication|(tcp|)keepalive|nohostauthenticationforlocalhost|passwordauthentication|permitlocalcommand|proxyusefdpass|pubkeyauthentication|rhosts(|rsa)authentication|rsaauthentication|streamlocalbindunlink|usersh|kerberos(authentication|tgtpassing)|useprivilegedport|visualhostkey)=*)
+          _wanted values expl '布尔值' compadd yes no && ret=0
+          ;;
+        (#i)addressfamily=*)
+          _wanted values expl '地址族' compadd any inet inet6 && ret=0
+          ;;
+        (#i)bindaddress=*)
+          _wanted bind-addresses expl '绑定地址' _bind_addresses && ret=0
+          ;;
+        (#i)canonicaldomains=*)
+          _message -e '规范域名（空格分隔）' && ret=0
+          ;;
+        (#i)canonicalizehostname=*)
+          _wanted values expl '值' compadd yes no always && ret=0
+          ;;
+        (#i)canonicalizemaxdots=*)
+          _message -e '点数' && ret=0
+          ;;
+        (#i)canonicalizepermittedcnames=*)
+          _message -e 'CNAME 规则列表 (source_domain_list:target_domain_list，每个模式列表逗号分隔)' && ret=0
+          ;;
+        (#i)ciphers=*)
+          state=ciphers
+          ;;
+        (#i)connectionattempts=*)
+          _message -e '连接尝试次数' && ret=0
+          ;;
+        (#i)connecttimeout=*)
+          _message -e '连接超时' && ret=0
+          ;;
+        (#i)controlmaster=*)
+          _wanted values expl '值' compadd yes no auto autoask && ret=0
+          ;;
+        (#i)controlpath=*)
+          _description files expl '控制套接字路径'
+          _files "$expl[@]" && ret=0
+          ;;
+        (#i)controlpersist=*)
+          _message -e '超时'
+          ret=0
+          _wanted values expl '布尔值' compadd yes no && ret=0
+          ;;
+        (#i)escapechar=*)
+          _message -e '转义字符（或 none）'
+          ret=0
+          ;;
+        (#i)fingerprinthash=*)
+          _values '指纹哈希算法' \
+              md5 ripemd160 sha1 sha256 sha384 sha512 && ret=0
+          ;;
+        (#i)forwardx11timeout=*)
+          _message -e '超时'
+          ret=0
+          ;;
+        (#i)globalknownhostsfile=*)
+          _description files expl '全局已知主机文件'
+          _files "$expl[@]" && ret=0
+          ;;
+        (#i)hostname=*)
+          _wanted hosts expl '要登录的真实主机名' _ssh_hosts && ret=0
+          ;;
+        (#i)(hostbasedkeytypes|hostkeyalgorithms|pubkeyacceptedkeytypes)=*)
+	  _wanted key-types expl '密钥类型' _sequence compadd - $(_call_program key-types ssh -Q key) && ret=0
+          ;;
+        (#i)identityfile=*)
+          _description files expl 'SSH 身份文件'
+          _files "$expl[@]" && ret=0
+          ;;
+        (#i)ignoreunknown=*)
+          _message -e '模式列表' && ret=0
+          ;;
+        (#i)ipqos=*)
+          local descr
+          if [[ $PREFIX = *\ *\ * ]]; then return 1; fi
+          if compset -P '* '; then
+            descr='非交互会话的 QoS'
+          else
+            descr='QoS [如果给出第二个值（空格分隔），则为交互会话的 QoS]'
+          fi
+          _values $descr 'af11' 'af12' 'af13' 'af14' 'af22' \
+              'af23' 'af31' 'af32' 'af33' 'af41' 'af42' 'af43' \
+              'cs0' 'cs1' 'cs2' 'cs3' 'cs4' 'cs5' 'cs6' 'cs7' 'ef' \
+              'lowdelay' 'throughput' 'reliability' && ret=0
+          ;;
+        (#i)(local|remote)forward=*)
+          state=forward
+          ;;
+        (#i)dynamicforward=*)
+          state=dynforward
+          ;;
+        (#i)kbdinteractivedevices=*)
+          _values -s , '键盘交互认证方法' \
+              'bsdauth' 'pam' 'skey' && ret=0
+          ;;
+        (#i)(kexalgorithms|gssapikexalgorithms)=*)
+          _wanted algorithms expl '密钥交换算法' _sequence compadd - \
+              $(_call_program algorithms ssh -Q kex) && ret=0
+          ;;
+        (#i)localcommand=*)
+          _description commands expl '连接后在本地运行命令'
+          _command_names && ret=0
+          ;;
+        (#i)loglevel=*)
+          _values '日志级别' QUIET FATAL ERROR INFO VERBOSE\
+              DEBUG DEBUG1 DEBUG2 DEBUG3 && ret=0
+          ;;
+        (#i)macs=*)
+          state=macs
+          ;;
+        (#i)numberofpasswordprompts=*)
+          _message -e '密码提示次数'
+          ret=0
+          ;;
+        (#i)pkcs11provider=*)
+          _description files expl 'PKCS#11 共享库'
+          _files -g '*.(so|dylib)(|.<->)(-.)' "$expl[@]" && ret=0
+          ;;
+        (#i)port=*)
+          _message -e '远程主机端口号'
+          ret=0
+          ;;
+        (#i)preferredauthentications=*)
+          _values -s , '认证方法' gssapi-with-mic \
+              hostbased publickey keyboard-interactive password && ret=0
+          ;;
+        (#i)protocol=*)
+          _values -s , '协议版本' \
+              '1' \
+              '2' && ret=0
+          ;;
+        (#i)(proxy|remote)command=*)
+          _cmdstring && ret=0
+          ;;
+        (#i)rekeylimit=*)
+          _message -e '重新协商会话密钥前传输的最大字节数'
+          ret=0
+          ;;
+        (#i)requesttty=*)
+          _values '请求伪 tty' \
+              'no[从不请求 TTY]' \
+              'yes[当标准输入为 TTY 时始终请求 TTY]' \
+              'force[始终请求 TTY]' \
+              'auto[打开登录会话时请求 TTY]' && ret=0
+          ;;
+        (#i)revokedhostkeys=*)
+          _description files expl '已吊销的主机密钥文件'
+          _files "$expl[@]" && ret=0
+          ;;
+        (#i)sendenv=*)
+          _wanted envs expl '环境变量' _parameters -g 'scalar*export*' && ret=0
+          ;;
+        (#i)serveralivecountmax=*)
+          _message -e '断开前无回复的存活消息数'
+          ret=0
+          ;;
+        (#i)serveraliveinterval=*)
+          _message -e '自上次接收数据后发送存活消息的超时秒数'
+          ret=0
+          ;;
+        (#i)streamlocalbindmask=*)
+          _message -e '八进制掩码' && ret=0
+          ;;
+        (#i)stricthostkeychecking=*)
+          _wanted values expl '值' compadd yes no ask accept-new off && ret=0
+          ;;
+        (#i)syslogfacility=*)
+          _wanted facilities expl '设施' compadd -M 'm:{a-z}={A-Z}' DAEMON USER AUTH LOCAL{0,1,2,3,4,5,6,7} && ret=0
+          ;;
+        (#i)(verifyhostkeydns|updatehostkeys)=*)
+          _wanted values expl '值' compadd yes no ask && ret=0
+          ;;
+        (#i)transport=*)
+          _values '传输协议' TCP SCTP && ret=0
+          ;;
+        (#i)tunnel=*)
+          _values '请求设备转发' \
+              'yes' \
+              'point-to-point' \
+              'ethernet' \
+              'no' && ret=0
+          ;;
+        (#i)tunneldevice=*)
+          _message -e 'local_tun[:remote_tun]（整数或 any）'
+          ret=0
+          ;;
+        (#i)userknownhostsfile=*)
+          _description files expl '用户已知主机文件'
+          _files "$expl[@]" && ret=0
+          ;;
+        (#i)user=*)
+          _wanted users expl '要登录的用户' _ssh_users && ret=0
+          ;;
+        (#i)xauthlocation=*)
+          _description files expl 'xauth 程序'
+          _files "$expl[@]" -g '*(-*)' && ret=0
+          ;;
+        esac
+      else
+        _wanted values expl '配置文件选项' \
+            compadd -M 'm:{a-z}={A-Z} r:[^A-Z]||[A-Z]=* r:|=*' -q -S '=' - \
+                AddKeysToAgent \
+                AddressFamily \
+                BatchMode \
+                BindAddress \
+                CanonicalDomains \
+                CanonicalizeFallbackLocal \
+                CanonicalizeHostname \
+                CanonicalizeMaxDots \
+                CanonicalizePermittedCNAMEs \
+                CASignatureAlgorithms \
+                CertificateFile \
+                ChallengeResponseAuthentication \
+                CheckHostIP \
+                Ciphers \
+                ClearAllForwardings \
+                Compression \
+                ConnectionAttempts \
+                ConnectTimeout \
+                ControlMaster \
+                ControlPath \
+                ControlPersist \
+                DynamicForward \
+                EnableSSHKeysign \
+                EscapeChar \
+                ExitOnForwardFailure \
+                FingerprintHash \
+                ForwardAgent \
+                ForwardX11 \
+                ForwardX11Timeout \
+                ForwardX11Trusted \
+                GatewayPorts \
+                GlobalKnownHostsFile \
+                GSSAPIAuthentication \
+                GSSAPIClientIdentity \
+                GSSAPIDelegateCredentials \
+                GSSAPIKeyExchange \
+                GSSAPIRenewalForcesRekey \
+                GSSAPIServerIdentity \
+                GSSAPITrustDns \
+                GSSAPIKexAlgorithms \
+                HashKnownHosts \
+                HostbasedAuthentication \
+                HostbasedKeyTypes \
+                HostKeyAlgorithms \
+                HostKeyAlias \
+                HostName \
+                IdentitiesOnly \
+                IdentityAgent \
+                IdentityFile \
+                IgnoreUnknown \
+                IPQoS \
+                KbdInteractiveAuthentication \
+                KbdInteractiveDevices \
+                KexAlgorithms \
+                LocalCommand \
+                LocalForward \
+                LogLevel \
+                MACs \
+                NoHostAuthenticationForLocalhost \
+                NumberOfPasswordPrompts \
+                PasswordAuthentication \
+                PermitLocalCommand \
+                PKCS11Provider \
+                Port \
+                PreferredAuthentications \
+                ProxyCommand \
+                ProxyJump \
+                ProxyUseFdpass \
+                PubkeyAcceptedKeyTypes \
+                PubkeyAuthentication \
+                RekeyLimit \
+                RemoteCommand \
+                RemoteForward \
+                RequestTTY \
+                RevokedHostKeys \
+                RhostsRSAAuthentication \
+                RSAAuthentication \
+                SendEnv \
+                ServerAliveCountMax \
+                ServerAliveInterval \
+                SetEnv \
+                StreamLocalBindMask \
+                StreamLocalBindUnlink \
+                StrictHostKeyChecking \
+                SyslogFacility \
+                TCPKeepAlive \
+                Tunnel \
+                TunnelDevice \
+                UpdateHostKeys \
+                UsePrivilegedPort \
+                User \
+                UserKnownHostsFile \
+                VerifyHostKeyDNS \
+                VisualHostKey \
+                XAuthLocation \
+                \
+                AFSTokenPassing \
+                FallBackToRsh \
+                KeepAlive \
+                KerberosAuthentication \
+                KerberosTgtPassing \
+                PreferredAuthentications \
+                ProtocolKeepAlives \
+                RhostsAuthentication \
+                SetupTimeOut \
+                SmartcardDevice \
+                UseRsh \
+                && ret=0
+      fi
+      ;;
+    forward)
+      local port=false host=false listen=false bind=false
+      if compset -P 1 '*:'; then
+        if [[ $IPREFIX != (*=|)<-65535>: ]]; then
+          if compset -P 1 '*:'; then
+            if compset -P '*:'; then
+              port=true
+            else
+              host=true
+            fi
+          else
+            listen=true
+            ret=0
+          fi
+        else
+          if compset -P '*:'; then
+            port=true
+          else
+            host=true
+          fi
+        fi
+      else
+        listen=true
+        bind=true
+      fi
+      $port && { _message -e port-numbers '端口号'; ret=0 }
+      $listen && { _message -e port-numbers '监听端口号'; ret=0 }
+      $host && { _wanted hosts expl '主机' _ssh_hosts -S: && ret=0 }
+      $bind && { _wanted bind-addresses expl '绑定地址' _bind_addresses -S: && ret=0 }
+      return ret
+      ;;
+    dynforward)
+      _message -e port-numbers '监听端口号'
+      if ! compset -P '*:'; then
+        _wanted bind-addresses expl '绑定地址' _bind_addresses -qS:
+      fi
+      return 0
+      ;;
+    hostport)
+      if compset -P '*:'; then
+        _message -e port-numbers '端口号'
+        ret=0
+      else
+        _wanted hosts expl '主机' _ssh_hosts -S: && ret=0
+      fi
+      return ret
+      ;;
+    macs)
+      _wanted macs expl 'MAC 算法' _sequence compadd - $(_call_program macs ssh -Q mac)
+      return
+      ;;
+    ciphers)
+      _wanted ciphers expl '加密密码' _sequence compadd - $(_call_program ciphers ssh -Q cipher)
+      return
+      ;;
+    command)
+      if (( $+opt_args[-s] )); then
+	_wanted subsystems expl '子系统' compadd sftp
+	return
+      fi
+      local -a _comp_priv_prefix
+      shift 1 words
+      (( CURRENT-- ))
+      _normal
+      return
+      ;;
+    userhost)
+      if compset -P '*@'; then
+        _wanted hosts expl '远程主机名' _ssh_hosts && ret=0
+      elif compset -S '@*'; then
+        _wanted users expl '登录名' _ssh_users -S '' && ret=0
+      else
+        if (( $+opt_args[-l] )); then
+          tmp=()
+        else
+          tmp=( 'users:login name:_ssh_users -qS@' )
+        fi
+        _alternative \
+            'hosts:远程主机名:_ssh_hosts' \
+            "$tmp[@]" && ret=0
+      fi
+      ;;
+    file)
+      if compset -P 1 '[^./][^/]#:'; then
+        _remote_files -- ssh ${(kv)~opt_args[(I)-[FP1246]]/-P/-p} && ret=0
+      elif compset -P 1 '*@'; then
+        suf=( -S '' )
+        compset -S ':*' || suf=( -r: -S: )
+        _wanted hosts expl '远程主机名' _ssh_hosts $suf && ret=0
+      else
+        _alternative \
+            'files:: _files' \
+            'hosts:远程主机名:_ssh_hosts -r: -S:' \
+            'users:user:_ssh_users -qS@' && ret=0
+      fi
+      ;;
+    rfile)
+      if compset -P 1 '*:'; then
+        _remote_files -- ssh && ret=0
+      elif compset -P 1 '*@'; then
+        _wanted hosts expl '主机' _ssh_hosts -r: -S: && ret=0
+      else
+        _alternative \
+            'hosts:远程主机名:_ssh_hosts -r: -S:' \
+            'users:用户:_ssh_users -qS@' && ret=0
+      fi
+      ;;
+    esac
+  done
+
+  return ret
+}
+
+_ssh_users () {
+  _combination -s '[:@]' my-accounts users-hosts users "$@"
+}
+
+_ssh "$@"

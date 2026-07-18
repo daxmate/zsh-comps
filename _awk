@@ -1,0 +1,112 @@
+#compdef awk gawk nawk
+
+# awk Zsh 补全函数
+# 描述：模式扫描与文本处理语言
+#
+# 支持 gawk 3/4/5 及 POSIX awk
+# gawk 的 '-W ...'（如 '-W help'）不受支持
+# gawk3 的长选项同义词（如 --compat）不受支持
+#
+# 'gawk -f<TAB>' 会同时补全 AWKPATH 中的文件
+
+local variant curcontext="$curcontext" state state_descr line ret=1
+local -A opt_args
+local -a args
+
+_pick_variant -r variant gawk4='GNU Awk [45]' gawk3='GNU Awk 3' posix --version
+
+args=(
+  {-F+,--field-separator}'[用扩展正则表达式定义输入字段分隔符]:扩展正则表达式:'
+  '*'{-v+,--assign}'[为变量赋值]:赋值:'
+  '(1)*'{-f+,--file}'[读取程序文件]:程序文件:->script'
+  '1: :_guard "^-*" "程序文本"'
+  '*:输入文件:_files'
+)
+
+case $variant in
+  (gawk*)
+    args+=(
+      {-c,--traditional}'[以兼容模式运行]'
+      '(- : *)'{-C,--copyright}'[打印版权信息并退出]'
+      {-d-,--dump-variables=-}'[打印全局变量排序列表]::输出文件:_files'
+      {-e,--source}'[传递程序文本参数]:程序文本:'
+      '(1)'{-E+,--exec}'[类似 -f，但更适合 CGI]:程序文件:->script'
+      '(- : *)'{-h,--help}'[打印用法信息并退出]'
+      {-L-,--lint=-}'[警告有问题的或不可移植的结构]::标志:((fatal\:"将警告视为致命错误" invalid\:"仅警告真正无效的内容" no-ext\:"禁用 gawk 扩展警告"))'
+      {-n,--non-decimal-data}'[自动检测输入中的八进制/十六进制值]'
+      {-N,--use-lc-numeric}"[强制使用区域设置的小数点字符]"
+      {-O,--optimize}'[启用优化]'
+      {-p-,--profile=-}'[将性能分析数据输出到文件]::输出文件:_files'
+      {-P,--posix}'[以严格的 POSIX 模式运行]'
+      {-r,--re-interval}'[启用正则匹配中的区间表达式]'
+      {-t,--lint-old}'[警告不可移植的结构]'
+      '(- : *)'{-V,--version}'[打印版本信息并退出]'
+    )
+    ;|
+  (gawk4)
+    args+=(
+      {-b,--characters-as-bytes}'[将所有输入数据视为单字节字符]'
+      {-D-,--debug=-}'[启用调试]::调试命令文件:_files'
+      {-g,--gen-pot}'[扫描 awk 程序并生成 .po 文件到标准输出]'
+      '*'{-i+,--include}'[加载源代码库]:库文件:->script'
+      '*'{-l+,--load}'[加载动态扩展]:扩展:->extension'
+      {-M,--bignum}'[选择任意精度算术]'
+      {-o-,--pretty-print=-}'[美化打印 awk 程序]::输出文件:_files'
+      '(-s --no-optimize)'{-s,--no-optimize}'[禁用内部程序表示的默认优化]'
+      {-S,--sandbox}'[禁用 system()、重定向和动态扩展]'
+    )
+    ;;
+  (gawk3)
+    args=( ${args:#(|\*)(|\(*\))-[cCdEhLnNtOpPreV]*} )
+    args+=(
+      '--gen-po[扫描 awk 程序并生成 .po 文件到标准输出]'
+    )
+    ;;
+  (*)
+    args=( ${args:#*--*} )
+esac
+
+_arguments -S -s -C : $args && ret=0
+
+_files_in_curdir_or_path() {
+  local expl pat1 pat2
+  if [[ -n $6 ]]; then
+    pat1="-g *.$6"
+    pat2="-g *.$6"
+  fi
+  if [[ $words[CURRENT] == */* || $variant != gawk* || \
+	-n $opt_args[(I)(-c|--traditional|-P|--posix)] ]]; then
+    _wanted $2 expl $3 _files $pat1 && ret=0
+  else
+    local prog='BEGIN {print ENVIRON["'$1'"]}'
+    local -aU paths
+    paths=( "${(@)${(@s.:.)$(_call_program get-awk-env \
+			    $words[1] ${(q)prog})}:/#%/.}" )
+    if (( $paths[(I).] )); then
+      paths=( ${(@)paths:#.} )
+    else
+      pat1='-g *(-/)'
+    fi
+    if (( $#paths )); then
+      _alternative "${2}:${3}:_files ${(b)pat1}" \
+		  "${4}:${5}:_files -W paths ${(b)pat2}" && ret=0
+    else
+      _wanted $2 expl $3 _files $pat1 && ret=0
+    fi
+  fi
+}
+
+case $state in
+  (script)
+    _files_in_curdir_or_path AWKPATH program-files '程序文件' \
+			    library-files 'AWKPATH 中的库'
+    ;;
+  (extension)
+    local ext=so
+    [[ $OSTYPE == cygwin* ]] && ext=dll
+    _files_in_curdir_or_path AWKLIBPATH extensions '扩展' \
+			    library-files 'AWKLIBPATH 中的扩展' $ext
+    ;;
+esac
+
+return ret

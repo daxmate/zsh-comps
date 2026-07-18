@@ -1,0 +1,93 @@
+#compdef locate mlocate slocate glocate
+
+# locate Zsh 补全函数
+# 描述：快速查找文件
+
+local variant=$service
+local -a args
+[[ $service = locate ]] &&
+  _pick_variant -r variant glocate=findutils mlocate=mlocate slocate=secure $OSTYPE -V
+args=( '(-)'{-V,--version}'[显示版本信息]' )
+
+case $variant in
+  [mg]locate)
+    args+=(
+      '(-A --all)'{-A,--all}'[仅显示匹配所有模式的结果]'
+      '(-E --non-existing -e --existing)'{-e,--existing}'[限制仅显示现有文件]'
+      '(-c --count)'{-c,--count}'[显示匹配条目数量]'
+      '(-i --ignore-case)'{-i,--ignore-case}'[忽略大小写]'
+      '(-w --wholename -b --basename)'{-w,--wholename}'[匹配完整文件路径（默认）]'
+      '(-w --wholename -b --basename)'{-b,--basename}'[仅匹配文件基本名称]'
+      '(-P -H --no-follow -L --follow)'{-P,-H,--nofollow}"[不跟随符号链接]"
+      '(-P -H --no-follow -L --follow)'{-L,--follow}'[跟随符号链接（默认）]'
+      '(-0 --null)'{-0,--null}'[以 NUL 字符分隔输出]'
+      '(-S --statistics)'{-S,--statistics}'[显示数据库统计信息]'
+    )
+  ;|
+
+  (mlocate)
+    args=( -s -S : $args
+      \*{-d,--database=}'[使用指定数据库]:数据库:_sequence -s \: _files'
+      '(-)'{-h,--help}'[显示帮助信息]'
+      '(-l -n --limit)'{-l,-n,--limit=}'[限制搜索结果数量]:文件数量'
+      '(-q --quiet)'{-q,--quiet}"[不报告错误]"
+      '(:)*'{-r,--regexp=}'[使用基本正则表达式搜索]:正则表达式'
+      '--regex[模式为扩展正则表达式]'
+    )
+  ;;
+
+  (slocate)
+    args=( -s -S : $args
+      -u'[从 / 开始创建 slocate 数据库]'
+      -U'[从指定路径开始创建 slocate 数据库]:目录:_files -/'
+      -c'[配合 -u、-U 解析 GNU locate updatedb]'
+      -e'[配合 -u、-U 排除指定目录]: : _dir_list -s,'
+      -f'[配合 -u、-U 排除指定文件系统类型]:文件系统:_file_systems'
+      -l'[安全级别]:级别:(0 1)'
+      -q'[安静模式]'
+      -n'[限制搜索结果数量]:文件数量 '
+      -i'[忽略大小写]'
+      {-r,--regexp=}'[使用基本正则表达式]:正则表达式'
+      {-o,--output=}'[指定要创建的数据库文件]:数据库:_files'
+      {-d,--database=}'[指定要搜索的数据库]:数据库:_files'
+      '(-)'{-h,--help}'[显示帮助信息]'
+      {-v,--verbose}'[创建数据库时显示文件]'
+    )
+  ;;
+
+  (glocate)
+    args=( -s : $args
+      \*{-d,--database=}'[使用替代数据库]:数据库:_files'
+      '(-E --non-existing -e --existing)'{-E,--non-existing}'[限制仅显示不存在的文件]'
+      '(-l --limit)'{-l,--limit=}'[限制搜索结果数量]:文件数量: '
+      '--max-database-age[指定数据库过期警告天数]:天数 [8]'
+      '(-p --print)'{-p,--print}'[在统计或计数中包含搜索结果]'
+      \*{-r,--regex=}'[模式为正则表达式]:正则表达式'
+      --regextype='[选择正则表达式类型]:正则类型 [basic]:(findutils-default awk egrep ed emacs gnu-awk grep posix-awk posix-basic posix-egrep posix-extended posix-minimal-basic sed)'
+      '(-)'--help'[显示帮助信息]'
+    )
+  ;;
+
+  (freebsd|openbsd|dragonfly|darwin)*)
+    args=( -s -S -A '-*'
+      '(-S)-c[显示匹配文件名的数量]'
+      '(-S)-i[忽略大小写]'
+      '(-S)-l[限制输出文件名的数量]:文件数量 '
+      '(- *)-S[显示数据库统计信息并退出]'
+    )
+  ;|
+  openbsd*)
+    args+=( '(-S)-b[仅匹配文件基本名称]' )
+  ;|
+  (freebsd|dragonfly|darwin)*)
+    args+=(
+      '(-S)-0[以 NUL 字符分隔文件名]'
+      '(-S)-m[使用 mmap(2) 替代 stdio(3)（默认）]'
+      '(-S)-s[使用 stdio(3) 替代 mmap(2)]'
+    )
+  ;|
+  (*) args+=( '(-S)*-d[指定要搜索的数据库]:数据库:_files' ) ;;
+
+esac
+
+_arguments $args '*: :_guard "^-*" pattern'

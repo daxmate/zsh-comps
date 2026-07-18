@@ -1,0 +1,184 @@
+#compdef zip unzip zipinfo
+
+# zip Zsh 补全函数
+# 描述：打包和压缩文件
+
+local suffixes suf zipfile uzi testfile
+local expl curcontext="$curcontext" state line ret=1
+typeset -A opt_args
+
+case $service in
+  zip)
+    _arguments -C -s -S \
+      '(-u --update)'{-u,--update}'[更新：仅添加变更或新增的文件]' \
+      '(-f --freshen)'{-f,--freshen}'[刷新：仅更新已有文件（不添加新文件）]' \
+      '(-FS --filesync)'{-FS,--filesync}'[文件同步：日期或大小有变化时更新]' \
+      '(-d --delete)'{-d,--delete}'[删除：从归档中删除文件]' \
+      '(-U --copy)'{-U,--copy}'[复制：选择归档内的文件复制]' \
+      '-r[递归处理子目录]' \
+      '(-m --move)'{-m,--move}'[创建归档后删除原始文件]' \
+      '(-j --junk-paths)'{-j,--junk-paths}'[丢弃目录名（仅保留文件名）]' \
+      '-q[安静模式]' \
+      '-v[详细模式/显示版本信息]' \
+      '(-c --entry-comments)'{-c,--entry-comments}'[逐个提示输入条目一行注释]' \
+      '(-z --archive-comment)'{-z,--archive-comment}'[提示输入归档注释]' \
+      '(-@ --names-stdin)'{-@,--names-stdin}'[从标准输入读取要压缩的文件名]' \
+      '-o[使 zip 文件时间与最新条目一致]' \
+      '(-i --include)'{-i,--include}'[包含匹配模式的文件]:*(-*|@):pattern:_files' \
+      '(-x --exclude)'{-x,--exclude}'[排除匹配模式的文件]:*(-*|@):pattern:_files' \
+      '-l[将 LF 转换为 CR LF]' \
+      '-ll[将 CR LF 转换为 LF]' \
+      '-R[递归当前目录并匹配模式]' \
+      '-t+[排除指定日期之前修改的文件]:日期 (mmddyyyy)' \
+      '-tt+[排除指定日期及之后修改的文件]:日期 (mmddyyyy)' \
+      '(   -1 -2 -3 -4 -5 -6 -7 -8 -9)-0[仅存储（不压缩）]' \
+      '(-0    -2 -3 -4 -5 -6 -7 -8 -9)-1[更快压缩]' \
+      '(-0 -1    -3 -4 -5 -6 -7 -8 -9)-2' \
+      '(-0 -1 -2    -4 -5 -6 -7 -8 -9)-3' \
+      '(-0 -1 -2 -3    -5 -6 -7 -8 -9)-4' \
+      '(-0 -1 -2 -3 -4    -6 -7 -8 -9)-5' \
+      '(-0 -1 -2 -3 -4 -5    -7 -8 -9)-6' \
+      '(-0 -1 -2 -3 -4 -5 -6    -8 -9)-7' \
+      '(-0 -1 -2 -3 -4 -5 -6 -7    -9)-8' \
+      '(-0 -1 -2 -3 -4 -5 -6 -7 -8   )-9[更优压缩]' \
+      '(-Z --compression-method)'{-Z+,--compression-method=}'[指定压缩方法]:方法:(store deflate bzip2)' \
+      '(-e --encrypt)'{-e,--encrypt}'[使用 PKZip 2.0 加密，提示输入密码]' \
+      '-P+[指定标准加密密码]:密码' \
+      '-s+[创建指定大小的分卷归档]:大小 (MB)' \
+      '-sp[每卷暂停以更换磁盘]' \
+      '-sb[分卷暂停时响铃]' \
+      '-sv[详细显示分卷创建过程]' \
+      '(-O --out)'{-O,--out=}'[输出到新归档]:归档文件' \
+      '(-FI --fifo)'{-FI,--fifo}'[支持从管道读取]' \
+      '(-db --display-bytes)'{-db,--display-bytes}'[显示已处理和待处理的字节数]' \
+      '(-dc --display-counts)'{-dc,--display-counts}'[显示已完成和待处理的条目数]' \
+      '(-dd --display-dots)'{-dd,--display-dots}'[压缩每个条目时显示点]' \
+      '(-dg --display-globaldots)'{-dg,--display-globaldots}'[为归档显示点（而非每个文件）]' \
+      '(-ds --dot-size)'{-ds,--dot-size=}'[指定输出点的间隔大小]:大小 [10MB]' \
+      '(-du --display-usize)'{-du,--display-usize}'[添加时显示每个条目的原始未压缩大小]' \
+      '(-dv --display-volume)'{-dv,--display-volume}'[显示卷（磁盘）号]' \
+      '(-lf --logfile-path)'{-lf,--logfile-path=}'[指定日志文件]:文件:_files' \
+      '(-la --log-append)'{-la,--log-append}'[追加到现有日志文件]' \
+      '(-li --log-info)'{-li,--log-info}'[在日志中包含信息消息]' \
+      '(-T --test)'{-T,--test}'[测试 zip 文件完整性]' \
+      '(-TT --unzip-command)'{-TT,--unzip-command=}'[指定测试归档的命令]:命令 [unzip -tqq]:_cmdstring' \
+      '(-F --fix)'{-F,--fix}'[修复 zip 文件]' \
+      '(-F --fix -FF --fixfix)'{-FF,--fixfix}'[尝试更彻底的 zip 文件修复]' \
+      '(-DF --dif)'{-DF,--dif}'[仅包含相对于输入归档有变化或新增的文件]' \
+      '-sf[显示要操作的文件后退出]' \
+      '-su[同 -sf，同时显示转义的 UTF-8 Unicode 名称]' \
+      '-su[同 -sf，改为显示转义的 UTF-8 Unicode 名称]' \
+      '-UN=[指定 Unicode 路径不匹配处理方式]:处理方式:(Quit Warn Ignore No Escape UTF8)' \
+      '(-A --adjust-sfx)'{-A,--adjust-sfx}'[调整自解压 exe]' \
+      '(-J --junk-sfx)'{-J,--junk-sfx}'[丢弃 zip 文件前缀（unzipsfx）]' \
+      '(-b --temp-path)'{-b,--temp-path}'[指定临时归档路径]:临时归档目录:_directories' \
+      '-nw[不使用通配符]' \
+      '(-X --no-extra)'{-X,--no-extra}'[排除文件额外属性]' \
+      '(-y --symlinks)'{-y,--symlinks}'[存储符号链接本身而非目标文件]' \
+      '(-)'{-h,--help}'[显示帮助信息]' \
+      '(-)'{-h2,--more-help}'[显示扩展帮助信息]' \
+      '(-g --grow)'{-g,--grow}'[允许扩展现有 zip 文件]' \
+      '(-L --license)'{-L,--license}'[显示许可证]' \
+      '(-D --no-dir-entries)'{-D,--no-dir-entries}"[不添加目录条目]" \
+      '-n[指定不压缩的文件后缀]:后缀:->suffixes' \
+      "(-f -d -R -q -c -b -@ -F -FF -A -T -y -e -h -u -m -g -j -l -ll -L -v -z -t -tt -o -D -J -X -n -0 -1 -2 -3 -4 -5 -6 -7 -8 -9):zip 文件:_files -g '(#i)*.(zip|xpi|[ejw]ar)(-.)'" \
+      '*:文件:->files' && ret=0
+  ;;
+  unzip)
+    _arguments -C -s -S \
+      '(-Z)-M[分页输出]' \
+      - unzip \
+      '(-f -u -l -t -z -d -p)-c[解压到标准输出（含文件名）]' \
+      '(-p -u -l -t -z)-f[刷新已有文件，不创建新文件]' \
+      '(-f -u -l -t -z -c -d)-p[解压到标准输出]' \
+      '(-p -f -l -t -z)-u[更新文件，必要时创建]' \
+      '(-p -f -u -t -z -d)-l[列出文件]' \
+      '(-p -f -u -l -z -d)-t[测试压缩归档数据]' \
+      '-T[将时间戳设为最新]' \
+      '(-p -f -u -l -t -d)-z[显示归档注释]' \
+      '(-p -l -t -z)-d+[指定解压目标目录]:目录:_files -/' \
+      '(-p -l -t -z -o)-n[从不覆盖已有文件]' \
+      '(-p -l -t -z -n)-o[直接覆盖文件（不提示）]' \
+      "(-p -l -t -z)-j[丢弃路径（不创建目录）]" \
+      '-C[不区分大小写匹配文件名]' \
+      '(-p -l -t -z)-X[恢复 UID/GID 信息]' \
+      '-q[安静]' '-qq[更安静]' \
+      '(-l -t -z)-a[自动转换文本文件]' \
+      '(-l -t -z)-aa[将所有文件视为文本]' \
+      '(-l -t -z)-b[将所有文件视为二进制]' \
+      '(-l -t -z)-B[为每个被覆盖的文件保存备份]' \
+      '(-DD)-D[跳过恢复解压目录的时间戳]' \
+      '(-D)-DD[跳过恢复所有条目的时间戳]' \
+      '-v[详细/显示版本信息]' \
+      '(-c -p -z -LL)-L[将不区分大小写文件系统的小写文件名转换]' \
+      '(-c -p -z -L)-LL[将所有文件名转为小写]' \
+      '-K[保留 setuid/setgid/sticky 权限]' \
+      '-P[指定解密密码]:密码' \
+      '(-UU)-U[对所有非 ASCII Unicode 使用转义]' \
+      '(-U)-UU[忽略所有 Unicode 字段]' \
+      '-W[修改模式匹配，仅 ** 匹配 /]' \
+      '-\:[允许提取到提取基目录之外]' \
+      '-^[允许提取条目中的控制字符]' \
+      '-i[包含以下名称]:*-*:pattern' \
+      '-x[排除以下名称]:*-*:pattern' \
+      "(-p -f -u -l -t -z -n -o -j -C -X -q -qq -a -aa -v -L -M)1:zip 文件:_files -g '(#i)*.(zip|xpi|[ejw]ar)(-.)'" \
+      '*:文件:->files' \
+      - help \
+      '-hh[显示详细帮助信息]' \
+      - zipinfo \
+      '-Z[zipinfo 模式]:zipinfo 模式:->zipinfo' && ret=0
+  ;;
+esac
+
+[[ $state == zipinfo ]] && uzi="-Z[zipinfo 模式]"
+
+if [[ $service == zipinfo ]] || [[ -n $uzi ]]; then
+    _arguments -C -s -S \
+      $uzi \
+      '(-2 -s -m -l -v -h -t -T -z)-1[仅显示文件名]' \
+      '(-1 -s -m -l -v -T)-2[仅文件名但允许 -h/-t/-z]' \
+      '(-1 -2 -m -l -v -h -t)-s[短格式]' \
+      '(-1 -2 -s -l -v -h -t)-m[中格式]' \
+      '(-1 -2 -s -m -v -h -t)-l[长格式]' \
+      '(-1 -2 -s -m -l -h -z)-v[详细多页格式]' \
+      '(-1 -s -m -l -v)-h[打印标题行]' \
+      '(-1 -v)-z[打印 zip 文件注释]' \
+      '-C[不区分大小写匹配文件名]' \
+      '(-1 -s -m -l)-t[打印总计]' \
+      '(-1 -2)-T[对文件时间使用可排序十进制格式]' \
+      '-M[分页输出]' \
+      '-x[排除以下名称]' \
+      "(-1 -2 -s -m -l -v -h -z -C -t -T -M)1:zip 文件:_files -g '(#i)*.(zip|xpi|[ejw]ar)(-.)'" \
+      '*:文件:->files' && ret=0
+fi
+
+case $state in
+  suffixes)
+    suffixes=( *.*(N:e) )
+    _sequence -s : _wanted -x suffixes expl suffix compadd - .$^suffixes && return
+  ;;
+  files)
+    if [[ $service = zip ]] && (( ! ${+opt_args[-d]} )); then
+      _wanted files expl zfile _files -g '^(#i)*.(zip|xpi|[ejw]ar)(-.)' && return
+    else
+      testfile=${~${(Q)line[1]}}
+      if [[ -f $testfile ]]; then
+	zipfile=$testfile
+      elif [[ -f $testfile.zip ]]; then
+	zipfile=$testfile.zip
+      elif [[ -f $testfile.ZIP ]]; then
+	zipfile=$testfile.ZIP
+      else
+	return 1
+      fi 2>/dev/null
+      if [[ $zipfile !=  $_zip_cache_name ]]; then
+	_zip_cache_name="$zipfile"
+	_zip_cache_list=( ${(f)"$(zipinfo -1 -- $_zip_cache_name)"} )
+      fi
+     _wanted files expl '归档中的文件' \
+	 _multi_parts / _zip_cache_list && return
+    fi
+  ;;
+esac
+
+return ret
