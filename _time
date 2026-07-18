@@ -1,7 +1,0 @@
-#compdef time
-
-# time Zsh 补全函数
-# 描述：计时程序执行时间（zsh 保留字）
-# time 是 shell 保留字，不支持选项，后面的参数是命令
-
-_arguments '*::命令: _normal'
