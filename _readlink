@@ -1,0 +1,48 @@
+#compdef readlink greadlink
+
+local variant ret=1
+local -a context line state state_descr args copts aopts=( -A '-*' )
+local -A opt_args
+
+# We can't use groups here because it would complicate the option filtering
+copts=( -e -f -m --canonicalize --canonicalize-existing --canonicalize-missing )
+
+args=(
+  '(: -)--help[显示帮助信息]'
+  '(: -)--version[显示版本信息]'
+  # Delimiter options
+  # (Note: GNU `readlink` won't let you use -n with multiple files)
+  '(-n -z --no-newline --zero)'{-n,--no-newline}'[抑制尾部换行]'
+  '(-n -z --no-newline --zero)'{-z,--zero}'[使用 NUL 作为输出分隔符]'
+  # Verbosity options
+  '(-q -s -v --quiet --silent --verbose)'{-q,-s,--quiet,--silent}'[抑制大部分错误信息]'
+  '(-q -s -v --quiet --silent --verbose)'{-v,--verbose}'[显示错误信息]'
+  # Canonicalisation options
+  "(${(j< >)copts})"{-e,--canonicalize-existing}'[规范化路径（所有组件必须存在）]'
+  "(${(j< >)copts})"{-f,--canonicalize}'[规范化路径]'
+  "(${(j< >)copts})"{-m,--canonicalize-missing}'[规范化路径（组件可缺失）]'
+)
+
+# Filter out non-GNU options if applicable
+if _pick_variant gnu='Free Soft' unix --version; then
+  aopts=( )
+else
+  case $OSTYPE in
+    darwin*)          args=( ${(@M)args:#(|*\))-[n]\[*} ) ;;
+    netbsd*)          args=( ${(@M)args:#(|*\))-[fnqsv]\[*} ) ;;
+    dragonfly*|*bsd*) args=( ${(@M)args:#(|*\))-[fn]\[*} ) ;;
+    *) args=( ) ;;
+  esac
+fi
+
+_arguments -s -S $aopts : $args '*: :->files' && ret=0
+
+# File arguments must be symlinks unless a canonicalisation option is given
+[[ $state == files ]] &&
+if [[ ${opt_args[(i)(${~${(j<|>)copts}})]} ]]; then
+  _files && ret=0
+else
+  _files -g '*(@)' && ret=0
+fi
+
+return ret
