@@ -1,0 +1,53 @@
+#compdef tr gtr
+
+local curcontext="$curcontext" state line expl ret=1
+local args variant k
+local -A descr
+descr=(
+  -c '[对第一个字符串指定的字符取补集]'
+  -d '[删除输入中的指定字符]'
+  -s '[将重复的连续字符压缩为一个]'
+)
+
+_pick_variant -r variant gnu=GNU $OSTYPE --version
+case $variant in
+  gnu)
+    args=(
+      '(-c -C --complement)'{-c,-C,--complement}"${descr[-c]}"
+      '(-d --delete 2)'{-d,--delete}"${descr[-d]}"
+      '(-s --squeeze-repeats)'{-s,--squeeze-repeats}"${descr[-s]}"
+      '(- 1 2)--help[显示帮助信息]'
+      '(- 1 2)--version[显示版本信息]'
+    )
+  ;;
+  darwin*|dragonfly*|*bsd*)
+    args+=( "(-c)-C$descr[-c]" )
+  ;|
+  darwin*|dragonfly*|freebsd*)
+    args+=( '-u[确保输出无缓冲]' )
+  ;|
+  *)
+    for k in c d s; do
+      args+=( -$k$descr[-$k] )
+    done
+  ;;
+esac
+
+_arguments -C -s $args \
+  '1:character set:->chsets' \
+  '2:character set:->chsets' && ret=0
+
+if [[ -n $state ]]; then
+  if compset -P '*\[:'; then
+    _wanted characters expl 'character class' \
+        compadd -S ":${${QIPREFIX:+]}:-\]}$compstate[quote] " \
+	alnum alpha blank cntrl digit graph lower print punct space upper \
+	xdigit && return
+  elif compset -P '*\\'; then
+    _describe -t characters character \
+        '(\\\\:backslash a:alert b:backspace f:form\ feed n:new\ line r:return t:tab v:vertical\ tab)' -S '' && return
+  fi
+  _message -e characters 'character set'
+fi
+
+return ret

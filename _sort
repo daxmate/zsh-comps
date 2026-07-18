@@ -1,0 +1,80 @@
+#compdef sort gsort
+
+local args variant
+local ordering='(-d --dictionary-order -g --general-numeric-sort -M --month-sort -h --human-numeric-sort -n --numeric-sort --sort -V --version-sort --help --version)'
+
+args=(
+  "(-c --check -C -m --merge -s --stable)-c[检查输入是否已排序；不进行排序]"
+  '(-c --check -C -m --merge)'{-m,--merge}"[合并已排序的文件；不进行排序]"
+  '(-o --output)'{-o+,--output=}'[将结果写入文件而非标准输出]:output file:_files'
+  \*{-T+,--temporary-directory=}'[指定临时文件目录]:directory:_directories'
+  '(-u --unique)'{-u,--unique}'[与 -c 一起使用时检查严格排序；不使用时仅输出相等序列中的第一个]'
+  "$ordering"{-d,--dictionary-order}'[仅考虑空白和字母数字字符]'
+  '(-f --ignore-case)'{-f,--ignore-case}'[将小写字母转换为大写字母进行比较]'
+  '(-i --ignore-nonprinting)'{-i,--ignore-nonprinting}'[仅考虑可打印字符]'
+  "$ordering"{-n,--numeric-sort}'[按字符串数值进行比较]'
+  '(-r --reverse)'{-r,--reverse}'[反转比较结果]'
+  '(-b --ignore-leading-blanks)'{-b,--ignore-leading-blanks}'[忽略前导空白]'
+  '(-t --field-separator)'{-t+,--field-separator=}'[指定字段分隔符而非非空白到空白的转换]:separator'
+  \*{-k+,--key=}'[指定键的起始和结束字段]:key field'
+)
+
+_pick_variant -r variant gnu=GNU $OSTYPE --version
+case $variant in
+  dragonfly*|netbsd*|openbsd*|freebsd*|darwin*|gnu)
+    args+=(
+      '(-s --stable)'{-s,--stable}'[保留相同键的行的原始顺序]'
+    )
+  ;|
+  netbsd*|openbsd*|freebsd*|darwin*|gnu|solaris2.<11->)
+    args+=(
+      "(-c --check -C)-C[静默检查输入是否已排序；不进行排序]"
+    )
+  ;|
+  openbsd*|freebsd*|darwin*|gnu)
+    args+=(
+      '(-z --zero-terminated)'{-z,--zero-terminated}'[以 0 字节而非换行符结束行]'
+    )
+  ;|
+  freebsd*|darwin*|gnu)
+    args+=(
+      "(-c --check -C)--check=-[检查输入是否已排序；不进行排序]::bad line handling:(diagnose-first silent quiet)"
+      "$ordering"{-g,--general-numeric-sort}'[按通用数值进行比较]'
+      "$ordering"{-M,--month-sort}"[比较（未知）< 'JAN' < ... < 'DEC']"
+      "$ordering"{-h,--human-numeric-sort}'[比较人类可读的数字（例如 2K、1G）]'
+      "$ordering"{-R,--random-sort}'[按键的随机哈希进行排序]'
+      "$ordering"{-V,--version-sort}'[对版本号进行排序]'
+      "$ordering--sort=[指定比较器]:comparator:(general-numeric human-numeric month numeric random version)"
+      '(-i --ignore-nonprinting)'{-i,--ignore-nonprinting}'[仅考虑可打印字符]'
+      '--random-source=[从文件获取随机字节]:file:_files'
+      '--batch-size=[最大合并输入数]:number'
+      '--compress-program=[指定用于压缩临时文件的程序]:program:(gzip bzip2 lzop xz)'
+      '--debug[标注用于排序的行部分]'
+      '(*)--files0-from=[从文件读取输入文件列表]:file:_files'
+      '(-S --buffer-size)'{-S+,--buffer-size=}'[指定主内存缓冲区大小]:size'
+      '(- *)--help[显示帮助信息并退出]'
+      '(- *)--version[输出版本信息并退出]'
+    )
+  ;|
+  netbsd*|dragonfly*)
+    args+=(
+      "${ordering}-l[按字段的字符串长度排序]"
+      "(-s)-S[不使用稳定排序]"
+    )
+  ;|
+  openbsd*)
+    args+=(
+      '-H[使用归并排序而非基数排序]'
+      '-R[指定记录分隔符]:separator'
+    )
+  ;|
+  gnu)
+    args+=( '--parallel=[设置并发运行排序数]:number' )
+  ;;
+  freebsd*|darwin*)
+    args+=( --radixsort  --mergesort --qsort --heapsort --mmap )
+  ;;
+  *) args=( "${(@)args:#(|\(*\))(|\*)--*}" ) ;;
+esac
+
+_arguments -s -S $args '*:file:_files'

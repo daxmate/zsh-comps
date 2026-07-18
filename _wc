@@ -1,0 +1,26 @@
+#compdef wc gwc
+
+local args
+
+args=(
+  '(-c --bytes)'{-c,--bytes}'[显示字节数]'
+  '(-C -m --chars)'{-m,--chars}'[显示字符数]'
+  '(-w --words)'{-w,--words}'[显示单词数]'
+  '(-l --lines)'{-l,--lines}'[显示行数]'
+)
+
+if _pick_variant gnu=GNU unix --version; then
+  args+=(
+    '(*)--files0-from=[从指定文件读取 NUL 结尾的文件列表]:file:_files'
+    '(-L --max-line-length)'{-L,--max-line-length}'[显示最长行的长度]'
+  )
+else
+  args=( -A "-*" "${(@)args:#(|\(*\))(|\*)--*}" )
+  case $OSTYPE in
+    freebsd*|netbsd*) args+=( '-L[显示最长行的长度]' ) ;;
+    openbsd*) args+=( '-h[人类可读：使用单位后缀]' ) ;;
+    solaris*) args+=( ${${(M)args:#*-m\[*}//-m\[/-C\[} ) ;;
+  esac
+fi
+
+_arguments -s -S $args '*:file:_files'

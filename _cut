@@ -1,0 +1,58 @@
+#compdef cut gcut
+
+typeset -A _cut_args
+
+case $LANG in
+  (de_DE.UTF-8)
+    _cut_args=(
+      bytes           "nur diese Bytes ausgeben"
+      characters      "nur diese Zeichen ausgeben"
+      delimiter       "Delimiter anstelle von Tabulator als Trenner benutzen"
+      fields          "nur diese Felder und alle Zeilen OHNE Trennzeichen ausgeben"
+      complement      $'das Komplement der Menge der gew\u00e4hlten Bytes, Zeichen oder Felder bilden'
+      only-delimited  "keine Zeilen ausgeben, die keinen Trenner enthalten"
+      output-delimiter "Zeichenkette als Ausgabetrennzeichen benutzen"
+      help            "diese Hilfe anzeigen und beenden"
+      version         "Versionsinformation anzeigen und beenden"
+    )
+  ;;
+  (*)
+    _cut_args=(
+      bytes           "仅选择指定的字节"
+      characters      "仅选择指定的字符"
+      delimiter       "使用替代字段分隔符"
+      fields          "仅选择指定的字段"
+      complement      "否定所选字节、字符或字段的集合"
+      only-delimited  "不输出没有分隔符的行"
+      output-delimiter "使用指定字符串作为输出分隔符"
+      help            "显示帮助信息"
+      version         "输出版本信息"
+    )
+  ;;
+esac
+
+if _pick_variant gnu="Free Soft" unix --version; then
+  _arguments \
+    '(--bytes -b)'{--bytes=,-b+}'['$_cut_args[bytes]']:list' \
+    '(--characters -c)'{--characters=,-c+}'['$_cut_args[characters]']:list' \
+    '(--delimiter -d)'{--delimiter=,-d+}'['$_cut_args[delimiter]']:delimiter' \
+    '(--fields -f)'{--fields=,-f+}'['$_cut_args[fields]']:list' \
+    '--complement['$_cut_args[complement]']' \
+    '(--only-delimited -s)'{--only-delimited,-s}'['$_cut_args[only-delimited]']' \
+    '--output-delimiter=['$_cut_args[output-delimiter]']:delimiter' \
+    '(- *)--help['$_cut_args[help]']' \
+    '(- *)--version['$_cut_args[version]']' \
+    '*:file:_files'
+else
+  case $OSTYPE in
+    freebsd*|dragonfly*) args+=( '(-d)-w[使用空白字符作为分隔符]' ) ;;
+  esac
+  _arguments $args \
+    "-b[${_cut_args[bytes]}]:list" \
+    "-c[${_cut_args[characters]}]:list" \
+    "(-w)-d[${_cut_args[delimiter]}]:delimiter" \
+    "-f[${_cut_args[fields]}]:list" \
+    "-n[不分割多字节字符]" \
+    "-s[${_cut_args[only-delimited]}]" \
+    '*:file:_files'
+fi

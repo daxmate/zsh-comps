@@ -1,0 +1,66 @@
+#compdef tail gtail
+
+local curcontext=$curcontext state state_descr line opts args ret=1
+typeset -A opt_args
+
+if _pick_variant gnu=GNU unix --version; then
+  args=(
+    '(-n --lines -c --bytes)'{-c+,--bytes=}'[输出指定字节数的末尾内容；使用 + 则从指定字节开始输出]:number of bytes:->number'
+    '(-n --lines -c --bytes)'{-n+,--lines=}'[输出指定行数的末尾内容；使用 + 则从指定行开始输出]:number of lines:->number'
+    '(-F -f)--follow=-[随着文件增长持续输出追加的数据]::how:(name descriptor)'
+    '(-F --follow)-f[等同于 --follow=descriptor]'
+    '(-f --follow --retry)-F[等同于 --follow=name --retry]'
+    '--max-unchanged-stats=[结合 --follow=name，在指定迭代次数后检查文件是否被重命名]:number of iterations'
+    '(-s --sleep-interval)'{-s+,--sleep-interval=}'[结合 -f，在迭代之间休眠指定的秒数]:seconds'
+    '--pid=[结合 -f，在指定进程结束后终止]:pid:_pids'
+    '(-q --quiet --silent -v --verbose)'{-q,--quiet,--silent}'[从不输出显示文件名的标头]'
+    '(-q --quiet --silent -v --verbose)'{-v,--verbose}'[始终输出显示文件名的标头]'
+    '--retry[即使文件变得无法访问也继续尝试打开]'
+    '(- *)--help[显示帮助信息并退出]'
+    '(- *)--version[输出版本信息并退出]'
+  )
+else
+  opts=(-A '-*')
+  args=(
+    '(-b -n)-c+[从指定字节开始]:bytes relative to the end (with +, beginning) of file'
+    '(-b -c)-n+[从指定行开始]:lines relative to the end (with +, beginning) of file'
+    '(-F -r)-f[等待新数据追加到文件中]'
+  )
+  case $OSTYPE in
+    (freebsd*|darwin*|dragonfly*|netbsd*|openbsd*|solaris*)
+      args+=(
+	'(-f -F)-r[倒序显示文件]'
+      )
+    ;|
+    (freebsd*|darwin*|dragonfly*|netbsd*|openbsd*)
+      args+=(
+	'(-c -n)-b+[从指定块（512字节）开始]:blocks relative to the end (with +, beginning) of file'
+      )
+      ;|
+    (freebsd*|darwin*|dragonfly*|netbsd*)
+      args+=(
+	'(-f -r)-F[隐含 -f，同时检测文件重命名]'
+	'(-v)-q[从不输出显示文件名的标头]'
+      )
+      ;|
+    (dragonfly*|netbsd*)
+      args+=( '(-q)-v[始终输出显示文件名的标头]' )
+      ;;
+  esac
+fi
+
+_arguments -C -s -S $opts : $args '*:file:_files' && return
+
+case $state in
+  (number)
+    local alts
+    [[ -z $PREFIX ]] && alts=(
+      'sign:sign:((-\:"输出除最后指定字节/行以外的所有内容" +\:"输出前指定字节/行（默认）"))'
+    )
+    compset -P '+'
+    alts+=( 'numbers: :_numbers -N $state_descr b\:512 K\:1024 KB\:1000 M\:1024\^2 MB\:1000\^2 G\:1024\^3 GB\:1000\^3 T\:1024\^4 TB\:1000\^4' )
+    _alternative $alts && ret=0
+  ;;
+esac
+
+return ret

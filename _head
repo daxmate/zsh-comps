@@ -1,0 +1,45 @@
+#compdef head ghead
+
+local curcontext=$curcontext state state_descr line expl opts args ret=1
+typeset -A opt_args
+
+if _pick_variant gnu=GNU unix --version; then
+  args=(
+    '(-n --lines -c --bytes)'{-c+,--bytes=}'[打印前指定的字节数（或配合 - 打印除最后指定字节外的所有字节）]:number of bytes:->number'
+    '(-n --lines -c --bytes)'{-n+,--lines=}'[打印前指定的行数（或配合 - 打印除最后指定行外的所有行）]:number of lines:->number'
+    '(-q --quiet --silent -v --verbose)'{-q,--quiet,--silent}'[不打印文件名头部]'
+    '(-q --quiet --silent -v --verbose)'{-v,--verbose}'[始终打印文件名头部]'
+    '(- *)--help[显示帮助并退出]'
+    '(- *)--version[输出版本信息并退出]'
+  )
+else
+  opts=(-A '-*')
+  args=( '(-c)-n+[显示前指定的行数]:number of lines' )
+  case $OSTYPE in
+    (freebsd*|darwin*|dragonfly*|netbsd*)
+      args+=( '(-n)-c+[显示前指定的字节数]:number of bytes' )
+    ;|
+    dragonfly*|netbsd*)
+      args+=(
+        '(-v)-q[不打印文件名头部]'
+        '(-q)-v[始终打印文件名头部]'
+      )
+    ;;
+  esac
+fi
+
+_arguments -C -s -S $opts : $args '*:file:_files' && return 0
+
+case $state in
+  (number)
+    local alts
+    [[ -z $PREFIX ]] && alts=(
+      'sign:sign:((-\:"打印除最后指定字节/行外的所有内容" +\:"打印前指定的字节/行（默认）"))'
+    )
+    compset -P '+'
+    alts+=( 'numbers: :_numbers -N $state_descr b\:512 K\:1024 KB\:1000 M\:1024\^2 MB\:1000\^2 G\:1024\^3 GB\:1000\^3 T\:1024\^4 TB\:1000\^4' )
+    _alternative $alts && ret=0
+  ;;
+esac
+
+return ret

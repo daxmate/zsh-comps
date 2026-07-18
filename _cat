@@ -1,0 +1,62 @@
+#compdef cat gcat
+
+local -a args
+
+if _pick_variant gnu=GNU unix --version; then
+  args=(
+    '(-A --show-all)'{-A,--show-all}'[等价于 -vET]'
+    '(-b --number-nonblank -n --number)'{-b,--number-nonblank}'[为非空输出行编号，覆盖 -n]'
+    '-e[等价于 -vE]'
+    '(-E --show-ends)'{-E,--show-ends}'[在每行末尾显示 $]'
+    '(-n --number)'{-n,--number}'[为所有输出行编号]'
+    '(-s --squeeze-blank)'{-s,--squeeze-blank}'[压缩重复的空输出行]'
+    '-t[等价于 -vT]'
+    '(-T --show-tabs)'{-T,--show-tabs}'[将 TAB 字符显示为 ^I]'
+    '-u[被忽略]'
+    '(-v --show-nonprinting)'{-v,--show-nonprinting}'[使用 ^ 和 M- 表示法，LFD 和 TAB 除外]'
+    '(- : *)--help[显示帮助并退出]'
+    '(- : *)--version[输出版本信息并退出]'
+    '*: :_files'
+  )
+
+elif [[ "$OSTYPE" == (*bsd|dragonfly|darwin)* ]]; then
+  args=(
+    -A "-*"
+    '(-n)-b[为非空输出行编号]'
+    '(-v)-e[在每行末尾显示 $（隐含 -v）]'
+    '-n[为所有输出行编号]'
+    '-s[将多个空行压缩为一行]'
+    '(-v)-t[将制表符显示为 ^I（隐含 -v）]'
+    '-u[不缓冲输出]'
+    '-v[将非打印字符显示为 ^X 或 M-a]'
+    '*: :_files'
+  )
+  [[ $OSTYPE = (free|net)bsd* ]] && args+=(
+    '-l[在标准输出文件描述符上设置锁]'
+  )
+  [[ $OSTYPE = netbsd* ]] && args+=(
+    '-B+[使用指定大小的缓冲区读取]:size (bytes)'
+    '-f[仅尝试显示常规文件]'
+  )
+elif [[ $OSTYPE = solaris* ]]; then
+  args=(
+    -A "-*"
+    '(-b)-n[为所有输出行编号]'
+    '(-n)-b[为非空输出行编号]'
+    "-u[不缓冲输出]"
+    '-s[不提示不存在的文件]'
+    '-v[将非打印字符显示为 ^X 或 M-a]'
+    '-e[在每行末尾显示 $（需要 -v）]'
+    '-t[将制表符显示为 ^I，换页符显示为 ^L（需要 -v）]'
+    '*: :_files'
+  )
+else
+  # POSIX requires '-u', and most OSes may support '-n'
+  args=(
+    '-n[为所有输出行编号]'
+    '-u[不缓冲输出]'
+    '*: :_files'
+  )
+fi
+
+_arguments -s -S $args
