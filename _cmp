@@ -1,0 +1,34 @@
+#compdef cmp gcmp
+
+local args variant
+_pick_variant -r variant gnu=GNU $OSTYPE --version
+
+case $variant in
+  gnu)
+    args=(
+      '(-b --print-bytes)'{-b,--print-bytes}'[打印不同的字节]'
+      '(-i --ignore-initial)'{-i+,--ignore-initial}'[跳过指定字节数]:字节数'
+      '(-l --verbose -s --silent --quiet)'{-l,--verbose}'[输出所有差异]'
+      '(-n --bytes)'{-n+,--bytes=}'[指定最大比较字节数]:字节数'
+      '(-s --quiet --silent -l --verbose)'{-s,--quiet,--silent}'[仅通过返回码指示差异]'
+      '(- *)'{-v,--version}'[显示版本信息]'
+      '(- *)--help[显示帮助信息]'
+    )
+  ;;
+  netbsd*) args+=( "-c[不使用 mmap]" ) ;|
+  freebsd*|openbsd*)
+    args=(
+      "-h[不跟随符号链接]"
+      '-x[十六进制输出和基于零的偏移索引]'
+      '-z[先比较文件大小]'
+    )
+  ;&
+  *)
+    args+=(
+      '(-s)-l[输出所有差异]'
+      '(-l)-s[静默：仅通过返回码指示差异]'
+    )
+  ;;
+esac
+
+_arguments -s $args '1:文件 1:_files' '2:文件 2:_files' '::字节偏移' '::字节偏移'
