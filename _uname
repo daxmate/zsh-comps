@@ -1,0 +1,90 @@
+#compdef uname guname
+
+typeset -A _uname_args
+local -a args
+
+case $LANG in
+  de_*)
+    _uname_args=(
+      all               "alle Grundinformationen ausgeben"
+      kernel-name       "Namen des Kernels ausgeben"
+      nodename          "Netzwerknamen der Maschine ausgeben"
+      kernel-release    "Release-Nummer des Kernels ausgeben"
+      kernel-version    "Version des Kernels ausgeben"
+      os-release        "Release-Nummer des Betriebssystems ausgeben"
+      machine           "Maschinentyp (Hardware) ausgeben"
+      processor         "Typ des Prozessors ausgeben"
+      hardware-platform "Hardwareplattform ausgeben"
+      operating-system  "Namen des Betriebssystems ausgeben"
+      help              "Hilfe anzeigen und beenden"
+      version           "Versionsinformation anzeigen und beenden"
+    )
+  ;;
+  (*)
+    _uname_args=(
+      all               "打印所有基本信息"
+      kernel-name       "打印内核名称"
+      nodename          "打印网络节点主机名"
+      kernel-release    "打印内核发布版本"
+      kernel-version    "打印内核版本号"
+      os-release        "打印操作系统发行级别"
+      machine           "打印机器硬件名称"
+      processor         "打印处理器类型"
+      hardware-platform "打印硬件平台"
+      operating-system  "打印操作系统名称"
+      help              "显示帮助信息"
+      version           "输出版本信息并退出"
+    )
+  ;;
+esac
+
+if _pick_variant gnu="Free Soft" unix --version; then
+  _arguments -s \
+    '(-)'{--all,-a}'['$_uname_args[all]']' \
+    '(--kernel-name -s)'{--kernel-name,-s}'['$_uname_args[kernel-name]']' \
+    '(--nodename -n)'{--nodename,-n}'['$_uname_args[nodename]']' \
+    '(--kernel-release -r)'{--kernel-release,-r}'['$_uname_args[kernel-release]']' \
+    '(--kernel-version -v)'{--kernel-version,-v}'['$_uname_args[kernel-version]']' \
+    '(--machine -m)'{--machine,-m}'['$_uname_args[machine]']' \
+    '(--processor -p)'{--processor,-p}'['$_uname_args[processor]']' \
+    '(--hardware-platform -i)'{--hardware-platform,-i}'['$_uname_args[hardware-platform]']' \
+    '(--operating-system -o)'{--operating-system,-o}'['$_uname_args[operating-system]']' \
+    '(-)--help['$_uname_args[help]']' \
+    '(-)--version['$_uname_args[version]']'
+else
+  args=(
+    "(-m -n -r -s -v)-a[${_uname_args[all]}]"
+    '-m[打印硬件类别]'
+    "-n[${_uname_args[nodename]}]"
+    "-p[${_uname_args[processor]}]"
+    "-r[${_uname_args[os-release]}]"
+    "-s[${_uname_args[operating-system]}]"
+    '-v[打印详细操作系统版本]'
+  )
+  case $OSTYPE in
+    freebsd*|dragonfly*)
+      args+=(
+        '-i[打印内核标识]'
+        '-K[打印内核版本]'
+        '-U[打印用户环境版本]'
+      )
+    ;|
+    dragonfly*)
+      args+=(
+        '-P[写入用于 dports/pkgng 的 ABI 字符串，包含版本修正]'
+        '-PP[写入用于 dports/pkgng 的 ABI 字符串，不含版本修正]'
+      )
+    ;;
+    freebsd<13->.*)
+      args+=( "-b[打印内核链接器生成的构建 ID]" )
+    ;;
+    solaris*)
+      args+=(
+        '-i[打印平台名称]'
+	'-S[设置系统名称]:系统名称'
+        '-X[打印扩展的系统信息]'
+      )
+    ;;
+  esac
+  _arguments -s $args
+fi
