@@ -1,0 +1,30 @@
+#compdef pbcopy pbpaste
+
+local ret=1
+local -a context line state state_descr args
+local -A opt_args val_args
+
+args=(
+  '(-)-help[显示帮助信息]'
+  '-pboard[指定要复制到或从中粘贴的剪贴板]: :->pboards'
+)
+[[ $service == pbpaste ]] && args+=(
+  '-Prefer[指定粘贴时首选的数据类型]: :->dtypes'
+)
+
+_arguments : $args && ret=0
+
+case $state in
+  dtypes)
+    _values 'data type' \
+      'txt[纯文本]' \
+      'rtf[富文本]' \
+      'ps[封装的 PostScript]' \
+    && ret=0
+    ;;
+  pboards)
+    _values pasteboard general ruler find font && ret=0
+    ;;
+esac
+
+return ret
