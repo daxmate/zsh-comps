@@ -1,0 +1,83 @@
+#compdef open
+
+# Notes:
+# - open(1) says that -f opens the result in the default text editor. This is
+#   not true; the result is always opened in TextEdit unless another option is
+#   supplied to override it
+# - We no longer try to restrict files to those associated with the specified
+#   app; this was a nice idea, but it's unreliable
+
+_open_absolute_application_path() {
+  local expl curcontext
+  zstyle -T ":completion:${curcontext}:files" prefix-needed && \
+    [[ "$PREFIX" != [/~]* && compstate[nmatches] -ne 0 ]] && return 1
+  _wanted files expl 'application file' _path_files -P "$PREFIX[1]" -W /
+}
+
+_open() {
+  local curcontext=$curcontext ret=1
+  local -a context expl line state state_descr tmp
+  local -A opt_args val_args
+
+  # No +, and no -S (--args covers that)
+  _arguments -s -C : \
+    '(-a -b -e -f -R -t)-a+[指定应用名称]: :->applications' \
+    '(: * -)--args[将剩余参数传递给应用]:*:::参数' \
+    '(-a -b -e -f -R -t)-b+[指定应用包标识符]: :->bundle-ids' \
+    '(-a -b -e -f -R -t)-e[使用 TextEdit 打开]' \
+    '(-h)-f[使用 TextEdit 或指定应用打开标准输入]' \
+    '(-R)-F[以全新状态打开应用]' \
+    '-g[不将应用置于前台]' \
+    '(-f)-h[打开库头文件]' \
+    '(-R)-n[始终打开应用的新实例]' \
+    '(-a -b -e -f -F -n -s -t -W --args)-R[在 Finder 中显示]' \
+    '(-R)-s+[指定 SDK 名称/版本]: :->sdks' \
+    '(-a -b -e -f -R -t)-t[使用默认文本编辑器打开]' \
+    '(-R)-W[等待应用退出]' \
+    '(-f)*: :->files' \
+  && ret=0
+
+  case $state in
+    applications)
+      _alternative \
+        "commands: :_mac_applications" \
+        "files:: _open_absolute_application_path" \
+      && ret=0
+      ;;
+    bundle-ids)
+      autoload -Uz zargs
+      _retrieve_mac_apps
+      tmp=( ${(@)_mac_apps:#/System/Library/(Private|)Frameworks/*} )
+      tmp=( ${(0)"$(
+        _call_program bundle-ids \
+          zargs -n300 -P2 -- ${(@q)tmp} -- mdls -rn kMDItemCFBundleIdentifier
+      )"} )
+      tmp=( ${(@)tmp:#\(null\)} )
+      _values 'bundle identifier' $tmp com.apple.TextEdit && ret=0
+      ;;
+    files)
+      if (( $+opt_args[-h] )); then
+        tmp=(
+          /System/Library/Frameworks/*/Headers/*.h(#q-.N:t)
+          /usr/local/include/**/*.h(#q-.N:t)
+          /usr/include/**/*.h(#q-.N:t)
+        )
+        _describe -t headers 'header file' tmp && ret=0
+      else
+        _webbrowser && ret=0
+      fi
+      ;;
+    sdks)
+      tmp=( /Library/Developer/CommandLineTools/SDKs/*.*.sdk(#qN:t:r) )
+      if (( $#tmp )); then
+        _describe -t sdks 'SDK name/version' tmp && ret=0
+      else
+        _message -e sdks 'SDK name/version' && ret=0
+      fi
+      ;;
+  esac
+
+  return ret
+}
+
+_open "$@"
