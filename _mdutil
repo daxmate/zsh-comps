@@ -1,0 +1,19 @@
+#compdef mdutil
+
+# @todo This isn't fully comprehensive, but it's unclear from the documentation
+# how some of these options are meant to work together or what kind of arguments
+# they expect
+
+local -a volumes=( / /Volumes/*(N) )
+
+_arguments -s -S : \
+  '(-V)-a[应用于所有卷]' \
+  '-d[禁用 Spotlight 活动]' \
+  '-E[擦除并重建索引]' \
+  '-i[切换索引状态]:索引状态:(on off)' \
+  '-p[发布元数据]' \
+  '-s[打印索引状态]' \
+  '(: -)-t[从指定文件 ID 解析文件]:文件 ID、卷路径或设备 ID: :file ID' \
+  "(-a)-V[应用于指定卷上的存储]:卷:(${(j< >)${(@q-)volumes}})" \
+  '-v[详细输出]' \
+  "*:卷:(${(j< >)${(@q-)volumes}})"
