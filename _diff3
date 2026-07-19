@@ -1,0 +1,46 @@
+#compdef diff3
+
+local -a args ed
+local ign
+
+if _pick_variant gnu=GNU unix --version; then
+  ed=(
+    '(-m --merge -A --show-all)'{-e,--ed}'[输出用于合并变更的 ed 脚本]'
+    '(-m --merge -A --show-all)'{-E,--show-overlap}'[类似 -e，但将有冲突部分括起来]'
+    '(-m --merge -A --show-all)'{-3,--easy-only}'[类似 -e，但仅合并非重叠变更]'
+    '(-m --merge -A --show-all)'{-x,--overlap-only}'[类似 -e，但仅合并重叠变更]'
+    '(-m --merge -A --show-all)-X[类似 -x，但将有冲突部分括起来]'
+  )
+  (( $#words > 2 )) && ign='!'
+  args=(
+    '(-A --show-all ed)'{-A,--show-all}'[输出所有变更，将有冲突部分括起来]'
+    "(-m --merge)-i[向 ed 脚本追加 'w' 和 'q' 命令]"
+    '(-m --merge -i ed)'{-m,--merge}'[输出合并后的文件而非 ed 脚本]'
+    '(-a --text)'{-a,--text}'[将所有文件视为文本]'
+    '--strip-trailing-cr[去除输入中的尾部回车]'
+    '(-T --initial-tab)'{-T,--initial-tab}'[通过前置制表符对齐]'
+    '--diff-program=[指定用于比较文件的程序]: : _command_names -e'
+    \*{-L+,--label=}'[使用指定标签而非文件名]:标签'
+    "$ign(- :)--help[显示用法信息]"
+    "$ign(- :)"{-v,--version}'[显示版本信息]'
+  )
+else
+  args=( -A "-*" )
+  ed=(
+    '-e[输出用于合并变更的 ed 脚本]'
+    '-E[类似 -e，但将有冲突部分括起来]'
+    '-x[类似 -e，但仅合并重叠变更]'
+    '-X[类似 -x，但将有冲突部分括起来]'
+    '-3[类似 -e，但仅合并非重叠变更]'
+  )
+  if [[ $OSTYPE != solaris* ]]; then # likely the openbsd diff3 implementation
+    args+=( '-a[将所有文件视为文本]' )
+  fi
+fi
+
+_arguments -s -S $args \
+  '1: : _wanted files expl "第一个更新文件 (${${(As.:.)opt_args[-L]}[1]:-mine})" _files' \
+  '2: : _wanted files expl "原始文件 (${${(As.:.)opt_args[-L]}[2]:-old})" _files' \
+  '3: : _wanted files expl "第二个更新文件 (${${(As.:.)opt_args[-L]}[3]:-their})" _files' \
+  + '(ed)' $ed
+
