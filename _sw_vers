@@ -1,0 +1,6 @@
+#compdef sw_vers
+
+_arguments : \
+  '(-)-buildVersion[仅显示构建版本]' \
+  '(-)-productName[仅显示产品名称]' \
+  '(-)-productVersion[仅显示产品版本]'
