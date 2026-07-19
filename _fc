@@ -1,0 +1,92 @@
+#compdef fc history r
+
+local curcontext="$curcontext" state state_descr line expl ret=1
+local num cmd sep
+local -a events
+typeset -A opt_args
+local fc_common fc_hist fc_r
+
+# hide any replacements from _arguments
+local cur=${(M)#words[1,CURRENT-1]:#*=*}
+words=( "${(@)words[1,CURRENT-1]:#*=*}" "${(@)words[CURRENT,-1]}" )
+(( CURRENT -= cur ))
+
+fc_common=(
+  -s -S
+  '(-A -R -W -p -P)-I[仅包含内部（新）事件]'
+  '(-A -R -W -p -P)-L[仅包含本地事件]'
+  '(-A -R -W -p -P)-r[反转事件顺序]'
+  '(-A -R -W -e -p -P)-n[抑制行号]'
+)
+
+if [[ -n ${words[(r)-[pa](|[ap])]} ]]; then
+  fc_common+=(
+    ':history file:_files'
+    ':history size:'
+    ':saved history size:'
+  )
+  [[ -n ${words[(r)-(|a)p(|a)]} ]] || fc_common+='!-a:option:(-p)'
+elif [[ -n ${words[(r)-*[ARWI]*]} ]]; then
+  fc_common+=( ':历史文件:_files' )
+else
+  fc_common=( -C "$fc_common[@]"
+    '(-)1:first event:->events' '2:last event:->events'
+  )
+fi
+
+fc_hist=(
+  '(-A -R -W -a -p -P 2)-m[将参数视为模式]'
+  '(-A -R -W -e -f -E -i -t -a -p -P)-d[打印时间戳]'
+  '(-A -R -W -e -d -E -i -t -a -p -P)-f[mm/dd/yyyy 格式的时间戳]'
+  '(-A -R -W -e -d -f -i -t -a -p -P)-E[dd.mm.yyyy 格式的时间戳]'
+  '(-A -R -W -e -d -f -E -t -a -p -P)-i[yyyy-mm-dd 格式的时间戳]'
+  '(-A -R -W -e -d -f -E -i -a -p -P)-t[以指定格式打印时间戳]:日期格式'
+  '(-A -R -W -e -a -p -P)-D[打印经过的时间]'
+
+  '(-A -R -W -I -e -d -f -i -l -m -n -r -D -E -t -P)-a[与 -p 一起使用，函数返回时自动弹出历史]'
+  '(-A -R -W -I -e -d -f -i -l -m -n -r -D -E -t -P)-p[将当前历史压入堆栈]'
+  '(- *)-P[从堆栈弹出历史]'
+)
+
+fc_r='(-A -R -W -e)-l[在 stdout 上列出结果命令]'
+
+case $service in
+  history)
+    _arguments "$fc_common[@]" "$fc_hist[@]" && ret=0
+  ;;
+  r)
+    _arguments "$fc_common[@]" "$fc_r" && ret=0
+  ;;
+  *)
+    _arguments "$fc_common[@]" "$fc_hist[@]" "$fc_r" \
+      '(-A -R -W -a -l -n -d -f -E -i -r -t -D -p -P -s)-e+[指定要调用的编辑器]:要调用的编辑器:_command_names -e' \
+      '(-A -R -W -a -l -n -d -f -E -i -r -t -D -p -P -e)-s[不调用编辑器重新执行命令（类似 -e-）]' \
+      '(-a -l -L -m -e -r -n -d -f -t -E -i -R -D -A -W -p -P *)-'{\
+'R[从文件读取历史]',\
+'A[追加历史到文件]',\
+'W[写入历史到文件]'} && ret=0
+  ;;
+esac
+
+if [[ -n $state ]]; then
+  zstyle -s ":completion:${curcontext}:" list-separator sep || sep=--
+  if [[ -z ${line:#*=*} ]] && compset -P 1 '*='; then
+    _message -e replacements 'replacement'
+  elif [[ -prefix [0-9] ]]; then
+    print -v events -f "%-${#HISTNO}.${#HISTNO}s $sep %s" "${(kv)history[@]}"
+    _wanted -2V events expl "$state_descr" compadd -M "B:0=" -ld events - \
+        "${events[@]%% *}"
+  elif [[ -prefix - ]]; then
+    for num cmd in "${(kv@)history}"; do
+      (( num=num - HISTNO ))
+      events+=( "${(r.1+$#HISTNO.)num} $sep $cmd" )
+    done
+    _wanted -2V events expl "$state_descr" compadd -ld events - \
+        "${events[@]%% *}"
+  else
+    _wanted events expl "$state_descr" compadd -S '' - \
+        ${${history%%[=[:IFS:]]*}:#[0-9-]*} || _guard "[0-9]#" event
+  fi
+fi && ret=0
+
+return ret
