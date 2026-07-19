@@ -1,0 +1,29 @@
+#compdef mdfind
+
+local ret=1
+local -a context line state state_descr tmp
+local -A opt_args val_args
+
+_arguments -s -S : \
+  '(-count)-0[结果路径以 NUL 分隔]' \
+  '(-0)-count[显示结果数量而非路径]' \
+  '(-literal)-interpret[将查询解释为 Spotlight 搜索框输入]' \
+  '(-interpret)-literal[将查询解释为字面查询字符串]' \
+  '-live[提供查询结果的实时更新]' \
+  '-onlyin[将搜索限制到指定目录]: :_directories' \
+  '(: -s)*-name[搜索文件名匹配指定字符串的文件]:文件名字符串' \
+  '-reprint[更新时重新打印 -live 结果]' \
+  '(: -name)-s[显示指定智能文件夹的内容]: :->smart-folders' \
+  '(-s -name)1: :_guard "^-*" "查询"' \
+&& ret=0
+
+[[ $state == smart-folders ]] && {
+  tmp=( "$HOME/Library/Saved Searches/"*.savedSearch(-.N:r:t) )
+  if (( $#tmp )); then
+    _values 'smart folder' $tmp && ret=0
+  else
+    _message 'smart folder' && ret=0
+  fi
+}
+
+return ret
