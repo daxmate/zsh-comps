@@ -1,0 +1,75 @@
+#compdef softwareupdate
+
+_softwareupdate_ignored_update_name() {
+  if [[ -z "$_softwareupdate_ignored_updates" ]]; then
+    local res="$(_call_program pkgs softwareupdate --ignored)"
+    _softwareupdate_ignored_updates=("${(Qs/, /)${${res#Current ignored updates: \(}%\)}}")
+  fi
+  if (( ${#_softwareupdate_ignored_updates} > 0 )); then
+    _wanted pkgs expl "ignored package" compadd -a _softwareupdate_ignored_updates && return 0
+  fi
+  return 1
+}
+
+_softwareupdate_update_name() {
+  local name line
+  if [[ -z "$_softwareupdate_updates" ]]; then
+    _softwareupdate_updates=()
+    for line in ${(f)"$(_call_program pkgs softwareupdate --list)"}; do
+      if [[ $line == '   '* ]]; then
+        name="${line#   ? }"
+      elif [[ -n "$name" ]]; then
+        _softwareupdate_updates+=("$name:${line#	}")
+        name=""
+      fi
+    done
+  fi
+  if (( ${#_softwareupdate_updates} > 0 )); then
+    _describe -t pkgs "update name" _softwareupdate_updates && return 0
+  fi
+  return 1
+}
+
+_softwareupdate() {
+  local context state line expl
+  typeset -A opt_args
+
+  _arguments -R \
+    '(-h --help -l --list)-q[安静模式]' \
+    {-l,--list}'[列出所有可用更新]:*:' \
+    {-d,--download}'[下载到 InternetConfig 设置的目录]:*:' \
+    {-i,--install}'[安装（需要 root）]:*: :->install' \
+    '--ignored[显示或管理忽略更新列表（按用户）]:*:: :->ignored' \
+    '--schedule[调度器偏好（按用户）]:自动检查:(on off)' \
+    {-h,--help}'[打印命令用法]:*:' && return 0
+
+  case "$state" in
+    install)
+      _arguments \
+        '(* -a --all)'{-a,--all}'[所有可用的活跃更新]' \
+        '(* -r --req)'{-r,--req}'[所有必需的活跃更新]' \
+        '*:更新名称:_softwareupdate_update_name' && return 0
+      ;;
+    ignored)
+      local -a ignored_subcmd
+      ignored_subcmd=(add remove)
+
+      if (( CURRENT == 1 )); then
+        _describe -t commands "子命令" ignored_subcmd && return 0
+      fi
+      case $words[1] in
+        add)
+          _softwareupdate_update_name && return 0
+          ;;
+        remove)
+          _arguments \
+            '(* -a --all)'{-a,--all}'[所有可用的活跃更新]' \
+            '*:更新名称:_softwareupdate_ignored_update_name' && return 0
+          ;;
+      esac
+      ;;
+  esac
+  return 1
+}
+
+_softwareupdate "$@"
