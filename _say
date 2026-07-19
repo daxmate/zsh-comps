@@ -1,0 +1,85 @@
+#compdef say
+
+local ret=1
+local -a context line state state_descr tmp
+local -A opt_args val_args
+
+_arguments -s -S : \
+  '(-a --audio-device)'{-a+,--audio-device=}'[指定音频设备]: :->devices' \
+  '--bit-rate=[指定比特率]: :->bit-rates' \
+  '--channels=[指定声道数]:声道数' \
+  '--data-format=[指定输出数据格式]: :->data-formats' \
+  '(: -f --input-file)'{-f+,--input-file=}'[指定输入文件]:输入文件:_files' \
+  '--file-format=[指定输出文件格式]: :->file-formats' \
+  '(-i --interactive)-i[朗读时显示/高亮文本]' \
+  '(-i --interactive)--interactive=[朗读时显示/高亮文本]:: :->markups' \
+  '(-o --output-file)'{-o+,--output-file=}'[指定输出文件]:输出文件:_files' \
+  '(-n --network-send)'{-n+,--network-send=}'[指定网络服务/端口]:网络服务/端口' \
+  '--progress[显示进度条]' \
+  '--quality=[指定转换器质量级别]:质量级别 (0-127)' \
+  '(-r --rate)'{-r+,--rate=}'[指定语速]:语速（词/分钟）' \
+  '(-v --voice)'{-v+,--voice=}'[指定语音]: :->voices' \
+  '(-f)*: :_guard "^-*" "要朗读的文本"' \
+&& ret=0
+
+case $state in
+  bit-rates)
+    # A file format must have already been provided in order to complete these;
+    # also, not every file format supports bit-rate values
+    (( $+opt_args[--file-format] )) && {
+      tmp=( ${(f)"$(
+        _call_program bit-rates $words[1] \
+          --file-format=${opt_args[--file-format]##*:} \
+          --bit-rate='\?'
+      )"} )
+      tmp=( ${tmp//[[:space:]]##/} )
+    }
+    if (( $#tmp )); then
+      _values 'bit rate' $tmp && ret=0
+    else
+      _message 'bit rate' && ret=0
+    fi
+    ;;
+  data-formats)
+    # A file format must have already been provided in order to complete these
+    if (( ! $+opt_args[--file-format] )); then
+      _message 'data format' && ret=0
+    else
+      tmp=( ${(f)"$(
+        _call_program data-formats $words[1] \
+          --file-format=${opt_args[--file-format]##*:} \
+          --data-format='\?'
+      )"} )
+      tmp=( ${tmp//:/\\:} )
+      tmp=( ${^tmp/[[:space:]]##/[}\] )
+      _values 'data format' $tmp && ret=0
+    fi
+    ;;
+  devices)
+    tmp=( ${(f)"$( _call_program devices $words[1] -a '\?' )"} )
+    tmp=( ${tmp##[[:space:]]#[0-9]##[[:space:]]##} )
+    tmp=( ${tmp//:/\\:} )
+    _values 'audio device name or ID' $tmp && ret=0
+    ;;
+  file-formats)
+    tmp=( ${(f)"$( _call_program file-formats $words[1] --file-format='\?' )"} )
+    tmp=( ${tmp%%[[:space:]]##\(.*} )
+    tmp=( ${tmp//:/\\:} )
+    tmp=( ${^tmp/[[:space:]]##/[}\] )
+    _values 'file format' $tmp && ret=0
+    ;;
+  markups)
+    tmp=( bold smso smul ${(k)terminfo} )
+    _alternative \
+      'colors:color:(black red green yellow blue magenta cyan white)' \
+      "capabilities:terminfo capability:( ${(j< >)tmp} )" \
+    && ret=0
+    ;;
+  voices)
+    tmp=( ${(f)"$( _call_program voices $words[1] -v '\?' )"} )
+    tmp=( ${tmp%%[[:space:]](#c2,)*} )
+    _values voice $tmp && ret=0
+    ;;
+esac
+
+return ret
