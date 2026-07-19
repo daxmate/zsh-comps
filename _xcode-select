@@ -1,0 +1,10 @@
+#compdef xcode-select
+
+# No -s, no -o+ form options
+_arguments : \
+  '(-)'{-h,--help}'[显示帮助信息]' \
+  '(-)'{-v,--version}'[显示版本信息]' \
+  '(-)--install[安装命令行开发者工具]' \
+  '(-)'{-p,--print-path}'[显示活跃开发者目录路径]' \
+  '(-)'{-r,--reset}'[重置为默认开发者目录]' \
+  '(-)'{-s,--switch}'[指定活跃开发者目录路径]:开发者目录:_files -/'
