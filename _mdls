@@ -1,0 +1,9 @@
+#compdef mdls
+
+# Note: The inconsistent use of the -o+ option variant here is deliberate
+_arguments -s -S : \
+  '*'{-n+,-name}'[限制输出到指定属性]:属性' \
+  '(-p -plist)-nullMarker[指定用于空值的字符串]:字符串' \
+  '(-p -r -nullMarker -plist -raw)'{-p,-plist}'[以 XML plist 格式输出到指定文件]:输出文件:_files' \
+  '(-p -r -plist -raw)'{-r,-raw}'[打印原始（NUL 分隔）属性数据]' \
+  '*: :_files'
