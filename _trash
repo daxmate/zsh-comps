@@ -1,0 +1,22 @@
+#compdef trash
+
+# We only provide completion for Ali Rantakari's trash utility. There are/were a
+# few others floating around with that name, but this is the one available as
+# `trash` in Homebrew and MacPorts
+_pick_variant ali='(Rantakari|hasseg)' other --version && {
+  # The hidden options here are options to rm that trash silently (and
+  # undocumentedly) ignores. Some options are not made mutually exclusive where
+  # they technically could be, for compatibility with aliases, etc.
+  _arguments -s -S -A '-*' : \
+    '!-'{d,f,i,r,P,R,W} \
+    '(: * -F -l -v)-e[清空废纸篓]' \
+    '-F[使用 Finder 而非系统 API]' \
+    '(: * -e -F -s -y)-l[列出废纸篓中的项目]' \
+    '(: * -F -l -v)-s[安全清空废纸篓]' \
+    '-v[增加输出详细程度]' \
+    '-y[跳过确认提示（与 -e 或 -s 一起）]' \
+    '*: :_files'
+  return
+}
+
+_default
