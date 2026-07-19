@@ -1,0 +1,56 @@
+#compdef scutil
+
+local ret=1
+local -a context line state state_descr
+local -A opt_args val_args
+
+# Don't complete host names unless we have -r (this is weird, but the obvious
+# alternative (exclusion sets) currently doesn't work properly with option
+# stacking)
+(( ! $words[(I)-*] || ($words[(I)-W] && ! $words[(I)-r]) )) &&
+: ${PREFIX:=-}
+
+# @todo We could complete nc-cmd arguments better if we wanted to
+_arguments -s -S -A '-*' : \
+  + '(g1)' \
+  '(: -)--dns[显示当前 DNS 配置]' \
+  '(: -)--get[显示指定偏好]: :->prefs' \
+  '(: -)--nc[与 VPN 连接交互]: :->nc-cmd:*:参数' \
+  '(: -)--prefs[与原始偏好数据交互]:偏好文件:_files' \
+  '(: -)--proxy[显示当前代理配置]' \
+  '(: -)--set[设置指定偏好]: :->prefs:值' \
+  + g2 \
+  '(g1 g3)-r[检查网络可达性]' \
+  '(g1 g3)-W[监视（观察）网络可达性]' \
+  '(g1 g3)1:主机:_hosts' \
+  '(g1 g3)2::主机:_hosts' \
+  + g3 \
+  '(g1 g2)-w[等待动态存储中的键存在]' \
+  '(g1 g2)-t+[指定超时]:超时（秒）' \
+&& ret=0
+
+case $state in
+  nc-cmd)
+    _values command \
+      'disablevpn[禁用指定服务或 VPN 应用类型]' \
+      'enablevpn[启用指定服务或 VPN 应用类型]' \
+      'help[显示命令帮助]' \
+      'list[列出服务]' \
+      'ondemand[显示 VPN 按需信息]' \
+      'resume[恢复指定服务]' \
+      'select[激活指定服务]' \
+      'show[显示指定服务的配置信息]' \
+      'start[启动指定服务]' \
+      'statistics[显示指定服务的统计信息]' \
+      'status[显示指定服务的状态]' \
+      'stop[停止指定服务]' \
+      'suspend[挂起指定服务]' \
+      'trigger[使用指定主机触发 VPN 按需连接]' \
+    && ret=0
+    ;;
+  prefs)
+    _values preference ComputerName HostName LocalHostName && ret=0
+    ;;
+esac
+
+return ret
