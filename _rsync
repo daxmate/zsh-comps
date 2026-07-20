@@ -1,5 +1,8 @@
 #compdef rsync
 
+# rsync Zsh 补全函数（中文版）
+
+
 _rsync_user_or_host() {
   local suf=$1 rsync
   shift
@@ -15,8 +18,8 @@ _rsync_user_or_host() {
   else
     [[ $words[CURRENT] = rsync://* ]] || rsync='rsync:rsync: compadd -S "" rsync://'
     _alternative \
-      'users:用户:_users -S @' \
-      "hosts:主机:_hosts -S '$suf'" \
+      'users:user:_users -S @' \
+      "hosts:host:_hosts -S '$suf'" \
       $rsync
   fi
 }
@@ -82,7 +85,7 @@ _rsync_debug() {
 }
 
 _rsync_files() {
-  _alternative "files:本地文件:_files" "remote-files:远程文件:_rsync_remote_files"
+  _alternative "files:file:_files" "remote-files:remote file:_rsync_remote_files"
 }
 
 _rsync_users_groups() {
@@ -99,68 +102,68 @@ _rsync() {
   _arguments -s \
     '*'{-v,--verbose}'[增加详细程度]' \
     {--no-v,--no-verbose}'[关闭 --verbose]' \
-    '--bwlimit=[限制 I/O 带宽]: :_numbers -f -u "KiB 每秒" -d 1g 限制 B K M G T P' \
-    '--outbuf=[设置输出缓冲]:缓冲方式:(none line block)' \
-    '--port=[指定替代端口号]:端口:(873)' \
-    '--address=[绑定到指定地址]:绑定地址:_bind_addresses' \
-    '--log-file-format=[使用指定格式记录更新]:格式' \
-    '--log-file=[将 rsync 操作记录到指定文件]:文件:_files' \
-    '(-T --temp-dir)'{-T+,--temp-dir=}'[在指定目录创建临时文件]:目录:_directories' \
+    '--bwlimit=[limit I/O bandwidth]: :_numbers -f -u "KiB per second" -d 1g limit B K M G T P' \
+    '--outbuf=[set output buffering]:buffering:(none line block)' \
+    '--port=[specify alternate port number]:port:(873)' \
+    '--address=[bind to the specified address]:bind address:_bind_addresses' \
+    '--log-file-format=[log updates using specified format]:format' \
+    '--log-file=[log what rsync is doing to the specified file]:file:_files' \
+    '(-T --temp-dir)'{-T+,--temp-dir=}'[create temporary files in specified directory]:directory:_directories' \
     '--sockopts=[指定自定义 TCP 选项]' \
-    '(-4 -6 --ipv4 --ipv6)'{-4,--ipv4}'[优先 IPv4]' \
-    '(-4 -6 --ipv4 --ipv6)'{-6,--ipv6}'[优先 IPv6]' \
+    '(-4 -6 --ipv4 --ipv6)'{-4,--ipv4}'[优先使用 IPv4]' \
+    '(-4 -6 --ipv4 --ipv6)'{-6,--ipv6}'[优先使用 IPv6]' \
    - daemon \
     '(-)'{-h,--help}'[显示帮助信息]' \
-    '--config=[指定替代 rsyncd.conf 文件]:文件:_files' \
-    '--daemon[以 rsync 守护进程方式运行]' \
+    '--config=[specify alternate rsyncd.conf file]:file:_files' \
+    '--daemon[以 rsync 守护进程运行]' \
     '--detach[从父进程分离]' \
-    '(-M --dparam)'{-M+,--dparam=}'[覆盖全局守护进程配置参数]:配置参数' \
+    '(-M --dparam)'{-M+,--dparam=}'[override global daemon config parameter]:config parameter' \
     '--no-detach[不从父进程分离]' \
    - client \
     '(-)--help[显示帮助信息]' \
     '*: :_rsync_files' \
-    '--stderr=[更改 stderr 输出模式]:输出模式 [errors]:(errors all client)' \
+    '--stderr=[change stderr output mode]:output mode [errors]:(errors all client)' \
     '(-q --quiet)'{-q,--quiet}'[抑制非错误消息]' \
-    '--no-motd[抑制守护进程每日消息]' \
-    '(-c --checksum)'{-c,--checksum}'[基于校验和而非时间与大小跳转]' \
-    '(-a --archive)'{-a,--archive}'[归档模式；等同 -rlptgoD（不含 -H）]' \
-    '(-r --recursive)'{-r,--recursive}'[递归进入子目录]' \
+    '--no-motd[抑制守护进程的每日消息输出]' \
+    '(-c --checksum)'{-c,--checksum}'[基于校验和而非修改时间和大小跳过]' \
+    '(-a --archive)'{-a,--archive}'[归档模式；同 -rlptgoD（不含 -H）]' \
+    '(-r --recursive)'{-r,--recursive}'[递归进入目录]' \
     {--no-r,--no-recursive}'[关闭 --recursive]' \
     {--no-inc-recursive,--no-i-r}'[禁用增量递归模式]' \
     '(-R --relative)'{-R,--relative}'[使用相对路径名]' \
     {--no-R,--no-relative}'[关闭 --relative]' \
-    {--no-implied-dirs,--no-i-d}'[不使用 --relative 推断目录]' \
-    '(-b --backup)'{-b,--backup}'[备份到指定目录层次]' \
-    '--backup-dir=[备份到指定目录]:备份目录:_directories' \
-    '--suffix=[设置备份后缀]:后缀 [~]' \
-    '(-u --update)'{-u,--update}'[跳过接收端更新的文件]' \
+    {--no-implied-dirs,--no-i-d}'[使用 --relative 时不发送隐含目录]' \
+    '(-b --backup)'{-b,--backup}'[备份到指定目录的层级结构中]' \
+    '--backup-dir=[make backups into specified directory]:backup directory:_directories' \
+    '--suffix=[set backup suffix]:suffix [~]' \
+    '(-u --update)'{-u,--update}'[跳过接收端较新的文件]' \
     '--inplace[原地更新目标文件]' \
-    '(--append-verify)--append[向较短文件追加数据]' \
-    '(--append)--append-verify[向较短文件追加数据，验证旧数据]' \
+    '(--append-verify)--append[向较短的文件追加数据]' \
+    '(--append)--append-verify[向较短的追加数据并验证旧数据]' \
     '(-A --acls)'{-A,--acls}'[保留访问控制列表]' \
     '(-X --xattrs)'{-X,--xattrs}'[保留扩展属性]' \
     '--fake-super[使用 xattrs 保存所有文件属性]' \
     '(-d --dirs)'{-d,--dirs}'[传输目录但不递归]' \
     {--no-d,--no-dirs}'[关闭 --dirs]' \
-    "--mkpath[创建目标路径目录]" \
-    '(-l --links)'{-l,--links}'[符号链接保持为符号链接]' \
+    "--mkpath[create the destination's path component]" \
+    '(-l --links)'{-l,--links}'[复制符号链接为符号链接]' \
     {--no-l,--no-links}'[关闭 --links]' \
-    '(-L --copy-links)'{-L,--copy-links}'[将符号链接转换为指向的文件/目录]' \
+    '(-L --copy-links)'{-L,--copy-links}'[将符号链接转换为目标文件/目录]' \
     '(-k --copy-dirlinks)'{-k,--copy-dirlinks}'[将指向目录的符号链接转换为目标目录]' \
-    '--copy-unsafe-links[仅转换"不安全"的符号链接]' \
-    '--safe-links[忽略指向源树之外的符号链接]' \
+    '--copy-unsafe-links[仅转换“不安全”的符号链接]' \
+    '--safe-links[忽略指向源目录树外的符号链接]' \
     '(-H --hard-links)'{-H,--hard-links}'[保留硬链接]' \
     {--no-H,--no-hard-links}'[关闭 --hard-links]' \
-    '(-K --keep-dirlinks)'{-K,--keep-dirlinks}'[将接收端的符号链接目录视为目录]' \
+    '(-K --keep-dirlinks)'{-K,--keep-dirlinks}'[将接收端上的符号链接目录视为目录]' \
     '(-p --perms -E --executability)'{-p,--perms}'[保留权限]' \
     {--no-p,--no-perms}'[关闭 --perms]' \
-    '--fileflags[保留文件标志（chflags）]' \
-    '(-E --executability)'{-E,--executability}'[保留可执行性]' \
+    '--fileflags[保留文件标志（即 chflags）]' \
+    '(-E --executability)'{-E,--executability}'[保留可执行权限]' \
     '(-o --owner)'{-o,--owner}'[保留所有者]' \
     {--no-o,--no-owner}'[关闭 --owner]' \
     '(-g --group)'{-g,--group}'[保留组]' \
     {--no-g,--no-group}'[关闭 --group]' \
-    '(--devices --specials)-D[等同 --devices --specials]' \
+    '(--devices --specials)-D[同 --devices --specials]' \
     '(-D)--devices[保留设备文件]' \
     '--no-devices[关闭 --devices]' \
     '(-D)--specials[保留特殊文件]' \
@@ -168,106 +171,106 @@ _rsync() {
     '--no-D[关闭 --devices 和 --specials]' \
     '(-t --times)'{-t,--times}'[保留修改时间]' \
     {--no-t,--no-times}'[关闭 --times]' \
-    \*{-U,--atimes}'[保留访问时间]' \
-    '--open-noatime[避免更改已打开文件的 atime]' \
-    '(--crtimes -N)'{--crtimes,-N}'[保留创建时间]' \
+    \*{-U,--atimes}'[保留访问（使用）时间]' \
+    '--open-noatime[避免修改已打开文件的访问时间]' \
+    '(--crtimes -N)'{--crtimes,-N}'[保留创建时间（新近度）]' \
     '(-O --omit-dir-times)'{-O,--omit-dir-times}'[保留时间时忽略目录]' \
     '(-J --omit-link-times)'{-J,--omit-link-times}'[保留时间时忽略符号链接]' \
-    '--chmod=[更改目标权限]:权限' \
+    '--chmod=[change destination permissions]:permissions' \
     '(-S --sparse)'{-S,--sparse}'[高效处理稀疏文件]' \
-    '--write-devices[将设备作为文件写入（隐含 --inplace）]' \
+    '--write-devices[将设备当作文件写入（隐含 --inplace）]' \
     '(-n --dry-run)'{-n,--dry-run}'[显示将要传输的内容]' \
-    '(-W --whole-file)'{-W,--whole-file}'[完整复制文件（不使用增量传输）]' \
+    '(-W --whole-file)'{-W,--whole-file}'[完整复制文件（不使用增量传输算法）]' \
     {--no-W,--no-whole-file}'[关闭 --whole-file]' \
-    '(--cc --checksum-choice)'{--cc,--checksum-choice}'=[选择校验和算法]:算法:_sequence -n 2 compadd - auto md4 md5 none' \
-    '(-x --one-file-system)'{-x,--one-file-system}"[不跨越文件系统边界]" \
-    '(-B --block-size)'{-B+,--block-size=}'[强制固定校验和块大小]: :_numbers -f -u bytes -d 1g "块大小" B K M G T P' \
-    '(-e --rsh)'{-e+,--rsh=}'[指定远程 shell]:远程 shell 命令:(rsh ssh)' \
-    '--rsync-path=[指定远程机器上 rsync 的路径]:远程命令' \
-    '--ignore-existing[忽略接收端已有的文件]' \
+    '(--cc --checksum-choice)'{--cc,--checksum-choice}'=[choose the checksum algorithms]:algorithm:_sequence -n 2 compadd - auto md4 md5 none' \
+    '(-x --one-file-system)'{-x,--one-file-system}"[don't cross filesystem boundaries]" \
+    '(-B --block-size)'{-B+,--block-size=}'[force a fixed checksum block-size]: :_numbers -f -u bytes -d 1g "block size" B K M G T P' \
+    '(-e --rsh)'{-e+,--rsh=}'[specify the remote shell to use]:remote-shell command:(rsh ssh)' \
+    '--rsync-path=[specify path to rsync on the remote machine]:remote command' \
+    '--ignore-existing[忽略接收端已存在的文件]' \
     '(--existing --ignore-non-existing)'{--existing,--ignore-non-existing}'[忽略接收端不存在的文件]' \
-    '--remove-source-files[同步后删除发送端的文件]' \
-    '(--delete-before --delete-during --delete-after --delete-delay)--del[--delete-during 的别名]' \
+    '--remove-source-files[同步的文件从发送端移除]' \
+    '(--delete-before --delete-during --delete-after --delete-delay)--del[是 --delete-during 的别名]' \
     '--delete[删除发送端不存在的文件]' \
     '(--del --delete-during --delete-after --delete-delay)--delete-before[接收端传输前删除]' \
-    '(--del --delete-before --delete-after --delete-delay)--delete-during[接收端传输中删除]' \
+    '(--del --delete-before --delete-after --delete-delay)--delete-during[接收端传输期间删除]' \
     '(--del --delete-before --delete-during --delete-delay)--delete-after[接收端传输后删除]' \
-    '(--del --delete-before --delete-during --delete-after)--delete-delay[接收端传输后延迟删除]' \
+    '(--del --delete-before --delete-during --delete-after)--delete-delay[接收端传输后删除]' \
     '--delete-excluded[同时在接收端删除排除的文件]' \
-    '--ignore-errors[有 I/O 错误也继续删除]' \
-    --force{,-delete}'[强制删除非空目录]' \
+    '--ignore-errors[即使有 I/O 错误也删除]' \
+    --force{,-delete}'[强制删除目录即使非空]' \
     '--force-change[影响用户/系统不可变文件/目录]' \
     '--force-uchange[影响用户不可变文件/目录]' \
     '--force-schange[影响系统不可变文件/目录]' \
-    "--max-delete=[不删除超过 NUM 个文件]: :_numbers -f -u bytes 大小 B K M G T P" \
-    "--max-size=[不传输大于指定大小的文件]: :_numbers -f -u bytes 大小 B K M G T P" \
-    '--min-size=[不传输小于指定大小的文件]:数字' \
-    '--max-alloc=[设置单个内存分配上限]: :_numbers -f -u bytes -d 1g 大小 B K M G T P' \
+    "--max-delete=[don't delete more than NUM files]: :_numbers -f -u bytes size B K M G T P" \
+    "--max-size=[don't transfer any file larger than specified size]: :_numbers -f -u bytes size B K M G T P" \
+    '--min-size=[do not transfer any file smaller than specified size]:number' \
+    '--max-alloc=[set limit to individual memory allocation]: :_numbers -f -u bytes -d 1g size B K M G T P' \
     '(-P)--partial[保留部分传输的文件]' \
     '--no-partial[关闭 --partial]' \
-    '--partial-dir=[将部分传输的文件放入指定目录]:目录:_directories' \
+    '--partial-dir=[put a partially transferred file into specified directory]:directory:_directories' \
     '--super[接收端尝试超级用户操作]' \
     '--no-super[接收端执行普通用户操作]' \
-    '--delay-updates[传输结束时将所有更新文件就位]' \
-    '(-m --prune-empty-dirs)'{-m,--prune-empty-dirs}'[从文件列表中删除空目录链]' \
+    '--delay-updates[传输结束时将所有更新文件放入到位]' \
+    '(-m --prune-empty-dirs)'{-m,--prune-empty-dirs}'[从文件列表中修剪空目录链]' \
     '--numeric-ids[不按用户/组名映射 uid/gid]' \
-    '--timeout=[设置传输安静时的 I/O 超时秒数]:秒数' \
-    '--contimeout=[设置守护进程连接超时秒数]:秒数' \
-    '(-I --ignore-times)'{-I,--ignore-times}"[不跳过大小和修改时间匹配的文件]" \
+    '--timeout=[set I/O timeout in seconds for lulls in a transfer]:seconds' \
+    '--contimeout=[set connect timeout in seconds for daemon connections]:seconds' \
+    '(-I --ignore-times)'{-I,--ignore-times}"[don't skip files that match in size and mod-time]" \
     '--size-only[跳过大小匹配的文件]' \
-    '(-@ --modify-window)'{-@+,--modify-window=}'[降低修改时间比较精度]:秒数' \
-    '(-y --fuzzy)'{-y,--fuzzy}'[无目标文件时查找类似文件作为基础]' \
-    '(--copy-dest --link-dest)*--compare-dest=[同时比较指定目录下的目标文件]:目录:_directories' \
-    '(--compare-dest --link-dest)*--copy-dest=[类似 --compare-dest，同时复制未修改文件]:目录:_directories' \
-    '(--compare-dest --copy-dest)*--link-dest=[未修改时硬链接到指定目录层次中的文件]:目录:_directories' \
-    '(-z --compress)'{-z,--compress}'[传输中压缩文件数据]' \
-    '(--zc --compress-choice)'{--zc,--compress-choice}'=[覆盖压缩算法的自动协商]:算法:(zstd lz4 zlibx zlib none)' \
-    '(--zl --compress-level)'{--zl,--compress-level}'=[显式设置压缩级别]:数字' \
-    '--skip-compress=[跳过列出的后缀文件不压缩]:后缀列表' \
-    '(-C --cvs-exclude)'{-C,--cvs-exclude}'[自动忽略 CVS 风格的文件]' \
-    '*'{-f+,--filter=}'[添加文件过滤规则]:规则' \
-    '*-F[等同 --filter="dir-merge /.rsync-filter"，重复时：--filter="- .rsync-filter"]' \
-    '--exclude-from=[从文件读取排除模式]:文件:_files' \
-    '*--exclude=[排除匹配模式的文件]:模式' \
-    '--include-from=[从文件读取包含模式]:文件:_files' \
-    '*--include=[不排除匹配模式的文件]:模式' \
-    '--files-from=[从文件读取源文件名列表]:文件:_files' \
-    '(-0 --from0)'{-0,--from0}'[所有 *-from 文件列表用 NUL 分隔]' \
-    '(-s --protect-args)'{-s,--protect-args}'[不进行空格拆分；仅通配符特殊字符]' \
-    '--copy-as=[为复制指定用户及可选组]:user:_rsync_users_groups' \
+    '(-@ --modify-window)'{-@+,--modify-window=}'[compare mod-times with reduced accuracy]:seconds' \
+    '(-y --fuzzy)'{-y,--fuzzy}'[若无目标文件则查找类似文件作为基础]' \
+    '(--copy-dest --link-dest)*--compare-dest=[also compare destination files relative to specified directory]:directory:_directories' \
+    '(--compare-dest --link-dest)*--copy-dest=[like --compare-dest, but also includes copies of unchanged files]:directory:_directories' \
+    '(--compare-dest --copy-dest)*--link-dest=[hardlink to files in specified directory hierarchy when unchanged]:directory:_directories' \
+    '(-z --compress)'{-z,--compress}'[传输时压缩文件数据]' \
+    '(--zc --compress-choice)'{--zc,--compress-choice}'=[override the automatic negotiation of the compression algorithm]:algorithm:(zstd lz4 zlibx zlib none)' \
+    '(--zl --compress-level)'{--zl,--compress-level}'=[explicitly set compression level]:number' \
+    '--skip-compress=[skip compressing files with a listed suffix]:suffixes' \
+    '(-C --cvs-exclude)'{-C,--cvs-exclude}'[自动忽略文件，方式同 CVS]' \
+    '*'{-f+,--filter=}'[add a file-filtering rule]:rule' \
+    '*-F[同 --filter="dir-merge /.rsync-filter"，重复：--filter="- .rsync-filter"]' \
+    '--exclude-from=[read exclude patterns from specified file]:file:_files' \
+    '*--exclude=[exclude files matching pattern]:pattern' \
+    '--include-from=[read include patterns from specified file]:file:_files' \
+    '*--include=[do not exclude files matching pattern]:pattern' \
+    '--files-from=[read list of source-file names from specified file]:file:_files' \
+    '(-0 --from0)'{-0,--from0}'[所有 *-from 文件列表以空字符分隔]' \
+    '(-s --protect-args)'{-s,--protect-args}'[不按空格分割；仅通配符特殊字符]' \
+    '--copy-as=[specify user & optional group for the copy]:user:_rsync_users_groups' \
     '--version[打印版本号]' \
     '*'{-h,--human-readable}'[以人类可读格式输出数字]' \
     '--blocking-io[为远程 shell 使用阻塞 I/O]' \
     '--no-blocking-io[关闭 --blocking-io]' \
-    '--stats[给出一些文件传输统计]' \
-    '(-8 --8-bit-output)'{-8,--8-bit-output}'[输出时不转义高位字符]' \
-    '(-P)--progress[显示传输进度]' \
+    '--stats[显示文件传输统计信息]' \
+    '(-8 --8-bit-output)'{-8,--8-bit-output}'[输出中保留高位字符不转义]' \
+    '(-P)--progress[传输时显示进度]' \
     '--no-progress[关闭 --progress]' \
-    '(--partial --progress)-P[等同 --partial --progress]' \
+    '(--partial --progress)-P[同 --partial --progress]' \
     '(-i --itemize-changes)'{-i,--itemize-changes}'[输出所有更新的变更摘要]' \
-    '--log-format=[已废弃，建议使用 --out-format]' \
-    '--out-format=[使用指定格式输出更新]:格式' \
-    '--password-file=[从文件读取守护进程密码]:文件:_files' \
-    '--list-only[仅列出文件而非复制]' \
-    '--stop-after=[指定时间后停止复制]:时间（分钟）' \
-    '--stop-at=[到达指定时间点时停止复制]:日期/时间 (YYYY-MM-DDTHH\:MM):_dates -F -S "T"' \
-    '(--only-write-batch)--write-batch=[将批处理更新写入指定文件]:文件:_files' \
-    '(--write-batch)--only-write-batch=[类似 --write-batch 但不更新目标]:文件:_files' \
-    '--protocol=[强制使用较旧协议版本]:数字' \
-    '--info=[精细的信息详细程度]:info option:_rsync_info' \
-    '--debug=[精细的调试详细程度]:debug option:_rsync_debug' \
+    '--log-format=[已弃用的 --out-format 版本]' \
+    '--out-format=[output updates using specified format]:format' \
+    '--password-file=[read daemon-access password from file]:file:_files' \
+    '--list-only[列出文件而不复制]' \
+    '--stop-after=[stop copying after specified time has elapsed]:time (minutes)' \
+    '--stop-at=[stop copying when specified point in time is reached]:date/time (YYYY-MM-DDTHH\:MM):_dates -F -S "T"' \
+    '(--only-write-batch)--write-batch=[write a batched update to the specified file]:file:_files' \
+    '(--write-batch)--only-write-batch=[like --write-batch but w/o updating destination]:file:_files' \
+    '--protocol=[force an older protocol version to be used]:number' \
+    '--info=[fine-grained informational verbosity]:info option:_rsync_info' \
+    '--debug=[fine-grained debug verbosity]:debug option:_rsync_debug' \
     '!(--stderr)--msgs2stderr' \
-    '--munge-links[处理符号链接使其更安全但不可用]' \
-    '--ignore-missing-args[忽略缺失的源参数，不报错]' \
-    '--delete-missing-args[从目标中删除缺失的源参数]' \
-    '(--usermap --chown)--usermap=[自定义用户名映射]:逗号分隔的映射' \
-    '(--groupmap --chown)--groupmap=[自定义组名映射]:逗号分隔的映射' \
-    '(--usermap --groupmap --chown)--chown=[简单的用户名/组名映射]:user and/or group:_rsync_users_groups' \
-    '*'{-M+,--remote-option=}'[仅向远程端发送选项]:选项字符串' \
-    '--preallocate[预先分配新文件的完整长度]' \
-    '--iconv=[请求文件名字符集转换]:数字' \
+    '--munge-links[混淆符号链接以使其更安全但不可用]' \
+    '--ignore-missing-args[忽略缺失的源参数而不报错]' \
+    '--delete-missing-args[从目标删除缺失的源参数]' \
+    '(--usermap --chown)--usermap=[custom username mapping]:comma-separated mappings' \
+    '(--groupmap --chown)--groupmap=[custom groupname mapping]:comma-separated mappings' \
+    '(--usermap --groupmap --chown)--chown=[simple username/groupname mapping]:user and/or group:_rsync_users_groups' \
+    '*'{-M+,--remote-option=}'[send option to the remote side only]:option string' \
+    '--preallocate[预分配新文件的完整长度]' \
+    '--iconv=[request charset conversion of filenames]:number' \
     '--checksum-seed=:number' \
-    '--read-batch=[从指定文件读取批处理更新]:文件:_files'
+    '--read-batch=[read a batched update from the specified file]:file:_files'
 }
 
 _rsync "$@"
