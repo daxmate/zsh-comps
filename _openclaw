@@ -1,0 +1,5237 @@
+#compdef openclaw
+
+_openclaw_root_completion() {
+  local -a commands
+  local -a options
+  
+  _arguments -C \
+    "(--version -V)"{--version,-V}"[输出版本号]" \
+    "--container[在运行的 Podman/Docker 容器内运行 CLI]" \
+    "--dev[开发模式：状态隔离到 ~/.openclaw-dev，默认端口 19001]" \
+    "--profile[使用指定配置档（隔离状态到 ~/.openclaw-<name>）]" \
+    "--log-level[全局日志级别覆盖（silent|fatal|error|warn|info|debug|trace）]" \
+    "--no-color[禁用 ANSI 颜色]" \
+    "1: :_values 'command' 'completion[生成 Shell 补全脚本]' 'setup[与 OpenClaw 对话；设置未完成时进入引导]' 'crestodian[已弃用：请使用 openclaw setup]' 'onboard[引导式设置（认证、模型、网关、工作区、频道和技能）]' 'configure[交互式配置（凭证、频道、网关和代理默认设置）]' 'config[非交互式配置管理（get/set/patch/unset/file/schema/validate）。不带子命令运行则进入引导式设置。]' 'backup[创建和验证备份存档及 SQLite 快照]' 'migrate[从其他代理系统导入状态]' 'doctor[诊断]' 'dashboard[使用当前令牌打开控制面板]' 'reset[重置本地配置/状态（保留 CLI 安装）]' 'uninstall[卸载服务]' 'message[发送、读取和管理消息及频道操作]' 'mcp[管理 OpenClaw mcp.servers 配置和频道桥接]' 'transcripts[检查存储的对话记录]' 'agent[通过网关运行一次代理对话（使用 --local 运行内嵌）]' 'agents[管理独立代理（工作区 + 认证 + 路由）]' 'audit[安全审计]' 'status[状态]' 'health[查看健康状态]' 'sessions[列出存储的对话会话]' 'commitments[列出和管理推断的后续承诺]' 'tasks[检查持久后台任务和 TaskFlow 状态]' 'acp[运行由网关支持的 ACP 桥接]' 'gateway[运行、检查和查询 WebSocket 网关]' 'daemon[管理网关服务（launchd/systemd/schtasks）]' 'logs[查看频道日志]' 'system[系统工具（事件、心跳、在线状态）]' 'models[模型发现、扫描和配置]' 'promos[发现并领取 ClawHub 的模型优惠]' 'infer[通过稳定 CLI 接口运行提供商推理命令]' 'capability[通过稳定 CLI 接口运行提供商推理命令]' 'approvals[管理执行审批（网关或节点主机）]' 'exec-approvals[管理执行审批（网关或节点主机）]' 'exec-policy[显示或同步执行策略与主机审批]' 'nodes[管理网关拥有的节点（配对、状态、调用和媒体）]' 'devices[设备配对和认证令牌]' 'node[运行和管理无头节点主机服务]' 'worker[运行受限云工作器运行时]' 'sandbox[管理沙箱容器（基于 Docker 的代理隔离）]' 'fleet[配置和管理隔离租户单元（实验性）]' 'worktrees[创建、检查、恢复和清理管理工作树]' 'attach[将 Claude Code 附加到网关会话（带限定 MCP 工具）]' 'tui[打开连接到网关的终端界面]' 'terminal[打开连接到网关的终端界面]' 'chat[对话]' 'cron[管理定时任务（通过网关）]' 'dns[DNS 辅助工具（Tailscale + CoreDNS）]' 'docs[搜索在线 OpenClaw 文档]' 'proxy[运行 OpenClaw 调试代理并检查捕获的流量]' 'hooks[管理内部代理钩子]' 'webhooks[Webhook 辅助工具和集成]' 'qr[生成移动端配对二维码和设置码]' 'clawbot[旧版 ClawBot 命令别名]' 'pairing[节点配对管理]' 'plugins[管理 OpenClaw 插件和扩展]' 'channels[频道桥接]' 'directory[查询联系人和群组 ID（自己、对等节点、群组）]' 'security[审计本地配置和状态中的常见安全问题]' 'secrets[密钥运行时控制]' 'skills[列出并检查可用技能]' 'update[更新插件]'" \
+    "*::arg:->args"
+
+  case $state in
+    (args)
+      case $line[1] in
+        (completion) _openclaw_completion ;;
+        (setup) _openclaw_setup ;;
+        (crestodian) _openclaw_crestodian ;;
+        (onboard) _openclaw_onboard ;;
+        (configure) _openclaw_configure ;;
+        (config) _openclaw_config ;;
+        (backup) _openclaw_backup ;;
+        (migrate) _openclaw_migrate ;;
+        (doctor) _openclaw_doctor ;;
+        (dashboard) _openclaw_dashboard ;;
+        (reset) _openclaw_reset ;;
+        (uninstall) _openclaw_uninstall ;;
+        (message) _openclaw_message ;;
+        (mcp) _openclaw_mcp ;;
+        (transcripts) _openclaw_transcripts ;;
+        (agent) _openclaw_agent ;;
+        (agents) _openclaw_agents ;;
+        (audit) _openclaw_audit ;;
+        (status) _openclaw_status ;;
+        (health) _openclaw_health ;;
+        (sessions) _openclaw_sessions ;;
+        (commitments) _openclaw_commitments ;;
+        (tasks) _openclaw_tasks ;;
+        (acp) _openclaw_acp ;;
+        (gateway) _openclaw_gateway ;;
+        (daemon) _openclaw_daemon ;;
+        (logs) _openclaw_logs ;;
+        (system) _openclaw_system ;;
+        (models) _openclaw_models ;;
+        (promos) _openclaw_promos ;;
+        (infer|capability) _openclaw_infer ;;
+        (approvals|exec-approvals) _openclaw_approvals ;;
+        (exec-policy) _openclaw_exec_policy ;;
+        (nodes) _openclaw_nodes ;;
+        (devices) _openclaw_devices ;;
+        (node) _openclaw_node ;;
+        (worker) _openclaw_worker ;;
+        (sandbox) _openclaw_sandbox ;;
+        (fleet) _openclaw_fleet ;;
+        (worktrees) _openclaw_worktrees ;;
+        (attach) _openclaw_attach ;;
+        (tui|terminal|chat) _openclaw_tui ;;
+        (cron) _openclaw_cron ;;
+        (dns) _openclaw_dns ;;
+        (docs) _openclaw_docs ;;
+        (proxy) _openclaw_proxy ;;
+        (hooks) _openclaw_hooks ;;
+        (webhooks) _openclaw_webhooks ;;
+        (qr) _openclaw_qr ;;
+        (clawbot) _openclaw_clawbot ;;
+        (pairing) _openclaw_pairing ;;
+        (plugins) _openclaw_plugins ;;
+        (channels) _openclaw_channels ;;
+        (directory) _openclaw_directory ;;
+        (security) _openclaw_security ;;
+        (secrets) _openclaw_secrets ;;
+        (skills) _openclaw_skills ;;
+        (update) _openclaw_update ;;
+      esac
+      ;;
+  esac
+}
+
+
+_openclaw_completion() {
+  _arguments -C \
+    "(--shell -s)"{--shell,-s}"[要生成补全的 Shell（默认：zsh）]" \
+    "(--install -i)"{--install,-i}"[安装补全脚本到 Shell 配置文件中]" \
+    "--write-state[写入补全脚本到 OPENCLAW_STATE_DIR/completions（不输出到 stdout）]" \
+    "(--yes -y)"{--yes,-y}"[跳过确认（非交互）]"
+}
+
+_openclaw_setup() {
+  _arguments -C \
+    "--workspace[引导设置的工作区方案]" \
+    "--wizard[运行交互式引导]" \
+    "--baseline[创建基线配置/工作区/会话文件夹（无需引导）]" \
+    "--reset[运行引导前重置配置 + 凭证 + 会话]" \
+    "--reset-scope[重置范围：config|config+creds+sessions|full]" \
+    "--non-interactive[无提示运行引导]" \
+    "--classic[使用经典多步设置向导]" \
+    "--accept-risk[确认代理功能强大且完全系统访问有风险（--non-interactive 必需）]" \
+    "--flow[引导流程：quickstart|advanced|manual|import]" \
+    "--mode[引导模式：local|remote]" \
+    "--auth-choice[认证方式]" \
+    "--token-provider[令牌提供商 ID（非交互式；与 --auth-choice token 使用）]" \
+    "--token[令牌值（非交互式；与 --auth-choice token 使用）]" \
+    "--token-profile-id[认证配置档 ID（非交互式；默认：<provider>:manual）]" \
+    "--token-expires-in[可选令牌过期时长（如 365d, 12h）]" \
+    "--secret-input-mode[API 密钥持久化模式：plaintext|ref（默认：plaintext）]" \
+    "--cloudflare-ai-gateway-account-id[Cloudflare 账号 ID]" \
+    "--cloudflare-ai-gateway-gateway-id[Cloudflare AI 网关 ID]" \
+    "--alibaba-model-studio-api-key[阿里云百炼 API 密钥]" \
+    "--anthropic-api-key[Anthropic API 密钥]" \
+    "--byteplus-api-key[BytePlus API 密钥]" \
+    "--clawrouter-api-key[ClawRouter 代理密钥]" \
+    "--cohere-api-key[Cohere API 密钥]" \
+    "--comfy-api-key[Comfy Cloud API 密钥]" \
+    "--fal-api-key[fal API 密钥]" \
+    "--github-copilot-token[GitHub Copilot OAuth 令牌]" \
+    "--gemini-api-key[Gemini API 密钥]" \
+    "--huggingface-api-key[Hugging Face API 密钥（HF 令牌）]" \
+    "--litellm-api-key[LiteLLM API 密钥]" \
+    "--lmstudio-api-key[LM Studio API 密钥]" \
+    "--meta-api-key[Meta API 密钥]" \
+    "--minimax-api-key[MiniMax API 密钥]" \
+    "--mistral-api-key[Mistral API 密钥]" \
+    "--novita-api-key[NovitaAI API 密钥]" \
+    "--nvidia-api-key[NVIDIA API 密钥]" \
+    "--ollama-cloud-api-key[Ollama Cloud API 密钥]" \
+    "--openai-api-key[OpenAI API 密钥]" \
+    "--opencode-zen-api-key[OpenCode API 密钥（Zen 目录）]" \
+    "--opencode-go-api-key[OpenCode API 密钥（Go 目录）]" \
+    "--openrouter-api-key[OpenRouter API 密钥]" \
+    "--runway-api-key[Runway API 密钥]" \
+    "--synthetic-api-key[Synthetic API 密钥]" \
+    "--together-api-key[Together AI API 密钥]" \
+    "--volcengine-api-key[火山引擎 API 密钥]" \
+    "--vydra-api-key[Vydra API 密钥]" \
+    "--xai-api-key[xAI API 密钥]" \
+    "--xiaomi-api-key[小米 MiMo 按量付费 API 密钥]" \
+    "--xiaomi-token-plan-api-key[小米 MiMo Token Plan API 密钥]" \
+    "--deepseek-api-key[DeepSeek API 密钥]" \
+    "--arceeai-api-key[Arcee AI API 密钥]" \
+    "--cerebras-api-key[Cerebras API 密钥]" \
+    "--chutes-api-key[Chutes API 密钥]" \
+    "--cloudflare-ai-gateway-api-key[Cloudflare AI 网关 API 密钥]" \
+    "--deepinfra-api-key[DeepInfra API 密钥]" \
+    "--featherless-api-key[Featherless AI API 密钥]" \
+    "--gmi-api-key[GMI Cloud API 密钥]" \
+    "--longcat-api-key[LongCat API 密钥]" \
+    "--groq-api-key[Groq API 密钥]" \
+    "--kilocode-api-key[Kilo Gateway API 密钥]" \
+    "--kimi-code-api-key[Kimi Code API 密钥（订阅）]" \
+    "--pixverse-api-key[PixVerse API 密钥]" \
+    "--qianfan-api-key[千帆 API 密钥]" \
+    "--modelstudio-standard-api-key-cn[通义千问标准 API 密钥（中国）]" \
+    "--modelstudio-standard-api-key[通义千问标准 API 密钥（全球）]" \
+    "--modelstudio-api-key-cn[通义千问 Coding Plan API 密钥（中国）]" \
+    "--modelstudio-api-key[通义千问 Coding Plan API 密钥（全球）]" \
+    "--qwen-oauth-token[通义千问 OAuth 令牌]" \
+    "--qwen-token-plan-api-key[通义千问 Token Plan API 密钥（全球）]" \
+    "--qwen-token-plan-api-key-cn[通义千问 Token Plan API 密钥（中国）]" \
+    "--fireworks-api-key[Fireworks API 密钥]" \
+    "--moonshot-api-key[Moonshot API 密钥]" \
+    "--tokenhub-api-key[腾讯 TokenHub API 密钥]" \
+    "--tokenplan-api-key[腾讯 TokenPlan API 密钥]" \
+    "--venice-api-key[Venice API 密钥]" \
+    "--ai-gateway-api-key[Vercel AI 网关 API 密钥]" \
+    "--zai-api-key[Z.AI API 密钥]" \
+    "--stepfun-api-key[阶跃星辰 API 密钥]" \
+    "--custom-base-url[自定义提供商基础 URL]" \
+    "--custom-api-key[自定义提供商 API 密钥（可选）]" \
+    "--custom-model-id[自定义提供商模型 ID]" \
+    "--custom-provider-id[自定义提供商 ID（可选；默认自动推导）]" \
+    "--custom-compatibility[自定义提供商 API 兼容性：openai|openai-responses|anthropic（默认：openai）]" \
+    "--custom-image-input[标记自定义提供商模型支持图片]" \
+    "--custom-text-input[标记自定义提供商模型仅支持文本]" \
+    "--gateway-port[网关端口]" \
+    "--gateway-bind[网关绑定：loopback|tailnet|lan|auto|custom]" \
+    "--gateway-auth[网关认证：token|password]" \
+    "--gateway-token[网关令牌（令牌认证）]" \
+    "--gateway-token-ref-env[网关令牌 SecretRef 环境变量名（令牌认证）]" \
+    "--gateway-password[网关密码（密码认证）]" \
+    "--tailscale[Tailscale 暴露模式：off|serve|funnel]" \
+    "--tailscale-reset-on-exit[退出时重置 Tailscale serve/funnel]" \
+    "--install-daemon[安装网关服务]" \
+    "--no-install-daemon[跳过网关服务安装]" \
+    "--skip-daemon[跳过网关服务安装]" \
+    "--daemon-runtime[守护进程运行时：node]" \
+    "--skip-channels[跳过频道设置]" \
+    "--skip-skills[跳过技能设置]" \
+    "--skip-bootstrap[跳过创建默认代理工作区文件]" \
+    "--skip-search[跳过搜索提供商设置]" \
+    "--skip-health[跳过健康检查]" \
+    "--skip-ui[跳过控制面板/终端界面启动]" \
+    "--suppress-gateway-token-output[抑制包含令牌的网关/界面输出]" \
+    "--skip-hooks[为兼容性接受；跳过钩子设置]" \
+    "--node-manager[技能节点管理器：npm|pnpm|bun]" \
+    "--import-from[引导期间运行的迁移提供商]" \
+    "--import-source[--import-from 的源代理目录]" \
+    "--import-secrets[在引导迁移期间导入支持的密钥]" \
+    "--remote-url[远程网关 WebSocket URL]" \
+    "--remote-token[远程网关令牌（可选）]" \
+    "(--message -m)"{--message,-m}"[运行一次 OpenClaw 请求]" \
+    "--yes[批准一次 --message 请求的持久配置写入]" \
+    "--json[以 JSON 输出系统概览或引导摘要]"
+}
+
+_openclaw_crestodian() {
+  _arguments -C \
+    "(--message -m)"{--message,-m}"[运行一次 OpenClaw 请求]" \
+    "--yes[批准一次 --message 请求的持久配置写入]" \
+    "--json[以 JSON 输出系统概览或引导摘要]"
+}
+
+_openclaw_onboard() {
+  _arguments -C \
+    "--workspace[引导设置的工作区方案]" \
+    "--reset[运行引导前重置配置 + 凭证 + 会话]" \
+    "--reset-scope[重置范围：config|config+creds+sessions|full]" \
+    "--non-interactive[无提示运行]" \
+    "--modern[打开推理受限的 OpenClaw（为兼容保留）]" \
+    "--classic[使用经典多步设置向导]" \
+    "--accept-risk[确认代理功能强大且完全系统访问有风险（--non-interactive 必需）]" \
+    "--flow[引导流程：quickstart|advanced|manual|import]" \
+    "--mode[引导模式：local|remote]" \
+    "--auth-choice[认证方式]" \
+    "--token-provider[令牌提供商 ID（非交互式；与 --auth-choice token 使用）]" \
+    "--token[令牌值（非交互式；与 --auth-choice token 使用）]" \
+    "--token-profile-id[认证配置档 ID（非交互式；默认：<provider>:manual）]" \
+    "--token-expires-in[可选令牌过期时长（如 365d, 12h）]" \
+    "--secret-input-mode[API 密钥持久化模式：plaintext|ref（默认：plaintext）]" \
+    "--cloudflare-ai-gateway-account-id[Cloudflare 账号 ID]" \
+    "--cloudflare-ai-gateway-gateway-id[Cloudflare AI 网关 ID]" \
+    "--alibaba-model-studio-api-key[阿里云百炼 API 密钥]" \
+    "--anthropic-api-key[Anthropic API 密钥]" \
+    "--byteplus-api-key[BytePlus API 密钥]" \
+    "--clawrouter-api-key[ClawRouter 代理密钥]" \
+    "--cohere-api-key[Cohere API 密钥]" \
+    "--comfy-api-key[Comfy Cloud API 密钥]" \
+    "--fal-api-key[fal API 密钥]" \
+    "--github-copilot-token[GitHub Copilot OAuth 令牌]" \
+    "--gemini-api-key[Gemini API 密钥]" \
+    "--huggingface-api-key[Hugging Face API 密钥（HF 令牌）]" \
+    "--litellm-api-key[LiteLLM API 密钥]" \
+    "--lmstudio-api-key[LM Studio API 密钥]" \
+    "--meta-api-key[Meta API 密钥]" \
+    "--minimax-api-key[MiniMax API 密钥]" \
+    "--mistral-api-key[Mistral API 密钥]" \
+    "--novita-api-key[NovitaAI API 密钥]" \
+    "--nvidia-api-key[NVIDIA API 密钥]" \
+    "--ollama-cloud-api-key[Ollama Cloud API 密钥]" \
+    "--openai-api-key[OpenAI API 密钥]" \
+    "--opencode-zen-api-key[OpenCode API 密钥（Zen 目录）]" \
+    "--opencode-go-api-key[OpenCode API 密钥（Go 目录）]" \
+    "--openrouter-api-key[OpenRouter API 密钥]" \
+    "--runway-api-key[Runway API 密钥]" \
+    "--synthetic-api-key[Synthetic API 密钥]" \
+    "--together-api-key[Together AI API 密钥]" \
+    "--volcengine-api-key[火山引擎 API 密钥]" \
+    "--vydra-api-key[Vydra API 密钥]" \
+    "--xai-api-key[xAI API 密钥]" \
+    "--xiaomi-api-key[小米 MiMo 按量付费 API 密钥]" \
+    "--xiaomi-token-plan-api-key[小米 MiMo Token Plan API 密钥]" \
+    "--deepseek-api-key[DeepSeek API 密钥]" \
+    "--arceeai-api-key[Arcee AI API 密钥]" \
+    "--cerebras-api-key[Cerebras API 密钥]" \
+    "--chutes-api-key[Chutes API 密钥]" \
+    "--cloudflare-ai-gateway-api-key[Cloudflare AI 网关 API 密钥]" \
+    "--deepinfra-api-key[DeepInfra API 密钥]" \
+    "--featherless-api-key[Featherless AI API 密钥]" \
+    "--gmi-api-key[GMI Cloud API 密钥]" \
+    "--longcat-api-key[LongCat API 密钥]" \
+    "--groq-api-key[Groq API 密钥]" \
+    "--kilocode-api-key[Kilo Gateway API 密钥]" \
+    "--kimi-code-api-key[Kimi Code API 密钥（订阅）]" \
+    "--pixverse-api-key[PixVerse API 密钥]" \
+    "--qianfan-api-key[千帆 API 密钥]" \
+    "--modelstudio-standard-api-key-cn[通义千问标准 API 密钥（中国）]" \
+    "--modelstudio-standard-api-key[通义千问标准 API 密钥（全球）]" \
+    "--modelstudio-api-key-cn[通义千问 Coding Plan API 密钥（中国）]" \
+    "--modelstudio-api-key[通义千问 Coding Plan API 密钥（全球）]" \
+    "--qwen-oauth-token[通义千问 OAuth 令牌]" \
+    "--qwen-token-plan-api-key[通义千问 Token Plan API 密钥（全球）]" \
+    "--qwen-token-plan-api-key-cn[通义千问 Token Plan API 密钥（中国）]" \
+    "--fireworks-api-key[Fireworks API 密钥]" \
+    "--moonshot-api-key[Moonshot API 密钥]" \
+    "--tokenhub-api-key[腾讯 TokenHub API 密钥]" \
+    "--tokenplan-api-key[腾讯 TokenPlan API 密钥]" \
+    "--venice-api-key[Venice API 密钥]" \
+    "--ai-gateway-api-key[Vercel AI 网关 API 密钥]" \
+    "--zai-api-key[Z.AI API 密钥]" \
+    "--stepfun-api-key[阶跃星辰 API 密钥]" \
+    "--custom-base-url[自定义提供商基础 URL]" \
+    "--custom-api-key[自定义提供商 API 密钥（可选）]" \
+    "--custom-model-id[自定义提供商模型 ID]" \
+    "--custom-provider-id[自定义提供商 ID（可选；默认自动推导）]" \
+    "--custom-compatibility[自定义提供商 API 兼容性：openai|openai-responses|anthropic（默认：openai）]" \
+    "--custom-image-input[标记自定义提供商模型支持图片]" \
+    "--custom-text-input[标记自定义提供商模型仅支持文本]" \
+    "--gateway-port[网关端口]" \
+    "--gateway-bind[网关绑定：loopback|tailnet|lan|auto|custom]" \
+    "--gateway-auth[网关认证：token|password]" \
+    "--gateway-token[网关令牌（令牌认证）]" \
+    "--gateway-token-ref-env[网关令牌 SecretRef 环境变量名（令牌认证）]" \
+    "--gateway-password[网关密码（密码认证）]" \
+    "--remote-url[远程网关 WebSocket URL]" \
+    "--remote-token[远程网关令牌（可选）]" \
+    "--tailscale[Tailscale 暴露模式：off|serve|funnel]" \
+    "--tailscale-reset-on-exit[退出时重置 Tailscale serve/funnel]" \
+    "--install-daemon[安装网关服务]" \
+    "--no-install-daemon[跳过网关服务安装]" \
+    "--skip-daemon[跳过网关服务安装]" \
+    "--daemon-runtime[守护进程运行时：node]" \
+    "--skip-channels[跳过频道设置]" \
+    "--skip-skills[跳过技能设置]" \
+    "--skip-bootstrap[跳过创建默认代理工作区文件]" \
+    "--skip-search[跳过搜索提供商设置]" \
+    "--skip-health[跳过健康检查]" \
+    "--skip-ui[跳过控制面板/终端界面提示]" \
+    "--suppress-gateway-token-output[抑制包含令牌的网关/界面输出]" \
+    "--skip-hooks[跳过钩子设置]" \
+    "--node-manager[技能节点管理器：npm|pnpm|bun]" \
+    "--import-from[引导期间运行的迁移提供商]" \
+    "--import-source[--import-from 的源代理目录]" \
+    "--import-secrets[在引导迁移期间导入支持的密钥]" \
+    "--json[以 JSON 格式输出摘要]"
+}
+
+_openclaw_configure() {
+  _arguments -C \
+    "--section[配置章节（可重复）：workspace, model, web, gateway, daemon, channels, plugins, skills, health]"
+}
+
+_openclaw_config_get() {
+  _arguments -C \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_config_set() {
+  _arguments -C \
+    "--strict-json[严格 JSON 解析（错误而非回退原始字符串）]" \
+    "--json[--strict-json 的旧别名]" \
+    "--dry-run[验证更改而不写入 openclaw.json（exec SecretRef 仅在设置 --allow-exec 时检查）]" \
+    "--allow-exec[仅试运行：允许 exec SecretRef 可解析性检查（可能执行命令）]" \
+    "--merge[合并对象/映射值而非替换目标路径]" \
+    "--replace[允许完全替换受保护的映射/列表路径]" \
+    "--ref-provider[SecretRef 构建器：提供商别名]" \
+    "--ref-source[SecretRef 构建器：来源（env|file|exec）]" \
+    "--ref-id[SecretRef 构建器：引用 ID]" \
+    "--provider-source[提供商构建器：来源（env|file|exec）]" \
+    "--provider-allowlist[提供商构建器（环境变量）：白名单条目（可重复）]" \
+    "--provider-path[提供商构建器（文件）：路径]" \
+    "--provider-mode[提供商构建器（文件）：模式（singleValue|json）]" \
+    "--provider-timeout-ms[提供商构建器（文件/执行）：超时毫秒数]" \
+    "--provider-max-bytes[提供商构建器（文件）：最大字节数]" \
+    "--provider-command[提供商构建器（执行）：命令绝对路径]" \
+    "--provider-arg[提供商构建器（执行）：命令参数（可重复）]" \
+    "--provider-no-output-timeout-ms[提供商构建器（执行）：无输出超时毫秒数]" \
+    "--provider-max-output-bytes[提供商构建器（执行）：最大输出字节数]" \
+    "--provider-json-only[提供商构建器（执行）：要求 JSON 输出]" \
+    "--provider-env[提供商构建器（执行）：环境变量赋值（可重复）]" \
+    "--provider-pass-env[提供商构建器（执行）：传递主机环境变量（可重复）]" \
+    "--provider-trusted-dir[提供商构建器（执行）：受信目录（可重复）]" \
+    "--provider-allow-insecure-path[提供商构建器（文件/执行）：绕过严格路径权限检查]" \
+    "--provider-allow-symlink-command[提供商构建器（执行）：允许命令符号链接路径]" \
+    "--batch-json[批量模式：JSON 数组的设置操作]" \
+    "--batch-file[批量模式：从文件读取 JSON 数组设置操作]"
+}
+
+_openclaw_config_patch() {
+  _arguments -C \
+    "--file[从文件读取 JSON5 配置修补对象]" \
+    "--stdin[从标准输入读取 JSON5 配置修补对象]" \
+    "--dry-run[验证更改而不写入 openclaw.json（检查 Schema 和 SecretRef 可解析性）]" \
+    "--allow-exec[仅试运行：允许 exec SecretRef 可解析性检查（可能执行命令）]" \
+    "--json[以 JSON 格式输出试运行结果]" \
+    "--replace-path[替换此点/括号路径处的对象或数组而非递归应用（可重复）]"
+}
+
+_openclaw_config_unset() {
+  _arguments -C \
+    "--dry-run[验证删除操作而不写入配置文件]" \
+    "--allow-exec[在 --dry-run 期间允许 exec SecretRef 提供商]" \
+    "--json[以 JSON 格式打印试运行结果]"
+}
+
+_openclaw_config_file() {
+  _arguments -C \
+    
+}
+
+_openclaw_config_schema() {
+  _arguments -C \
+    
+}
+
+_openclaw_config_validate() {
+  _arguments -C \
+    "--json[以 JSON 格式输出验证结果]"
+}
+
+_openclaw_config() {
+  local -a commands
+  local -a options
+  
+  _arguments -C \
+    "--section[引导设置的配置章节（可重复）。不带子命令使用。]" \
+    "1: :_values 'command' 'get[获取 Webhook]' 'set[设置密钥]' 'patch[修补]' 'unset[删除密钥]' 'file[节点文件操作]' 'schema[Schema]' 'validate[验证]'" \
+    "*::arg:->args"
+
+  case $state in
+    (args)
+      case $line[1] in
+        (get) _openclaw_config_get ;;
+        (set) _openclaw_config_set ;;
+        (patch) _openclaw_config_patch ;;
+        (unset) _openclaw_config_unset ;;
+        (file) _openclaw_config_file ;;
+        (schema) _openclaw_config_schema ;;
+        (validate) _openclaw_config_validate ;;
+      esac
+      ;;
+  esac
+}
+
+_openclaw_backup_create() {
+  _arguments -C \
+    "--output[存档路径或目标目录]" \
+    "--json[以 JSON 格式输出]" \
+    "--dry-run[打印备份计划而不写入存档]" \
+    "--verify[写入后验证存档]" \
+    "--only-config[仅备份活跃的 JSON 配置文件]" \
+    "--no-include-workspace[从备份中排除工作区目录]"
+}
+
+_openclaw_backup_verify() {
+  _arguments -C \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_backup_sqlite_create() {
+  _arguments -C \
+    "--global[快照共享 OpenClaw 状态数据库]" \
+    "--agent[快照每个代理的 OpenClaw 数据库]" \
+    "--repository[快照仓库目录]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_backup_sqlite_list() {
+  _arguments -C \
+    "--repository[快照仓库目录]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_backup_sqlite_verify() {
+  _arguments -C \
+    "--scratch[验证副本的现有私有目录]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_backup_sqlite_restore() {
+  _arguments -C \
+    "--target[新目标路径；拒绝已有文件和附属文件]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_backup_sqlite() {
+  local -a commands
+  local -a options
+  
+  _arguments -C \
+     \
+    "1: :_values 'command' 'create[创建]' 'list[列出渠道]' 'verify[验证备份]' 'restore[恢复备份]'" \
+    "*::arg:->args"
+
+  case $state in
+    (args)
+      case $line[1] in
+        (create) _openclaw_backup_sqlite_create ;;
+        (list) _openclaw_backup_sqlite_list ;;
+        (verify) _openclaw_backup_sqlite_verify ;;
+        (restore) _openclaw_backup_sqlite_restore ;;
+      esac
+      ;;
+  esac
+}
+
+_openclaw_backup() {
+  local -a commands
+  local -a options
+  
+  _arguments -C \
+     \
+    "1: :_values 'command' 'create[创建]' 'verify[验证备份]' 'sqlite[SQLite 操作]'" \
+    "*::arg:->args"
+
+  case $state in
+    (args)
+      case $line[1] in
+        (create) _openclaw_backup_create ;;
+        (verify) _openclaw_backup_verify ;;
+        (sqlite) _openclaw_backup_sqlite ;;
+      esac
+      ;;
+  esac
+}
+
+_openclaw_migrate_list() {
+  _arguments -C \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_migrate_plan() {
+  _arguments -C \
+    "--from[要迁移的源目录]" \
+    "--include-secrets[导入支持的凭证和密钥]" \
+    "--no-auth-credentials[跳过认证凭证迁移]" \
+    "--overwrite[在逐项备份后覆盖冲突的目标文件]" \
+    "--json[以 JSON 格式输出]" \
+    "--skill[选择要迁移的技能]" \
+    "--plugin[选择要迁移的 Codex 插件]" \
+    "--verify-plugin-apps[Codex 专用：在计划原生插件激活前验证源插件应用可访问性]"
+}
+
+_openclaw_migrate_apply() {
+  _arguments -C \
+    "--from[要迁移的源目录]" \
+    "--include-secrets[导入支持的凭证和密钥]" \
+    "--no-auth-credentials[跳过认证凭证迁移]" \
+    "--overwrite[在逐项备份后覆盖冲突的目标文件]" \
+    "--json[以 JSON 格式输出]" \
+    "--skill[选择要迁移的技能]" \
+    "--plugin[选择要迁移的 Codex 插件]" \
+    "--verify-plugin-apps[Codex 专用：在计划原生插件激活前验证源插件应用可访问性]" \
+    "--yes[无需提示应用]" \
+    "--backup-output[迁移前备份存档路径或目录]" \
+    "--no-backup[跳过迁移前的 OpenClaw 备份]" \
+    "--force[允许危险选项，例如 --no-backup]"
+}
+
+_openclaw_migrate() {
+  local -a commands
+  local -a options
+  
+  _arguments -C \
+    "--from[要迁移的源目录]" \
+    "--include-secrets[导入支持的凭证和密钥]" \
+    "--no-auth-credentials[跳过认证凭证迁移]" \
+    "--overwrite[在逐项备份后覆盖冲突的目标文件]" \
+    "--dry-run[仅预览；不应用更改]" \
+    "--yes[预览后无需提示应用]" \
+    "--skill[选择要迁移的技能]" \
+    "--plugin[选择要迁移的 Codex 插件]" \
+    "--backup-output[迁移前备份存档路径或目录]" \
+    "--no-backup[跳过迁移前的 OpenClaw 备份]" \
+    "--force[允许危险选项，例如 --no-backup]" \
+    "--json[以 JSON 格式输出]" \
+    "--verify-plugin-apps[Codex 专用：在计划原生插件激活前验证源插件应用可访问性]" \
+    "1: :_values 'command' 'list[列出渠道]' 'plan[显示迁移计划]' 'apply[应用更新]'" \
+    "*::arg:->args"
+
+  case $state in
+    (args)
+      case $line[1] in
+        (list) _openclaw_migrate_list ;;
+        (plan) _openclaw_migrate_plan ;;
+        (apply) _openclaw_migrate_apply ;;
+      esac
+      ;;
+  esac
+}
+
+_openclaw_doctor() {
+  _arguments -C \
+    "--no-workspace-suggestions[禁用工作区内存系统建议]" \
+    "--yes[无需提示接受默认值]" \
+    "--repair[无需提示应用推荐修复]" \
+    "--fix[应用推荐修复（--repair 的别名）]" \
+    "--force[应用激进修复（覆盖自定义服务配置）]" \
+    "--non-interactive[无提示运行（仅安全迁移）]" \
+    "--generate-gateway-token[生成并配置网关令牌]" \
+    "--allow-exec[允许 doctor 在验证已配置密钥时执行 exec SecretRefs]" \
+    "--deep[扫描系统服务中的额外网关安装]" \
+    "--lint[运行只读健康检查并报告结果]" \
+    "--post-upgrade[仅发出插件兼容性发现（使用 --json 机器可读）]" \
+    "--session-sqlite[运行会话 SQLite 迁移模式]" \
+    "--state-sqlite[运行共享状态 SQLite 维护模式（compact）]" \
+    "--session-sqlite-store[--session-sqlite：检查一个会话存储]" \
+    "--session-sqlite-agent[--session-sqlite：检查一个代理]" \
+    "--session-sqlite-all-agents[--session-sqlite：检查已配置和已发现的代理存储]" \
+    "--github-issue[准备并可选择创建 openclaw/openclaw 问题]" \
+    "--json[输出机器可读 JSON]" \
+    "--severity-min[--lint：丢弃低于此严重级别的发现]" \
+    "--all[--lint：运行所有注册检查，包括选择性加入的检查]" \
+    "--skip[--lint：跳过特定检查 ID（可重复）]" \
+    "--only[--lint：仅运行指定的检查 ID（可重复）]"
+}
+
+_openclaw_dashboard() {
+  _arguments -C \
+    "--no-open[打印 URL 但不启动浏览器]" \
+    "--json[以 JSON 输出仪表盘连接详情]" \
+    "--yes[需要时无需提示启动/安装网关]"
+}
+
+_openclaw_reset() {
+  _arguments -C \
+    "--scope[config|config+creds+sessions|full（默认交互式提示）]" \
+    "--yes[跳过确认提示]" \
+    "--non-interactive[禁用提示（需要 --scope + --yes）]" \
+    "--dry-run[打印操作但不删除文件]"
+}
+
+_openclaw_uninstall() {
+  _arguments -C \
+    "--service[删除网关服务]" \
+    "--state[删除状态 + 配置]" \
+    "--workspace[删除工作区目录]" \
+    "--app[删除 macOS 应用]" \
+    "--all[删除服务 + 状态 + 工作区 + 应用]" \
+    "--yes[跳过确认提示]" \
+    "--non-interactive[禁用提示（需要 --yes）]" \
+    "--dry-run[打印操作但不删除文件]"
+}
+
+_openclaw_message_send() {
+  _arguments -C \
+    "(--message -m)"{--message,-m}"[消息内容（除非设置 --media 或 --presentation，否则必需）]" \
+    "(--target -t)"{--target,-t}"[接收方/频道]" \
+    "--media[附加媒体（图片/音频/视频/文档）。接受本地路径或 URL。]" \
+    "--presentation[共享展示负载 JSON（文本、上下文、分隔线、图表、表格、按钮、选择器）]" \
+    "--delivery[共享投递偏好 JSON]" \
+    "--pin[请求在支持时置顶投递的消息]" \
+    "--reply-to[回复消息 ID]" \
+    "--thread-id[线程 ID（Telegram 论坛线程）]" \
+    "--gif-playback[将视频媒体视为 GIF 播放（仅 WhatsApp）]" \
+    "--force-document[以文档形式发送媒体以避免频道压缩（Telegram、WhatsApp）]" \
+    "--silent[静默发送消息（Telegram + Discord，无通知）]" \
+    "--channel[频道]" \
+    "--account[频道账号 ID]" \
+    "--json[以 JSON 格式输出结果]" \
+    "--dry-run[打印负载并跳过发送]" \
+    "--verbose[详细日志]"
+}
+
+_openclaw_message_broadcast() {
+  _arguments -C \
+    "--channel[频道]" \
+    "--account[频道账号 ID]" \
+    "--json[以 JSON 格式输出结果]" \
+    "--dry-run[打印负载并跳过发送]" \
+    "--verbose[详细日志]" \
+    "--targets[接收者/频道目标（与 --target 格式相同）；当目录可用时接受 id 或名称。]" \
+    "--message[要发送的消息]" \
+    "--media[媒体 URL]"
+}
+
+_openclaw_message_poll() {
+  _arguments -C \
+    "(--target -t)"{--target,-t}"[接收方/频道]" \
+    "--channel[频道]" \
+    "--account[频道账号 ID]" \
+    "--json[以 JSON 格式输出结果]" \
+    "--dry-run[打印负载并跳过发送]" \
+    "--verbose[详细日志]" \
+    "--poll-question[投票问题]" \
+    "--poll-option[投票选项（可重复 2-12 次）]" \
+    "--poll-multi[允许多选]" \
+    "--poll-duration-hours[投票时长小时数（Discord）]" \
+    "--poll-duration-seconds[投票时长秒数（Telegram；5-600）]" \
+    "--poll-anonymous[发送匿名投票（Telegram）]" \
+    "--poll-public[发送非匿名投票（Telegram）]" \
+    "(--message -m)"{--message,-m}"[可选的消息正文]" \
+    "--silent[静默发送投票（Telegram + Discord）]" \
+    "--thread-id[线程 ID]"
+}
+
+_openclaw_message_react() {
+  _arguments -C \
+    "(--target -t)"{--target,-t}"[接收方/频道]" \
+    "--channel[频道]" \
+    "--account[频道账号 ID]" \
+    "--json[以 JSON 格式输出结果]" \
+    "--dry-run[打印负载并跳过发送]" \
+    "--verbose[详细日志]" \
+    "--message-id[消息 ID]" \
+    "--emoji[回应表情]" \
+    "--remove[移除回应]" \
+    "--participant[WhatsApp 回应参与者]" \
+    "--from-me[WhatsApp 来自我的回应]" \
+    "--target-author[Signal 回应目标作者]" \
+    "--target-author-uuid[Signal 回应目标作者 UUID]"
+}
+
+_openclaw_message_reactions() {
+  _arguments -C \
+    "(--target -t)"{--target,-t}"[接收方/频道]" \
+    "--channel[频道]" \
+    "--account[频道账号 ID]" \
+    "--json[以 JSON 格式输出结果]" \
+    "--dry-run[打印负载并跳过发送]" \
+    "--verbose[详细日志]" \
+    "--message-id[消息 ID]" \
+    "--limit[结果限制]"
+}
+
+_openclaw_message_read() {
+  _arguments -C \
+    "(--target -t)"{--target,-t}"[接收方/频道]" \
+    "--channel[频道]" \
+    "--account[频道账号 ID]" \
+    "--json[以 JSON 格式输出结果]" \
+    "--dry-run[打印负载并跳过发送]" \
+    "--verbose[详细日志]" \
+    "--limit[结果限制]" \
+    "--message-id[读取特定消息 ID]" \
+    "--before[在此 ID 之前读取/搜索]" \
+    "--after[在此 ID 之后读取/搜索]" \
+    "--around[在此 ID 周围读取]" \
+    "--thread-id[线程 ID（Slack 线程时间戳）]" \
+    "--include-thread[包含线程回复（Discord）]"
+}
+
+_openclaw_message_edit() {
+  _arguments -C \
+    "--message-id[消息 ID]" \
+    "(--message -m)"{--message,-m}"[消息正文]" \
+    "(--target -t)"{--target,-t}"[接收方/频道]" \
+    "--channel[频道]" \
+    "--account[频道账号 ID]" \
+    "--json[以 JSON 格式输出结果]" \
+    "--dry-run[打印负载并跳过发送]" \
+    "--verbose[详细日志]" \
+    "--thread-id[线程 ID（Telegram 论坛线程）]"
+}
+
+_openclaw_message_delete() {
+  _arguments -C \
+    "--message-id[消息 ID]" \
+    "(--target -t)"{--target,-t}"[接收方/频道]" \
+    "--channel[频道]" \
+    "--account[频道账号 ID]" \
+    "--json[以 JSON 格式输出结果]" \
+    "--dry-run[打印负载并跳过发送]" \
+    "--verbose[详细日志]"
+}
+
+_openclaw_message_pin() {
+  _arguments -C \
+    "(--target -t)"{--target,-t}"[接收方/频道]" \
+    "--channel[频道]" \
+    "--account[频道账号 ID]" \
+    "--json[以 JSON 格式输出结果]" \
+    "--dry-run[打印负载并跳过发送]" \
+    "--verbose[详细日志]" \
+    "--message-id[消息 ID]"
+}
+
+_openclaw_message_unpin() {
+  _arguments -C \
+    "(--target -t)"{--target,-t}"[接收方/频道]" \
+    "--channel[频道]" \
+    "--account[频道账号 ID]" \
+    "--json[以 JSON 格式输出结果]" \
+    "--dry-run[打印负载并跳过发送]" \
+    "--verbose[详细日志]" \
+    "--message-id[消息 ID（或 MSTeams 置顶消息资源 ID）]" \
+    "--pinned-message-id[置顶消息资源 ID]"
+}
+
+_openclaw_message_pins() {
+  _arguments -C \
+    "(--target -t)"{--target,-t}"[接收方/频道]" \
+    "--channel[频道]" \
+    "--account[频道账号 ID]" \
+    "--json[以 JSON 格式输出结果]" \
+    "--dry-run[打印负载并跳过发送]" \
+    "--verbose[详细日志]" \
+    "--limit[结果限制]"
+}
+
+_openclaw_message_permissions() {
+  _arguments -C \
+    "(--target -t)"{--target,-t}"[接收方/频道]" \
+    "--channel[频道]" \
+    "--account[频道账号 ID]" \
+    "--json[以 JSON 格式输出结果]" \
+    "--dry-run[打印负载并跳过发送]" \
+    "--verbose[详细日志]"
+}
+
+_openclaw_message_search() {
+  _arguments -C \
+    "--channel[频道]" \
+    "--account[频道账号 ID]" \
+    "--json[以 JSON 格式输出结果]" \
+    "--dry-run[打印负载并跳过发送]" \
+    "--verbose[详细日志]" \
+    "--guild-id[Guild ID]" \
+    "--query[搜索查询]" \
+    "--channel-id[频道 ID]" \
+    "--channel-ids[频道 ID（可重复）]" \
+    "--author-id[作者 ID]" \
+    "--author-ids[作者 ID（可重复）]" \
+    "--limit[结果限制]"
+}
+
+_openclaw_message_thread_create() {
+  _arguments -C \
+    "--thread-name[线程名称]" \
+    "(--target -t)"{--target,-t}"[接收方/频道]" \
+    "--channel[频道]" \
+    "--account[频道账号 ID]" \
+    "--json[以 JSON 格式输出结果]" \
+    "--dry-run[打印负载并跳过发送]" \
+    "--verbose[详细日志]" \
+    "--message-id[消息 ID（可选）]" \
+    "(--message -m)"{--message,-m}"[初始线程消息文本]" \
+    "--auto-archive-min[线程自动归档分钟数]"
+}
+
+_openclaw_message_thread_list() {
+  _arguments -C \
+    "--guild-id[Guild ID]" \
+    "--channel[频道]" \
+    "--account[频道账号 ID]" \
+    "--json[以 JSON 格式输出结果]" \
+    "--dry-run[打印负载并跳过发送]" \
+    "--verbose[详细日志]" \
+    "--channel-id[频道 ID]" \
+    "--include-archived[包含已归档线程]" \
+    "--before[在此 ID 之前读取/搜索]" \
+    "--limit[结果限制]"
+}
+
+_openclaw_message_thread_reply() {
+  _arguments -C \
+    "(--message -m)"{--message,-m}"[消息正文]" \
+    "(--target -t)"{--target,-t}"[接收方/频道]" \
+    "--channel[频道]" \
+    "--account[频道账号 ID]" \
+    "--json[以 JSON 格式输出结果]" \
+    "--dry-run[打印负载并跳过发送]" \
+    "--verbose[详细日志]" \
+    "--media[附加媒体（图片/音频/视频/文档）。接受本地路径或 URL。]" \
+    "--reply-to[回复消息 ID]"
+}
+
+_openclaw_message_thread() {
+  local -a commands
+  local -a options
+  
+  _arguments -C \
+     \
+    "1: :_values 'command' 'create[创建]' 'list[列出渠道]' 'reply[在线程中回复]'" \
+    "*::arg:->args"
+
+  case $state in
+    (args)
+      case $line[1] in
+        (create) _openclaw_message_thread_create ;;
+        (list) _openclaw_message_thread_list ;;
+        (reply) _openclaw_message_thread_reply ;;
+      esac
+      ;;
+  esac
+}
+
+_openclaw_message_emoji_list() {
+  _arguments -C \
+    "--channel[频道]" \
+    "--account[频道账号 ID]" \
+    "--json[以 JSON 格式输出结果]" \
+    "--dry-run[打印负载并跳过发送]" \
+    "--verbose[详细日志]" \
+    "--guild-id[Guild ID（Discord）]"
+}
+
+_openclaw_message_emoji_upload() {
+  _arguments -C \
+    "--guild-id[Guild ID]" \
+    "--channel[频道]" \
+    "--account[频道账号 ID]" \
+    "--json[以 JSON 格式输出结果]" \
+    "--dry-run[打印负载并跳过发送]" \
+    "--verbose[详细日志]" \
+    "--emoji-name[表情名称]" \
+    "--media[表情媒体（路径或 URL）]" \
+    "--role-ids[角色 ID（可重复）]"
+}
+
+_openclaw_message_emoji() {
+  local -a commands
+  local -a options
+  
+  _arguments -C \
+     \
+    "1: :_values 'command' 'list[列出渠道]' 'upload[上传表情]'" \
+    "*::arg:->args"
+
+  case $state in
+    (args)
+      case $line[1] in
+        (list) _openclaw_message_emoji_list ;;
+        (upload) _openclaw_message_emoji_upload ;;
+      esac
+      ;;
+  esac
+}
+
+_openclaw_message_sticker_send() {
+  _arguments -C \
+    "(--target -t)"{--target,-t}"[接收方/频道]" \
+    "--channel[频道]" \
+    "--account[频道账号 ID]" \
+    "--json[以 JSON 格式输出结果]" \
+    "--dry-run[打印负载并跳过发送]" \
+    "--verbose[详细日志]" \
+    "--sticker-id[贴纸 ID（可重复）]" \
+    "(--message -m)"{--message,-m}"[可选的消息正文]"
+}
+
+_openclaw_message_sticker_upload() {
+  _arguments -C \
+    "--guild-id[Guild ID]" \
+    "--channel[频道]" \
+    "--account[频道账号 ID]" \
+    "--json[以 JSON 格式输出结果]" \
+    "--dry-run[打印负载并跳过发送]" \
+    "--verbose[详细日志]" \
+    "--sticker-name[贴纸名称]" \
+    "--sticker-desc[贴纸描述]" \
+    "--sticker-tags[贴纸标签]" \
+    "--media[贴纸媒体（路径或 URL）]"
+}
+
+_openclaw_message_sticker() {
+  local -a commands
+  local -a options
+  
+  _arguments -C \
+     \
+    "1: :_values 'command' 'send[发送消息]' 'upload[上传贴纸]'" \
+    "*::arg:->args"
+
+  case $state in
+    (args)
+      case $line[1] in
+        (send) _openclaw_message_sticker_send ;;
+        (upload) _openclaw_message_sticker_upload ;;
+      esac
+      ;;
+  esac
+}
+
+_openclaw_message_role_info() {
+  _arguments -C \
+    "--guild-id[Guild ID]" \
+    "--channel[频道]" \
+    "--account[频道账号 ID]" \
+    "--json[以 JSON 格式输出结果]" \
+    "--dry-run[打印负载并跳过发送]" \
+    "--verbose[详细日志]"
+}
+
+_openclaw_message_role_add() {
+  _arguments -C \
+    "--guild-id[Guild ID]" \
+    "--user-id[用户 ID]" \
+    "--role-id[角色 ID]" \
+    "--channel[频道]" \
+    "--account[频道账号 ID]" \
+    "--json[以 JSON 格式输出结果]" \
+    "--dry-run[打印负载并跳过发送]" \
+    "--verbose[详细日志]"
+}
+
+_openclaw_message_role_remove() {
+  _arguments -C \
+    "--guild-id[Guild ID]" \
+    "--user-id[用户 ID]" \
+    "--role-id[角色 ID]" \
+    "--channel[频道]" \
+    "--account[频道账号 ID]" \
+    "--json[以 JSON 格式输出结果]" \
+    "--dry-run[打印负载并跳过发送]" \
+    "--verbose[详细日志]"
+}
+
+_openclaw_message_role() {
+  local -a commands
+  local -a options
+  
+  _arguments -C \
+     \
+    "1: :_values 'command' 'info[信息]' 'add[添加 Webhook]' 'remove[删除 Webhook]'" \
+    "*::arg:->args"
+
+  case $state in
+    (args)
+      case $line[1] in
+        (info) _openclaw_message_role_info ;;
+        (add) _openclaw_message_role_add ;;
+        (remove) _openclaw_message_role_remove ;;
+      esac
+      ;;
+  esac
+}
+
+_openclaw_message_channel_info() {
+  _arguments -C \
+    "(--target -t)"{--target,-t}"[接收方/频道]" \
+    "--channel[频道]" \
+    "--account[频道账号 ID]" \
+    "--json[以 JSON 格式输出结果]" \
+    "--dry-run[打印负载并跳过发送]" \
+    "--verbose[详细日志]"
+}
+
+_openclaw_message_channel_list() {
+  _arguments -C \
+    "--guild-id[Guild ID]" \
+    "--channel[频道]" \
+    "--account[频道账号 ID]" \
+    "--json[以 JSON 格式输出结果]" \
+    "--dry-run[打印负载并跳过发送]" \
+    "--verbose[详细日志]"
+}
+
+_openclaw_message_channel() {
+  local -a commands
+  local -a options
+  
+  _arguments -C \
+     \
+    "1: :_values 'command' 'info[信息]' 'list[列出渠道]'" \
+    "*::arg:->args"
+
+  case $state in
+    (args)
+      case $line[1] in
+        (info) _openclaw_message_channel_info ;;
+        (list) _openclaw_message_channel_list ;;
+      esac
+      ;;
+  esac
+}
+
+_openclaw_message_member_info() {
+  _arguments -C \
+    "--user-id[用户 ID]" \
+    "--channel[频道]" \
+    "--account[频道账号 ID]" \
+    "--json[以 JSON 格式输出结果]" \
+    "--dry-run[打印负载并跳过发送]" \
+    "--verbose[详细日志]" \
+    "--guild-id[Guild ID（Discord）]"
+}
+
+_openclaw_message_member() {
+  local -a commands
+  local -a options
+  
+  _arguments -C \
+     \
+    "1: :_values 'command' 'info[信息]'" \
+    "*::arg:->args"
+
+  case $state in
+    (args)
+      case $line[1] in
+        (info) _openclaw_message_member_info ;;
+      esac
+      ;;
+  esac
+}
+
+_openclaw_message_voice_status() {
+  _arguments -C \
+    "--guild-id[Guild ID]" \
+    "--user-id[用户 ID]" \
+    "--channel[频道]" \
+    "--account[频道账号 ID]" \
+    "--json[以 JSON 格式输出结果]" \
+    "--dry-run[打印负载并跳过发送]" \
+    "--verbose[详细日志]"
+}
+
+_openclaw_message_voice() {
+  local -a commands
+  local -a options
+  
+  _arguments -C \
+     \
+    "1: :_values 'command' 'status[状态]'" \
+    "*::arg:->args"
+
+  case $state in
+    (args)
+      case $line[1] in
+        (status) _openclaw_message_voice_status ;;
+      esac
+      ;;
+  esac
+}
+
+_openclaw_message_event_list() {
+  _arguments -C \
+    "--guild-id[Guild ID]" \
+    "--channel[频道]" \
+    "--account[频道账号 ID]" \
+    "--json[以 JSON 格式输出结果]" \
+    "--dry-run[打印负载并跳过发送]" \
+    "--verbose[详细日志]"
+}
+
+_openclaw_message_event_create() {
+  _arguments -C \
+    "--guild-id[Guild ID]" \
+    "--event-name[事件名称]" \
+    "--start-time[事件开始时间]" \
+    "--channel[频道]" \
+    "--account[频道账号 ID]" \
+    "--json[以 JSON 格式输出结果]" \
+    "--dry-run[打印负载并跳过发送]" \
+    "--verbose[详细日志]" \
+    "--end-time[事件结束时间]" \
+    "--desc[事件描述]" \
+    "--channel-id[频道 ID]" \
+    "--location[事件地点]" \
+    "--event-type[事件类型]" \
+    "--image[封面图片 URL 或本地文件路径]"
+}
+
+_openclaw_message_event() {
+  local -a commands
+  local -a options
+  
+  _arguments -C \
+     \
+    "1: :_values 'command' 'list[列出渠道]' 'create[创建]'" \
+    "*::arg:->args"
+
+  case $state in
+    (args)
+      case $line[1] in
+        (list) _openclaw_message_event_list ;;
+        (create) _openclaw_message_event_create ;;
+      esac
+      ;;
+  esac
+}
+
+_openclaw_message_timeout() {
+  _arguments -C \
+    "--guild-id[Guild ID]" \
+    "--user-id[用户 ID]" \
+    "--channel[频道]" \
+    "--account[频道账号 ID]" \
+    "--json[以 JSON 格式输出结果]" \
+    "--dry-run[打印负载并跳过发送]" \
+    "--verbose[详细日志]" \
+    "--duration-min[超时时长分钟数]" \
+    "--until[超时截止时间]" \
+    "--reason[审核原因]"
+}
+
+_openclaw_message_kick() {
+  _arguments -C \
+    "--guild-id[Guild ID]" \
+    "--user-id[用户 ID]" \
+    "--channel[频道]" \
+    "--account[频道账号 ID]" \
+    "--json[以 JSON 格式输出结果]" \
+    "--dry-run[打印负载并跳过发送]" \
+    "--verbose[详细日志]" \
+    "--reason[审核原因]"
+}
+
+_openclaw_message_ban() {
+  _arguments -C \
+    "--guild-id[Guild ID]" \
+    "--user-id[用户 ID]" \
+    "--channel[频道]" \
+    "--account[频道账号 ID]" \
+    "--json[以 JSON 格式输出结果]" \
+    "--dry-run[打印负载并跳过发送]" \
+    "--verbose[详细日志]" \
+    "--reason[审核原因]" \
+    "--delete-days[封禁时删除消息的天数]"
+}
+
+_openclaw_message() {
+  local -a commands
+  local -a options
+  
+  _arguments -C \
+     \
+    "1: :_values 'command' 'send[发送消息]' 'broadcast[广播消息]' 'poll[发送投票]' 'react[添加或移除回应]' 'reactions[列出消息回应]' 'read[读取最近消息]' 'edit[编辑钩子]' 'delete[删除消息]' 'pin[置顶消息]' 'unpin[取消置顶消息]' 'pins[列出置顶消息]' 'permissions[获取频道权限]' 'search[搜索记忆]' 'thread[线程操作]' 'emoji[表情操作]' 'sticker[贴纸操作]' 'role[角色操作]' 'channel[频道操作]' 'member[成员操作]' 'voice[语音操作]' 'event[触发系统事件]' 'timeout[超时成员]' 'kick[踢出成员]' 'ban[封禁成员]'" \
+    "*::arg:->args"
+
+  case $state in
+    (args)
+      case $line[1] in
+        (send) _openclaw_message_send ;;
+        (broadcast) _openclaw_message_broadcast ;;
+        (poll) _openclaw_message_poll ;;
+        (react) _openclaw_message_react ;;
+        (reactions) _openclaw_message_reactions ;;
+        (read) _openclaw_message_read ;;
+        (edit) _openclaw_message_edit ;;
+        (delete) _openclaw_message_delete ;;
+        (pin) _openclaw_message_pin ;;
+        (unpin) _openclaw_message_unpin ;;
+        (pins) _openclaw_message_pins ;;
+        (permissions) _openclaw_message_permissions ;;
+        (search) _openclaw_message_search ;;
+        (thread) _openclaw_message_thread ;;
+        (emoji) _openclaw_message_emoji ;;
+        (sticker) _openclaw_message_sticker ;;
+        (role) _openclaw_message_role ;;
+        (channel) _openclaw_message_channel ;;
+        (member) _openclaw_message_member ;;
+        (voice) _openclaw_message_voice ;;
+        (event) _openclaw_message_event ;;
+        (timeout) _openclaw_message_timeout ;;
+        (kick) _openclaw_message_kick ;;
+        (ban) _openclaw_message_ban ;;
+      esac
+      ;;
+  esac
+}
+
+_openclaw_mcp_serve() {
+  _arguments -C \
+    "--url[网关 WebSocket URL（默认 gateway.remote.url）]" \
+    "--token[网关令牌（如果需要）]" \
+    "--token-file[从文件读取网关令牌]" \
+    "--password[网关密码（如果需要）]" \
+    "--password-file[从文件读取网关密码]" \
+    "--claude-channel-mode[Claude 频道通知模式：auto, on, off]" \
+    "(--verbose -v)"{--verbose,-v}"[详细日志到 stderr]"
+}
+
+_openclaw_mcp_list() {
+  _arguments -C \
+    "--json[打印 JSON]"
+}
+
+_openclaw_mcp_show() {
+  _arguments -C \
+    "--json[打印 JSON]"
+}
+
+_openclaw_mcp_status() {
+  _arguments -C \
+    "(--verbose -v)"{--verbose,-v}"[显示传输、认证、超时和过滤详情]" \
+    "--json[打印 JSON]"
+}
+
+_openclaw_mcp_probe() {
+  _arguments -C \
+    "--json[打印 JSON]"
+}
+
+_openclaw_mcp_doctor() {
+  _arguments -C \
+    "--probe[同时连接到每个已检查的服务器]" \
+    "--json[打印 JSON]"
+}
+
+_openclaw_mcp_add() {
+  _arguments -C \
+    "--command[要生成的 stdio 命令]" \
+    "--arg[可重复的 stdio 参数]" \
+    "--env[可重复的 stdio 环境条目]" \
+    "--cwd[stdio 服务器的工作目录]" \
+    "--url[HTTP MCP 服务器 URL]" \
+    "--transport[HTTP 传输：streamable-http 或 sse]" \
+    "--header[可重复的 HTTP 头]" \
+    "--auth[HTTP 认证模式：oauth]" \
+    "--oauth-scope[OAuth 作用域]" \
+    "--oauth-redirect-url[OAuth 重定向 URL]" \
+    "--oauth-client-metadata-url[OAuth 客户端元数据 URL]" \
+    "--include[逗号分隔的要暴露的 MCP 工具名]" \
+    "--exclude[逗号分隔的要隐藏的 MCP 工具名]" \
+    "--timeout[每次请求超时秒数]" \
+    "--connect-timeout[连接超时秒数]" \
+    "--parallel[将此服务器标记为支持并发工具调用]" \
+    "--disabled[以禁用状态保存服务器]" \
+    "--ssl-verify[验证 HTTPS 证书：true 或 false]" \
+    "--client-cert[HTTP 双向 TLS 客户端证书路径]" \
+    "--client-key[HTTP 双向 TLS 客户端密钥路径]" \
+    "--no-probe[不连接直接保存]"
+}
+
+_openclaw_mcp_set() {
+  _arguments -C \
+    
+}
+
+_openclaw_mcp_tools() {
+  _arguments -C \
+    "--include[逗号分隔的要暴露的 MCP 工具名]" \
+    "--exclude[逗号分隔的要隐藏的 MCP 工具名]" \
+    "--clear[清除此服务器的 MCP 工具过滤]"
+}
+
+_openclaw_mcp_configure() {
+  _arguments -C \
+    "--enable[启用此已保存的服务器]" \
+    "--disable[禁用此已保存的服务器]" \
+    "--include[逗号分隔的要暴露的 MCP 工具名]" \
+    "--exclude[逗号分隔的要隐藏的 MCP 工具名]" \
+    "--clear-tools[清除此服务器的 MCP 工具过滤]" \
+    "--timeout[每次请求超时秒数]" \
+    "--connect-timeout[连接超时秒数]" \
+    "--clear-timeouts[清除请求和连接超时覆盖]" \
+    "--parallel[将此服务器标记为支持并发工具调用]" \
+    "--no-parallel[清除并发工具调用标记]" \
+    "--auth[HTTP 认证模式：oauth]" \
+    "--clear-auth[清除认证和 OAuth 元数据]" \
+    "--oauth-scope[OAuth 作用域]" \
+    "--oauth-redirect-url[OAuth 重定向 URL]" \
+    "--oauth-client-metadata-url[OAuth 客户端元数据 URL]" \
+    "--ssl-verify[验证 HTTPS 证书：true 或 false]" \
+    "--client-cert[HTTP 双向 TLS 客户端证书路径]" \
+    "--client-key[HTTP 双向 TLS 客户端密钥路径]" \
+    "--clear-tls[清除 TLS 验证和 mTLS 覆盖]" \
+    "--probe[保存前探测已更新的服务器]"
+}
+
+_openclaw_mcp_login() {
+  _arguments -C \
+    "--code[OAuth 重定向的授权码]"
+}
+
+_openclaw_mcp_logout() {
+  _arguments -C \
+    
+}
+
+_openclaw_mcp_reload() {
+  _arguments -C \
+    
+}
+
+_openclaw_mcp_unset() {
+  _arguments -C \
+    
+}
+
+_openclaw_mcp() {
+  local -a commands
+  local -a options
+  
+  _arguments -C \
+     \
+    "1: :_values 'command' 'serve[通过 MCP stdio 暴露 OpenClaw 频道]' 'list[列出渠道]' 'show[显示]' 'status[状态]' 'probe[探测网关]' 'doctor[诊断]' 'add[添加 Webhook]' 'set[设置密钥]' 'tools[更新每个服务器的 MCP 工具包含/排除过滤]' 'configure[交互式配置（凭证、频道、网关和代理默认设置）]' 'login[登录频道]' 'logout[登出频道]' 'reload[释放缓存的 MCP 运行时，使下一轮使用新配置]' 'unset[删除密钥]'" \
+    "*::arg:->args"
+
+  case $state in
+    (args)
+      case $line[1] in
+        (serve) _openclaw_mcp_serve ;;
+        (list) _openclaw_mcp_list ;;
+        (show) _openclaw_mcp_show ;;
+        (status) _openclaw_mcp_status ;;
+        (probe) _openclaw_mcp_probe ;;
+        (doctor) _openclaw_mcp_doctor ;;
+        (add) _openclaw_mcp_add ;;
+        (set) _openclaw_mcp_set ;;
+        (tools) _openclaw_mcp_tools ;;
+        (configure) _openclaw_mcp_configure ;;
+        (login) _openclaw_mcp_login ;;
+        (logout) _openclaw_mcp_logout ;;
+        (reload) _openclaw_mcp_reload ;;
+        (unset) _openclaw_mcp_unset ;;
+      esac
+      ;;
+  esac
+}
+
+_openclaw_transcripts_list() {
+  _arguments -C \
+    "--json[打印 JSON]"
+}
+
+_openclaw_transcripts_show() {
+  _arguments -C \
+    "--json[打印 JSON]"
+}
+
+_openclaw_transcripts_path() {
+  _arguments -C \
+    "--dir[打印会话目录]" \
+    "--metadata[打印 metadata.json]" \
+    "--transcript[打印 transcript.jsonl]" \
+    "--json[打印 JSON]"
+}
+
+_openclaw_transcripts() {
+  local -a commands
+  local -a options
+  
+  _arguments -C \
+     \
+    "1: :_values 'command' 'list[列出渠道]' 'show[显示]' 'path[打印存储的转录产物路径]'" \
+    "*::arg:->args"
+
+  case $state in
+    (args)
+      case $line[1] in
+        (list) _openclaw_transcripts_list ;;
+        (show) _openclaw_transcripts_show ;;
+        (path) _openclaw_transcripts_path ;;
+      esac
+      ;;
+  esac
+}
+
+_openclaw_agent() {
+  _arguments -C \
+    "(--message -m)"{--message,-m}"[代理的消息正文]" \
+    "--message-file[从 UTF-8 文件读取代理消息正文]" \
+    "(--to -t)"{--to,-t}"[用于推导会话键的接收方 E.164 号码]" \
+    "--session-key[显式会话键（agent:<id>:<key> 或作用域到 --agent）]" \
+    "--session-id[使用显式会话 ID]" \
+    "--agent[代理 ID（覆盖路由绑定）]" \
+    "--model[本次运行的模型覆盖]" \
+    "--thinking[Thinking level: off | minimal | low | medium | high | xhigh | adaptive |思考级别：off|minimal|low|medium|high|xhigh|adaptive|max]" \
+    "--verbose[持久化代理会话的详细级别]" \
+    "--channel[投递频道]" \
+    "--reply-to[投递目标覆盖（与会话路由分离）]" \
+    "--reply-channel[投递频道覆盖（与路由分离）]" \
+    "--reply-account[投递账号 ID 覆盖]" \
+    "--local[本地运行内嵌代理（需要在 Shell 中有模型提供商 API 密钥）]" \
+    "--deliver[将代理回复发回所选频道]" \
+    "--json[以 JSON 格式输出结果]" \
+    "--timeout[覆盖代理命令超时秒数（默认 600 或配置值）]"
+}
+
+_openclaw_agents_list() {
+  _arguments -C \
+    "--json[输出 JSON 而非文本]" \
+    "--bindings[包含路由绑定]"
+}
+
+_openclaw_agents_bindings() {
+  _arguments -C \
+    "--agent[按代理 ID 过滤]" \
+    "--json[输出 JSON 而非文本]"
+}
+
+_openclaw_agents_bind() {
+  _arguments -C \
+    "--agent[代理 ID（默认为当前默认代理）]" \
+    "--bind[要添加的绑定（可重复）]" \
+    "--json[以 JSON 格式输出摘要]"
+}
+
+_openclaw_agents_unbind() {
+  _arguments -C \
+    "--agent[代理 ID（默认为当前默认代理）]" \
+    "--bind[要删除的绑定（可重复）]" \
+    "--all[删除此代理的所有绑定]" \
+    "--json[以 JSON 格式输出摘要]"
+}
+
+_openclaw_agents_add() {
+  _arguments -C \
+    "--workspace[新代理的工作区目录]" \
+    "--model[此代理的模型 ID]" \
+    "--agent-dir[此代理的状态目录]" \
+    "--bind[路由频道绑定（可重复）]" \
+    "--non-interactive[禁用提示；需要 --workspace]" \
+    "--json[以 JSON 格式输出摘要]"
+}
+
+_openclaw_agents_set_identity() {
+  _arguments -C \
+    "--agent[要更新的代理 ID]" \
+    "--workspace[用于定位 Agent 和 IDENTITY.md 的工作区目录]" \
+    "--identity-file[要读取的显式 IDENTITY.md 路径]" \
+    "--from-identity[从 IDENTITY.md 读取值]" \
+    "--name[身份名称]" \
+    "--theme[身份主题]" \
+    "--emoji[身份表情]" \
+    "--avatar[身份头像]" \
+    "--json[以 JSON 格式输出摘要]"
+}
+
+_openclaw_agents_delete() {
+  _arguments -C \
+    "--force[跳过确认]" \
+    "--json[以 JSON 格式输出摘要]"
+}
+
+_openclaw_agents() {
+  local -a commands
+  local -a options
+  
+  _arguments -C \
+     \
+    "1: :_values 'command' 'list[列出渠道]' 'bindings[列出路由绑定]' 'bind[为代理添加路由绑定]' 'unbind[删除代理的路由绑定]' 'add[添加 Webhook]' 'set-identity[更新代理身份]' 'delete[删除消息]'" \
+    "*::arg:->args"
+
+  case $state in
+    (args)
+      case $line[1] in
+        (list) _openclaw_agents_list ;;
+        (bindings) _openclaw_agents_bindings ;;
+        (bind) _openclaw_agents_bind ;;
+        (unbind) _openclaw_agents_unbind ;;
+        (add) _openclaw_agents_add ;;
+        (set-identity) _openclaw_agents_set_identity ;;
+        (delete) _openclaw_agents_delete ;;
+      esac
+      ;;
+  esac
+}
+
+_openclaw_audit() {
+  _arguments -C \
+    "--agent[按代理 ID 过滤]" \
+    "--session[按精确会话键过滤]" \
+    "--run[按运行 ID 过滤]" \
+    "--kind[按类型过滤（agent_run, tool_action, message）]" \
+    "--status[按状态过滤]" \
+    "--direction[过滤消息方向（入站或出站）]" \
+    "--channel[过滤消息频道]" \
+    "--after[包含在 ISO 时间或 Unix 毫秒时间点/之后记录]" \
+    "--before[包含在 ISO 时间或 Unix 毫秒时间点/之前记录]" \
+    "--cursor[从之前的结果游标继续]" \
+    "--limit[最大记录数（1-500）]" \
+    "--json[输出定界 JSON 页面]"
+}
+
+_openclaw_status() {
+  _arguments -C \
+    "--json[输出 JSON 而非文本]" \
+    "--all[完整诊断（只读，可粘贴）]" \
+    "--usage[显示模型提供商用量/配额快照]" \
+    "--deep[探测频道]" \
+    "--timeout[探测超时毫秒数]" \
+    "--verbose[详细日志]" \
+    "--debug[--verbose 的别名]"
+}
+
+_openclaw_health() {
+  _arguments -C \
+    "--json[输出 JSON 而非文本]" \
+    "--timeout[连接超时毫秒数]" \
+    "--verbose[详细日志]" \
+    "--debug[--verbose 的别名]"
+}
+
+_openclaw_sessions_list() {
+  _arguments -C \
+    "--json[以 JSON 格式输出]" \
+    "--verbose[详细日志]" \
+    "--store[会话存储路径（默认从配置解析）]" \
+    "--agent[要检查的代理 ID（默认已配置的默认代理）]" \
+    "--all-agents[聚合所有已配置 Agent 的会话]" \
+    "--active[仅显示最近 N 分钟内更新的会话]" \
+    "--limit[最大显示会话数（默认 100；"all" 全部）]"
+}
+
+_openclaw_sessions_cleanup() {
+  _arguments -C \
+    "--store[会话存储路径（默认从配置解析）]" \
+    "--agent[要维护的代理 ID（默认已配置的默认代理）]" \
+    "--all-agents[对所有已配置代理运行维护]" \
+    "--dry-run[预览维护操作但不写入]" \
+    "--enforce[即使配置模式为 warn 也应用维护]" \
+    "--fix-missing[删除转录文件丢失的存储条目]" \
+    "--fix-dm-scope[淘汰不再匹配 session.dmScope=main 的陈旧私信会话行]" \
+    "--active-key[保护此会话键不被预算淘汰]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_sessions_tail() {
+  _arguments -C \
+    "--session-key[要跟踪的会话键（默认活跃或最新会话）]" \
+    "--tail[要显示的现有轨迹事件数]" \
+    "--follow[继续跟踪新的轨迹事件]" \
+    "--store[会话存储路径（默认从配置解析）]" \
+    "--agent[要检查的代理 ID（默认已配置的默认代理）]" \
+    "--all-agents[聚合所有已配置 Agent 的会话]"
+}
+
+_openclaw_sessions_export_trajectory() {
+  _arguments -C \
+    "--session-key[要导出的会话键]" \
+    "--output[输出目录名（在 .openclaw/trajectory-exports 内）]" \
+    "--workspace[导出的工作区根目录（默认当前目录）]" \
+    "--store[会话存储路径（默认从配置解析）]" \
+    "--agent[解析默认会话存储的代理 ID]" \
+    "--request-json-base64[Base64url 编码的导出请求]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_sessions_compact() {
+  _arguments -C \
+    "--agent[拥有此会话的代理 ID（全局键必需）]" \
+    "--max-lines[截取到最后 N 行而非 LLM 摘要]" \
+    "--url[网关 WebSocket URL（默认 gateway.remote.url）]" \
+    "--token[网关令牌（如果需要）]" \
+    "--password[网关密码（密码认证）]" \
+    "--timeout[RPC 超时毫秒数（默认无客户端截止时间）]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_sessions() {
+  local -a commands
+  local -a options
+  
+  _arguments -C \
+    "--json[以 JSON 格式输出]" \
+    "--verbose[详细日志]" \
+    "--store[会话存储路径（默认从配置解析）]" \
+    "--agent[要检查的代理 ID（默认已配置的默认代理）]" \
+    "--all-agents[聚合所有已配置 Agent 的会话]" \
+    "--active[仅显示最近 N 分钟内更新的会话]" \
+    "--limit[最大显示会话数（默认 100；"all" 全部）]" \
+    "1: :_values 'command' 'list[列出渠道]' 'cleanup[清理工作树]' 'tail[跟踪会话]' 'export-trajectory[导出轨迹包]' 'compact[压缩记录]'" \
+    "*::arg:->args"
+
+  case $state in
+    (args)
+      case $line[1] in
+        (list) _openclaw_sessions_list ;;
+        (cleanup) _openclaw_sessions_cleanup ;;
+        (tail) _openclaw_sessions_tail ;;
+        (export-trajectory) _openclaw_sessions_export_trajectory ;;
+        (compact) _openclaw_sessions_compact ;;
+      esac
+      ;;
+  esac
+}
+
+_openclaw_commitments_list() {
+  _arguments -C \
+    "--json[输出 JSON 而非文本]" \
+    "--agent[要检查的 Agent id]" \
+    "--status[按状态过滤]" \
+    "--all[显示所有状态]"
+}
+
+_openclaw_commitments_dismiss() {
+  _arguments -C \
+    "--json[输出 JSON 而非文本]"
+}
+
+_openclaw_commitments() {
+  local -a commands
+  local -a options
+  
+  _arguments -C \
+    "--json[输出 JSON 而非文本]" \
+    "--agent[要检查的 Agent id]" \
+    "--status[按状态过滤]" \
+    "--all[显示所有状态]" \
+    "1: :_values 'command' 'list[列出渠道]' 'dismiss[忽略推断的后续承诺]'" \
+    "*::arg:->args"
+
+  case $state in
+    (args)
+      case $line[1] in
+        (list) _openclaw_commitments_list ;;
+        (dismiss) _openclaw_commitments_dismiss ;;
+      esac
+      ;;
+  esac
+}
+
+_openclaw_tasks_list() {
+  _arguments -C \
+    "--json[以 JSON 格式输出]" \
+    "--runtime[按类型过滤（subagent, acp, cron, cli）]" \
+    "--status[按状态过滤]"
+}
+
+_openclaw_tasks_audit() {
+  _arguments -C \
+    "--json[以 JSON 格式输出]" \
+    "--severity[按严重级别过滤（warn, error）]" \
+    "--code[按发现代码过滤（stale_queued, stale_running, lost, delivery_failed, missing_cleanup, inconsistent_timestamps, restore_failed, stale_waiting, stale_blocked, cancel_stuck, missing_linked_tasks, blocked_task_missing）]" \
+    "--limit[限制显示的发现]"
+}
+
+_openclaw_tasks_maintenance() {
+  _arguments -C \
+    "--json[以 JSON 格式输出]" \
+    "--apply[应用协调、清理标记和修剪]"
+}
+
+_openclaw_tasks_show() {
+  _arguments -C \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_tasks_notify() {
+  _arguments -C \
+    
+}
+
+_openclaw_tasks_cancel() {
+  _arguments -C \
+    
+}
+
+_openclaw_tasks_flow_list() {
+  _arguments -C \
+    "--json[以 JSON 格式输出]" \
+    "--status[按状态过滤]"
+}
+
+_openclaw_tasks_flow_show() {
+  _arguments -C \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_tasks_flow_cancel() {
+  _arguments -C \
+    
+}
+
+_openclaw_tasks_flow() {
+  local -a commands
+  local -a options
+  
+  _arguments -C \
+     \
+    "1: :_values 'command' 'list[列出渠道]' 'show[显示]' 'cancel[取消运行中的 TaskFlow]'" \
+    "*::arg:->args"
+
+  case $state in
+    (args)
+      case $line[1] in
+        (list) _openclaw_tasks_flow_list ;;
+        (show) _openclaw_tasks_flow_show ;;
+        (cancel) _openclaw_tasks_flow_cancel ;;
+      esac
+      ;;
+  esac
+}
+
+_openclaw_tasks() {
+  local -a commands
+  local -a options
+  
+  _arguments -C \
+    "--json[以 JSON 格式输出]" \
+    "--runtime[按类型过滤（subagent, acp, cron, cli）]" \
+    "--status[按状态过滤]" \
+    "1: :_values 'command' 'list[列出渠道]' 'audit[安全审计]' 'maintenance[预览或应用任务和 TaskFlow 维护]' 'show[显示]' 'notify[设置任务通知策略]' 'cancel[取消运行中的后台任务]' 'flow[检查 tasks 下的持久 TaskFlow 状态]'" \
+    "*::arg:->args"
+
+  case $state in
+    (args)
+      case $line[1] in
+        (list) _openclaw_tasks_list ;;
+        (audit) _openclaw_tasks_audit ;;
+        (maintenance) _openclaw_tasks_maintenance ;;
+        (show) _openclaw_tasks_show ;;
+        (notify) _openclaw_tasks_notify ;;
+        (cancel) _openclaw_tasks_cancel ;;
+        (flow) _openclaw_tasks_flow ;;
+      esac
+      ;;
+  esac
+}
+
+_openclaw_acp_client() {
+  _arguments -C \
+    "--cwd[ACP 会话的工作目录]" \
+    "--server[ACP 服务器命令（默认：openclaw）]" \
+    "--server-args[ACP 服务器的额外参数]" \
+    "--server-verbose[在 ACP 服务器上启用详细日志记录]" \
+    "(--verbose -v)"{--verbose,-v}"[详细客户端日志]"
+}
+
+_openclaw_acp() {
+  local -a commands
+  local -a options
+  
+  _arguments -C \
+    "--url[网关 WebSocket URL（默认 gateway.remote.url）]" \
+    "--token[网关令牌（如果需要）]" \
+    "--token-file[从文件读取网关令牌]" \
+    "--password[网关密码（如果需要）]" \
+    "--password-file[从文件读取网关密码]" \
+    "--session[默认会话键]" \
+    "--session-label[要解析的默认会话标签]" \
+    "--require-existing[如果会话键/标签不存在则失败]" \
+    "--reset-session[首次使用前重置会话键]" \
+    "--no-prefix-cwd[不为提示添加工作目录前缀]" \
+    "--provenance[ACP 溯源模式：off, meta, meta+receipt]" \
+    "(--verbose -v)"{--verbose,-v}"[详细日志到 stderr]" \
+    "1: :_values 'command' 'client[针对本地 ACP 桥接运行交互式 ACP 客户端]'" \
+    "*::arg:->args"
+
+  case $state in
+    (args)
+      case $line[1] in
+        (client) _openclaw_acp_client ;;
+      esac
+      ;;
+  esac
+}
+
+_openclaw_gateway_run() {
+  _arguments -C \
+    "--port[网关 WebSocket 端口]" \
+    "--bind[绑定模式]" \
+    "--token[connect.params.auth.token 要求的共享令牌]" \
+    "--auth[网关认证模式]" \
+    "--password[认证模式为 password 时的密码]" \
+    "--password-file[从文件读取网关密码]" \
+    "--tailscale[Tailscale 暴露模式]" \
+    "--tailscale-reset-on-exit[关闭时重置 Tailscale serve/funnel 配置]" \
+    "--allow-unconfigured[允许网关启动而不强制 gateway.mode=local]" \
+    "--dev[如果缺失则创建开发配置 + 工作区（无 BOOTSTRAP.md）]" \
+    "--reset[重置开发配置 + 凭证 + 会话 + 工作区（需要 --dev）]" \
+    "--force[启动前终止目标端口上的现有监听器]" \
+    "--verbose[详细日志到 stdout/stderr]" \
+    "--cli-backend-logs[仅显示 CLI 后端日志]" \
+    "--claude-cli-logs[--cli-backend-logs 的已弃用别名]" \
+    "--ws-log[WebSocket 日志风格]" \
+    "--compact[--ws-log compact 的别名]" \
+    "--raw-stream[记录原始模型流事件到 jsonl]" \
+    "--raw-stream-path[原始流 jsonl 路径]"
+}
+
+_openclaw_gateway_status() {
+  _arguments -C \
+    "--url[网关 WebSocket URL（默认配置/远程/本地）]" \
+    "--token[网关令牌（如果需要）]" \
+    "--password[网关密码（密码认证）]" \
+    "--timeout[超时毫秒数]" \
+    "--no-probe[跳过 RPC 探测]" \
+    "--require-rpc[RPC 探测失败时返回非零退出码]" \
+    "--deep[扫描系统级服务]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_gateway_install() {
+  _arguments -C \
+    "--port[网关端口]" \
+    "--runtime[守护进程运行时（node）。默认：node]" \
+    "--token[网关令牌（令牌认证）]" \
+    "--wrapper[生成服务 ProgramArguments 的可执行包装器]" \
+    "--force[如果已安装则重装/覆盖]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_gateway_uninstall() {
+  _arguments -C \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_gateway_start() {
+  _arguments -C \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_gateway_stop() {
+  _arguments -C \
+    "--json[以 JSON 格式输出]" \
+    "--disable[持久禁止 KeepAlive/RunAtLoad，使网关在下次启动前不会重新生成（仅 launchd）]"
+}
+
+_openclaw_gateway_restart() {
+  _arguments -C \
+    "--force[立即重启而不等待活跃网关工作]" \
+    "--safe[在活动工作耗尽后请求 OpenClaw 感知的重启（有限等待；可能在 gateway.reload.deferralTimeoutMs 过期后强制重启；设置 deferralTimeoutMs=0 表示无限等待）]" \
+    "--skip-deferral[绕过安全重启延迟门；需要 --safe]" \
+    "--wait[重启前的等待持续时间（ms, 10s, 5m；0 表示无限等待）。适用于非安全重启（普通重启）；与 --force 或 --safe 不兼容]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_gateway_call() {
+  _arguments -C \
+    "--params[JSON 对象字符串参数]" \
+    "--url[网关 WebSocket URL（默认 gateway.remote.url）]" \
+    "--token[网关令牌（如果需要）]" \
+    "--password[网关密码（密码认证）]" \
+    "--timeout[超时毫秒数]" \
+    "--expect-final[等待最终响应（代理）]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_gateway_usage_cost() {
+  _arguments -C \
+    "--days[包含的天数]" \
+    "--agent[将成本摘要范围限定到特定代理 ID]" \
+    "--all-agents[聚合所有 Agent 的成本摘要]" \
+    "--url[网关 WebSocket URL（默认 gateway.remote.url）]" \
+    "--token[网关令牌（如果需要）]" \
+    "--password[网关密码（密码认证）]" \
+    "--timeout[超时毫秒数]" \
+    "--expect-final[等待最终响应（代理）]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_gateway_health() {
+  _arguments -C \
+    "--port[本地网关端口]" \
+    "--url[网关 WebSocket URL（默认 gateway.remote.url）]" \
+    "--token[网关令牌（如果需要）]" \
+    "--password[网关密码（密码认证）]" \
+    "--timeout[超时毫秒数]" \
+    "--expect-final[等待最终响应（代理）]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_gateway_stability() {
+  _arguments -C \
+    "--limit[最大最近事件数]" \
+    "--type[按诊断事件类型过滤]" \
+    "--since-seq[仅包含此序列之后的事件]" \
+    "--bundle[读取持久化稳定性包而不调用 Gateway；传递 "latest" 获取最新]" \
+    "--export[写入可共享的支持诊断导出]" \
+    "--output[诊断导出输出 .zip 路径]" \
+    "--url[网关 WebSocket URL（默认 gateway.remote.url）]" \
+    "--token[网关令牌（如果需要）]" \
+    "--password[网关密码（密码认证）]" \
+    "--timeout[超时毫秒数]" \
+    "--expect-final[等待最终响应（代理）]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_gateway_diagnostics_export() {
+  _arguments -C \
+    "--output[输出 .zip 路径]" \
+    "--log-lines[包含的最大清理日志行数]" \
+    "--log-bytes[最大检查日志字节数]" \
+    "--url[健康快照的网关 WebSocket URL]" \
+    "--token[健康快照的网关令牌]" \
+    "--password[健康快照的网关密码]" \
+    "--timeout[状态/健康快照超时毫秒数]" \
+    "--no-stability-bundle[跳过持久稳定性包查找]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_gateway_diagnostics() {
+  local -a commands
+  local -a options
+  
+  _arguments -C \
+     \
+    "1: :_values 'command' 'export[导出代理配置]'" \
+    "*::arg:->args"
+
+  case $state in
+    (args)
+      case $line[1] in
+        (export) _openclaw_gateway_diagnostics_export ;;
+      esac
+      ;;
+  esac
+}
+
+_openclaw_gateway_probe() {
+  _arguments -C \
+    "--url[显式网关 WebSocket URL（仍探测 localhost）]" \
+    "--port[本地网关端口]" \
+    "--ssh[远程网关隧道的 SSH 目标]" \
+    "--ssh-identity[SSH 身份文件路径]" \
+    "--ssh-auto[尝试从 Bonjour 发现推导 SSH 目标]" \
+    "--token[网关令牌（应用于所有探测）]" \
+    "--password[网关密码（应用于所有探测）]" \
+    "--timeout[总探测预算毫秒数]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_gateway_discover() {
+  _arguments -C \
+    "--timeout[每次命令超时毫秒数]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_gateway() {
+  local -a commands
+  local -a options
+  
+  _arguments -C \
+    "--port[网关 WebSocket 端口]" \
+    "--bind[绑定模式]" \
+    "--token[connect.params.auth.token 要求的共享令牌]" \
+    "--auth[网关认证模式]" \
+    "--password[认证模式为 password 时的密码]" \
+    "--password-file[从文件读取网关密码]" \
+    "--tailscale[Tailscale 暴露模式]" \
+    "--tailscale-reset-on-exit[关闭时重置 Tailscale serve/funnel 配置]" \
+    "--allow-unconfigured[允许网关启动而不强制 gateway.mode=local]" \
+    "--dev[如果缺失则创建开发配置 + 工作区（无 BOOTSTRAP.md）]" \
+    "--reset[重置开发配置 + 凭证 + 会话 + 工作区（需要 --dev）]" \
+    "--force[启动前终止目标端口上的现有监听器]" \
+    "--verbose[详细日志到 stdout/stderr]" \
+    "--cli-backend-logs[仅显示 CLI 后端日志]" \
+    "--claude-cli-logs[--cli-backend-logs 的已弃用别名]" \
+    "--ws-log[WebSocket 日志风格]" \
+    "--compact[--ws-log compact 的别名]" \
+    "--raw-stream[记录原始模型流事件到 jsonl]" \
+    "--raw-stream-path[原始流 jsonl 路径]" \
+    "1: :_values 'command' 'run[运行]' 'status[状态]' 'install[安装服务]' 'uninstall[卸载服务]' 'start[启动服务]' 'stop[停止]' 'restart[重启服务]' 'call[调用网关方法]' 'usage-cost[用量成本摘要]' 'health[查看健康状态]' 'stability[稳定性诊断]' 'diagnostics[导出诊断信息]' 'probe[探测网关]' 'discover[发现网关]'" \
+    "*::arg:->args"
+
+  case $state in
+    (args)
+      case $line[1] in
+        (run) _openclaw_gateway_run ;;
+        (status) _openclaw_gateway_status ;;
+        (install) _openclaw_gateway_install ;;
+        (uninstall) _openclaw_gateway_uninstall ;;
+        (start) _openclaw_gateway_start ;;
+        (stop) _openclaw_gateway_stop ;;
+        (restart) _openclaw_gateway_restart ;;
+        (call) _openclaw_gateway_call ;;
+        (usage-cost) _openclaw_gateway_usage_cost ;;
+        (health) _openclaw_gateway_health ;;
+        (stability) _openclaw_gateway_stability ;;
+        (diagnostics) _openclaw_gateway_diagnostics ;;
+        (probe) _openclaw_gateway_probe ;;
+        (discover) _openclaw_gateway_discover ;;
+      esac
+      ;;
+  esac
+}
+
+_openclaw_daemon_status() {
+  _arguments -C \
+    "--url[网关 WebSocket URL（默认配置/远程/本地）]" \
+    "--token[网关令牌（如果需要）]" \
+    "--password[网关密码（密码认证）]" \
+    "--timeout[超时毫秒数]" \
+    "--no-probe[跳过 RPC 探测]" \
+    "--require-rpc[RPC 探测失败时返回非零退出码]" \
+    "--deep[扫描系统级服务]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_daemon_install() {
+  _arguments -C \
+    "--port[网关端口]" \
+    "--runtime[守护进程运行时（node）。默认：node]" \
+    "--token[网关令牌（令牌认证）]" \
+    "--wrapper[生成服务 ProgramArguments 的可执行包装器]" \
+    "--force[如果已安装则重装/覆盖]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_daemon_uninstall() {
+  _arguments -C \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_daemon_start() {
+  _arguments -C \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_daemon_stop() {
+  _arguments -C \
+    "--json[以 JSON 格式输出]" \
+    "--disable[持久禁止 KeepAlive/RunAtLoad，使网关在下次启动前不会重新生成（仅 launchd）]"
+}
+
+_openclaw_daemon_restart() {
+  _arguments -C \
+    "--force[立即重启而不等待活跃网关工作]" \
+    "--safe[在活动工作耗尽后请求 OpenClaw 感知的重启（有限等待；可能在 gateway.reload.deferralTimeoutMs 过期后强制重启；设置 deferralTimeoutMs=0 表示无限等待）]" \
+    "--skip-deferral[绕过安全重启延迟门；需要 --safe]" \
+    "--wait[重启前的等待持续时间（ms, 10s, 5m；0 表示无限等待）。适用于非安全重启（普通重启）；与 --force 或 --safe 不兼容]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_daemon() {
+  local -a commands
+  local -a options
+  
+  _arguments -C \
+     \
+    "1: :_values 'command' 'status[状态]' 'install[安装服务]' 'uninstall[卸载服务]' 'start[启动服务]' 'stop[停止]' 'restart[重启服务]'" \
+    "*::arg:->args"
+
+  case $state in
+    (args)
+      case $line[1] in
+        (status) _openclaw_daemon_status ;;
+        (install) _openclaw_daemon_install ;;
+        (uninstall) _openclaw_daemon_uninstall ;;
+        (start) _openclaw_daemon_start ;;
+        (stop) _openclaw_daemon_stop ;;
+        (restart) _openclaw_daemon_restart ;;
+      esac
+      ;;
+  esac
+}
+
+_openclaw_logs() {
+  _arguments -C \
+    "--limit[最大返回行数]" \
+    "--max-bytes[最大读取字节数]" \
+    "--follow[跟踪日志输出]" \
+    "--interval[轮询间隔毫秒数]" \
+    "--json[发出 JSON 日志行]" \
+    "--plain[纯文本输出（无 ANSI 样式）]" \
+    "--no-color[禁用 ANSI 颜色]" \
+    "--local-time[以本地时区显示时间戳（默认）]" \
+    "--utc[以 UTC 显示时间戳]" \
+    "--url[网关 WebSocket URL（默认 gateway.remote.url）]" \
+    "--token[网关令牌（如果需要）]" \
+    "--timeout[超时毫秒数]" \
+    "--expect-final[等待最终响应（代理）]"
+}
+
+_openclaw_system_event() {
+  _arguments -C \
+    "--text[系统事件文本]" \
+    "--mode[唤醒模式（now|next-heartbeat）]" \
+    "--session-key[事件的目标会话（默认代理主会话）]" \
+    "--json[以 JSON 格式输出]" \
+    "--url[网关 WebSocket URL（默认 gateway.remote.url）]" \
+    "--token[网关令牌（如果需要）]" \
+    "--timeout[超时毫秒数]" \
+    "--expect-final[等待最终响应（代理）]"
+}
+
+_openclaw_system_heartbeat_last() {
+  _arguments -C \
+    "--json[以 JSON 格式输出]" \
+    "--url[网关 WebSocket URL（默认 gateway.remote.url）]" \
+    "--token[网关令牌（如果需要）]" \
+    "--timeout[超时毫秒数]" \
+    "--expect-final[等待最终响应（代理）]"
+}
+
+_openclaw_system_heartbeat_enable() {
+  _arguments -C \
+    "--json[以 JSON 格式输出]" \
+    "--url[网关 WebSocket URL（默认 gateway.remote.url）]" \
+    "--token[网关令牌（如果需要）]" \
+    "--timeout[超时毫秒数]" \
+    "--expect-final[等待最终响应（代理）]"
+}
+
+_openclaw_system_heartbeat_disable() {
+  _arguments -C \
+    "--json[以 JSON 格式输出]" \
+    "--url[网关 WebSocket URL（默认 gateway.remote.url）]" \
+    "--token[网关令牌（如果需要）]" \
+    "--timeout[超时毫秒数]" \
+    "--expect-final[等待最终响应（代理）]"
+}
+
+_openclaw_system_heartbeat() {
+  local -a commands
+  local -a options
+  
+  _arguments -C \
+     \
+    "1: :_values 'command' 'last[显示上次心跳事件]' 'enable[启用]' 'disable[禁用]'" \
+    "*::arg:->args"
+
+  case $state in
+    (args)
+      case $line[1] in
+        (last) _openclaw_system_heartbeat_last ;;
+        (enable) _openclaw_system_heartbeat_enable ;;
+        (disable) _openclaw_system_heartbeat_disable ;;
+      esac
+      ;;
+  esac
+}
+
+_openclaw_system_presence() {
+  _arguments -C \
+    "--json[以 JSON 格式输出]" \
+    "--url[网关 WebSocket URL（默认 gateway.remote.url）]" \
+    "--token[网关令牌（如果需要）]" \
+    "--timeout[超时毫秒数]" \
+    "--expect-final[等待最终响应（代理）]"
+}
+
+_openclaw_system() {
+  local -a commands
+  local -a options
+  
+  _arguments -C \
+     \
+    "1: :_values 'command' 'event[触发系统事件]' 'heartbeat[心跳控制]' 'presence[列出系统在线状态]'" \
+    "*::arg:->args"
+
+  case $state in
+    (args)
+      case $line[1] in
+        (event) _openclaw_system_event ;;
+        (heartbeat) _openclaw_system_heartbeat ;;
+        (presence) _openclaw_system_presence ;;
+      esac
+      ;;
+  esac
+}
+
+_openclaw_models_list() {
+  _arguments -C \
+    "--all[显示完整模型目录]" \
+    "--local[仅本地模型]" \
+    "--provider[按提供商 ID 过滤]" \
+    "--json[以 JSON 格式输出]" \
+    "--plain[纯文本行输出]"
+}
+
+_openclaw_models_status() {
+  _arguments -C \
+    "--json[以 JSON 格式输出]" \
+    "--plain[纯文本输出]" \
+    "--check[认证即将过期/已过期时返回非零退出码]" \
+    "--probe[探测已配置的提供商认证]" \
+    "--probe-provider[仅探测单个提供商]" \
+    "--probe-profile[仅探测特定认证配置档 ID]" \
+    "--probe-timeout[每次探测超时毫秒数]" \
+    "--probe-concurrency[并发探测数]" \
+    "--probe-max-tokens[探测最大令牌数（尽力而为）]" \
+    "--agent[要检查的代理 ID（覆盖 OPENCLAW_AGENT_DIR）]"
+}
+
+_openclaw_models_set() {
+  _arguments -C \
+    
+}
+
+_openclaw_models_set_image() {
+  _arguments -C \
+    
+}
+
+_openclaw_models_aliases_list() {
+  _arguments -C \
+    "--json[以 JSON 格式输出]" \
+    "--plain[纯文本输出]"
+}
+
+_openclaw_models_aliases_add() {
+  _arguments -C \
+    
+}
+
+_openclaw_models_aliases_remove() {
+  _arguments -C \
+    
+}
+
+_openclaw_models_aliases() {
+  local -a commands
+  local -a options
+  
+  _arguments -C \
+     \
+    "1: :_values 'command' 'list[列出渠道]' 'add[添加 Webhook]' 'remove[删除 Webhook]'" \
+    "*::arg:->args"
+
+  case $state in
+    (args)
+      case $line[1] in
+        (list) _openclaw_models_aliases_list ;;
+        (add) _openclaw_models_aliases_add ;;
+        (remove) _openclaw_models_aliases_remove ;;
+      esac
+      ;;
+  esac
+}
+
+_openclaw_models_fallbacks_list() {
+  _arguments -C \
+    "--json[以 JSON 格式输出]" \
+    "--plain[纯文本输出]"
+}
+
+_openclaw_models_fallbacks_add() {
+  _arguments -C \
+    
+}
+
+_openclaw_models_fallbacks_remove() {
+  _arguments -C \
+    
+}
+
+_openclaw_models_fallbacks_clear() {
+  _arguments -C \
+    
+}
+
+_openclaw_models_fallbacks() {
+  local -a commands
+  local -a options
+  
+  _arguments -C \
+     \
+    "1: :_values 'command' 'list[列出渠道]' 'add[添加 Webhook]' 'remove[删除 Webhook]' 'clear[清除所有回退模型]'" \
+    "*::arg:->args"
+
+  case $state in
+    (args)
+      case $line[1] in
+        (list) _openclaw_models_fallbacks_list ;;
+        (add) _openclaw_models_fallbacks_add ;;
+        (remove) _openclaw_models_fallbacks_remove ;;
+        (clear) _openclaw_models_fallbacks_clear ;;
+      esac
+      ;;
+  esac
+}
+
+_openclaw_models_image_fallbacks_list() {
+  _arguments -C \
+    "--json[以 JSON 格式输出]" \
+    "--plain[纯文本输出]"
+}
+
+_openclaw_models_image_fallbacks_add() {
+  _arguments -C \
+    
+}
+
+_openclaw_models_image_fallbacks_remove() {
+  _arguments -C \
+    
+}
+
+_openclaw_models_image_fallbacks_clear() {
+  _arguments -C \
+    
+}
+
+_openclaw_models_image_fallbacks() {
+  local -a commands
+  local -a options
+  
+  _arguments -C \
+     \
+    "1: :_values 'command' 'list[列出渠道]' 'add[添加 Webhook]' 'remove[删除 Webhook]' 'clear[清除所有图片回退模型]'" \
+    "*::arg:->args"
+
+  case $state in
+    (args)
+      case $line[1] in
+        (list) _openclaw_models_image_fallbacks_list ;;
+        (add) _openclaw_models_image_fallbacks_add ;;
+        (remove) _openclaw_models_image_fallbacks_remove ;;
+        (clear) _openclaw_models_image_fallbacks_clear ;;
+      esac
+      ;;
+  esac
+}
+
+_openclaw_models_scan() {
+  _arguments -C \
+    "--min-params[最小参数大小（十亿）]" \
+    "--max-age-days[跳过 N 天前的模型]" \
+    "--provider[按提供商前缀过滤]" \
+    "--max-candidates[最大回退候选数]" \
+    "--timeout[每次探测超时毫秒数]" \
+    "--concurrency[探测并发数]" \
+    "--no-probe[跳过实时探测；仅列出免费候选]" \
+    "--yes[无需提示接受默认值]" \
+    "--no-input[禁用提示（使用默认值）]" \
+    "--set-default[将 agents.defaults.model 设为第一个选择]" \
+    "--set-image[将 agents.defaults.imageModel 设为第一个图片选择]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_models_auth_list() {
+  _arguments -C \
+    "--provider[按提供商 ID 过滤]" \
+    "--agent[代理 ID（默认已配置的默认代理）]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_models_auth_add() {
+  _arguments -C \
+    
+}
+
+_openclaw_models_auth_login() {
+  _arguments -C \
+    "--provider[由插件注册的提供商 ID]" \
+    "--method[提供商认证方法 ID]" \
+    "--device-code[使用提供商设备码认证方法]" \
+    "--profile-id[单配置档登录方法的认证配置档 ID 覆盖]" \
+    "--set-default[应用提供商的默认模型推荐]" \
+    "--force[登录前删除提供商的现有配置档]"
+}
+
+_openclaw_models_auth_setup_token() {
+  _arguments -C \
+    "--provider[提供商 ID]" \
+    "--yes[跳过确认]"
+}
+
+_openclaw_models_auth_paste_token() {
+  _arguments -C \
+    "--provider[提供商 ID]" \
+    "--profile-id[认证配置档 ID（默认 <provider>:manual）]" \
+    "--expires-in[可选过期时长。存储为绝对 expiresAt。]"
+}
+
+_openclaw_models_auth_paste_api_key() {
+  _arguments -C \
+    "--provider[提供商 ID]" \
+    "--profile-id[认证配置档 ID（默认 <provider>:manual）]"
+}
+
+_openclaw_models_auth_login_github_copilot() {
+  _arguments -C \
+    "--yes[覆盖已有配置档无需提示]"
+}
+
+_openclaw_models_auth_order_get() {
+  _arguments -C \
+    "--provider[提供商 ID]" \
+    "--agent[代理 ID（默认已配置的默认代理）]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_models_auth_order_set() {
+  _arguments -C \
+    "--provider[提供商 ID]" \
+    "--agent[代理 ID（默认已配置的默认代理）]"
+}
+
+_openclaw_models_auth_order_clear() {
+  _arguments -C \
+    "--provider[提供商 ID]" \
+    "--agent[代理 ID（默认已配置的默认代理）]"
+}
+
+_openclaw_models_auth_order() {
+  local -a commands
+  local -a options
+  
+  _arguments -C \
+     \
+    "1: :_values 'command' 'get[获取 Webhook]' 'set[设置密钥]' 'clear[清除每个代理的认证顺序覆盖]'" \
+    "*::arg:->args"
+
+  case $state in
+    (args)
+      case $line[1] in
+        (get) _openclaw_models_auth_order_get ;;
+        (set) _openclaw_models_auth_order_set ;;
+        (clear) _openclaw_models_auth_order_clear ;;
+      esac
+      ;;
+  esac
+}
+
+_openclaw_models_auth() {
+  local -a commands
+  local -a options
+  
+  _arguments -C \
+    "--agent[认证命令的代理 ID]" \
+    "1: :_values 'command' 'list[列出渠道]' 'add[添加 Webhook]' 'login[登录频道]' 'setup-token[运行提供商 CLI 创建/同步令牌（需要 TTY）]' 'paste-token[将令牌粘贴到 auth-profiles.json 并更新配置]' 'paste-api-key[将 API 密钥粘贴到 auth-profiles.json 并更新配置]' 'login-github-copilot[通过 GitHub 设备流登录 GitHub Copilot（需要 TTY）]' 'order[管理每个 Agent 认证配置文件顺序覆盖]'" \
+    "*::arg:->args"
+
+  case $state in
+    (args)
+      case $line[1] in
+        (list) _openclaw_models_auth_list ;;
+        (add) _openclaw_models_auth_add ;;
+        (login) _openclaw_models_auth_login ;;
+        (setup-token) _openclaw_models_auth_setup_token ;;
+        (paste-token) _openclaw_models_auth_paste_token ;;
+        (paste-api-key) _openclaw_models_auth_paste_api_key ;;
+        (login-github-copilot) _openclaw_models_auth_login_github_copilot ;;
+        (order) _openclaw_models_auth_order ;;
+      esac
+      ;;
+  esac
+}
+
+_openclaw_models() {
+  local -a commands
+  local -a options
+  
+  _arguments -C \
+    "--status-json[输出 JSON（\`models status --json\` 的别名）]" \
+    "--status-plain[纯文本输出（\`models status --plain\` 的别名）]" \
+    "--agent[要检查的代理 ID（覆盖 OPENCLAW_AGENT_DIR）]" \
+    "1: :_values 'command' 'list[列出渠道]' 'status[状态]' 'set[设置密钥]' 'set-image[设置图片模型]' 'aliases[模型别名管理]' 'fallbacks[回退列表]' 'image-fallbacks[图片模型回退]' 'scan[扫描免费模型]' 'auth[认证配置]'" \
+    "*::arg:->args"
+
+  case $state in
+    (args)
+      case $line[1] in
+        (list) _openclaw_models_list ;;
+        (status) _openclaw_models_status ;;
+        (set) _openclaw_models_set ;;
+        (set-image) _openclaw_models_set_image ;;
+        (aliases) _openclaw_models_aliases ;;
+        (fallbacks) _openclaw_models_fallbacks ;;
+        (image-fallbacks) _openclaw_models_image_fallbacks ;;
+        (scan) _openclaw_models_scan ;;
+        (auth) _openclaw_models_auth ;;
+      esac
+      ;;
+  esac
+}
+
+_openclaw_promos_list() {
+  _arguments -C \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_promos_claim() {
+  _arguments -C \
+    "--api-key[非交互式设置的提供商 API 密钥]" \
+    "--set-default[将推广建议的模型设为默认无需询问]"
+}
+
+_openclaw_promos() {
+  local -a commands
+  local -a options
+  
+  _arguments -C \
+     \
+    "1: :_values 'command' 'list[列出渠道]' 'claim[领取优惠]'" \
+    "*::arg:->args"
+
+  case $state in
+    (args)
+      case $line[1] in
+        (list) _openclaw_promos_list ;;
+        (claim) _openclaw_promos_claim ;;
+      esac
+      ;;
+  esac
+}
+
+_openclaw_infer_list() {
+  _arguments -C \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_infer_inspect() {
+  _arguments -C \
+    "--name[能力 ID]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_infer_model_run() {
+  _arguments -C \
+    "--prompt[提示文本]" \
+    "--file[图片文件]" \
+    "--model[模型覆盖]" \
+    "--thinking[思考级别覆盖]" \
+    "--local[强制本地执行]" \
+    "--gateway[强制网关执行]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_infer_model_list() {
+  _arguments -C \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_infer_model_inspect() {
+  _arguments -C \
+    "--model[模型 ID]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_infer_model_providers() {
+  _arguments -C \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_infer_model_auth_login() {
+  _arguments -C \
+    "--provider[提供商 ID]" \
+    "--method[提供商认证方法 ID]"
+}
+
+_openclaw_infer_model_auth_logout() {
+  _arguments -C \
+    "--provider[提供商 ID]" \
+    "--agent[代理 ID（默认已配置的默认代理）]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_infer_model_auth_status() {
+  _arguments -C \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_infer_model_auth() {
+  local -a commands
+  local -a options
+  
+  _arguments -C \
+     \
+    "1: :_values 'command' 'login[登录频道]' 'logout[登出频道]' 'status[状态]'" \
+    "*::arg:->args"
+
+  case $state in
+    (args)
+      case $line[1] in
+        (login) _openclaw_infer_model_auth_login ;;
+        (logout) _openclaw_infer_model_auth_logout ;;
+        (status) _openclaw_infer_model_auth_status ;;
+      esac
+      ;;
+  esac
+}
+
+_openclaw_infer_model() {
+  local -a commands
+  local -a options
+  
+  _arguments -C \
+     \
+    "1: :_values 'command' 'run[运行]' 'list[列出渠道]' 'inspect[检查记录]' 'providers[从目录列出模型提供商]' 'auth[认证配置]'" \
+    "*::arg:->args"
+
+  case $state in
+    (args)
+      case $line[1] in
+        (run) _openclaw_infer_model_run ;;
+        (list) _openclaw_infer_model_list ;;
+        (inspect) _openclaw_infer_model_inspect ;;
+        (providers) _openclaw_infer_model_providers ;;
+        (auth) _openclaw_infer_model_auth ;;
+      esac
+      ;;
+  esac
+}
+
+_openclaw_infer_image_generate() {
+  _arguments -C \
+    "--prompt[提示文本]" \
+    "--model[模型覆盖]" \
+    "--count[图片数量]" \
+    "--size[尺寸提示（如 1024x1024）]" \
+    "--aspect-ratio[宽高比提示（如 16:9）]" \
+    "--resolution[分辨率：1K, 2K, 4K]" \
+    "--output-format[输出格式：png, jpeg, webp]" \
+    "--background[背景：transparent, opaque, auto]" \
+    "--openai-background[OpenAI 背景：transparent, opaque, auto]" \
+    "--openai-moderation[OpenAI 审核：low, auto]" \
+    "--quality[质量提示：low, medium, high, auto]" \
+    "--timeout-ms[提供商请求超时毫秒数]" \
+    "--output[输出路径]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_infer_image_edit() {
+  _arguments -C \
+    "--file[输入文件]" \
+    "--prompt[提示文本]" \
+    "--model[模型覆盖]" \
+    "--count[图片数量]" \
+    "--size[尺寸提示（如 1024x1024）]" \
+    "--aspect-ratio[宽高比提示（如 16:9）]" \
+    "--resolution[分辨率：1K, 2K, 4K]" \
+    "--output-format[输出格式：png, jpeg, webp]" \
+    "--background[背景：transparent, opaque, auto]" \
+    "--openai-background[OpenAI 背景：transparent, opaque, auto]" \
+    "--openai-moderation[OpenAI 审核：low, auto]" \
+    "--quality[质量提示：low, medium, high, auto]" \
+    "--timeout-ms[提供商请求超时毫秒数]" \
+    "--output[输出路径]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_infer_image_describe() {
+  _arguments -C \
+    "--file[图片文件]" \
+    "--prompt[提示提示]" \
+    "--model[模型覆盖]" \
+    "--timeout-ms[提供商请求超时毫秒数]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_infer_image_describe_many() {
+  _arguments -C \
+    "--file[图片文件]" \
+    "--prompt[提示提示]" \
+    "--model[模型覆盖]" \
+    "--timeout-ms[提供商请求超时毫秒数]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_infer_image_providers() {
+  _arguments -C \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_infer_image() {
+  local -a commands
+  local -a options
+  
+  _arguments -C \
+     \
+    "1: :_values 'command' 'generate[生成图片]' 'edit[编辑钩子]' 'describe[描述一个图片文件]' 'describe-many[描述多个图片文件]' 'providers[列出图片生成提供商]'" \
+    "*::arg:->args"
+
+  case $state in
+    (args)
+      case $line[1] in
+        (generate) _openclaw_infer_image_generate ;;
+        (edit) _openclaw_infer_image_edit ;;
+        (describe) _openclaw_infer_image_describe ;;
+        (describe-many) _openclaw_infer_image_describe_many ;;
+        (providers) _openclaw_infer_image_providers ;;
+      esac
+      ;;
+  esac
+}
+
+_openclaw_infer_audio_transcribe() {
+  _arguments -C \
+    "--file[音频文件]" \
+    "--language[语言提示]" \
+    "--prompt[提示提示]" \
+    "--model[模型覆盖]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_infer_audio_providers() {
+  _arguments -C \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_infer_audio() {
+  local -a commands
+  local -a options
+  
+  _arguments -C \
+     \
+    "1: :_values 'command' 'transcribe[转录一个音频文件]' 'providers[列出音频转录提供商]'" \
+    "*::arg:->args"
+
+  case $state in
+    (args)
+      case $line[1] in
+        (transcribe) _openclaw_infer_audio_transcribe ;;
+        (providers) _openclaw_infer_audio_providers ;;
+      esac
+      ;;
+  esac
+}
+
+_openclaw_infer_tts_convert() {
+  _arguments -C \
+    "--text[输入文本]" \
+    "--channel[频道提示]" \
+    "--voice[语音提示]" \
+    "--model[模型覆盖]" \
+    "--output[输出路径]" \
+    "--local[强制本地执行]" \
+    "--gateway[强制网关执行]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_infer_tts_voices() {
+  _arguments -C \
+    "--provider[语音提供商 ID]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_infer_tts_providers() {
+  _arguments -C \
+    "--local[强制本地执行]" \
+    "--gateway[强制网关执行]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_infer_tts_personas() {
+  _arguments -C \
+    "--local[强制本地执行]" \
+    "--gateway[强制网关执行]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_infer_tts_status() {
+  _arguments -C \
+    "--gateway[强制网关执行]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_infer_tts_enable() {
+  _arguments -C \
+    "--local[强制本地执行]" \
+    "--gateway[强制网关执行]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_infer_tts_disable() {
+  _arguments -C \
+    "--local[强制本地执行]" \
+    "--gateway[强制网关执行]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_infer_tts_set_provider() {
+  _arguments -C \
+    "--provider[语音提供商 ID]" \
+    "--local[强制本地执行]" \
+    "--gateway[强制网关执行]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_infer_tts_set_persona() {
+  _arguments -C \
+    "--persona[TTS 角色 ID]" \
+    "--off[禁用活跃 TTS 角色]" \
+    "--local[强制本地执行]" \
+    "--gateway[强制网关执行]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_infer_tts() {
+  local -a commands
+  local -a options
+  
+  _arguments -C \
+     \
+    "1: :_values 'command' 'convert[将文字转为语音]' 'voices[列出 TTS 提供商的语音]' 'providers[列出语音提供商]' 'personas[列出 TTS 角色]' 'status[状态]' 'enable[启用]' 'disable[禁用]' 'set-provider[设置活跃 TTS 提供商]' 'set-persona[设置活跃 TTS 角色]'" \
+    "*::arg:->args"
+
+  case $state in
+    (args)
+      case $line[1] in
+        (convert) _openclaw_infer_tts_convert ;;
+        (voices) _openclaw_infer_tts_voices ;;
+        (providers) _openclaw_infer_tts_providers ;;
+        (personas) _openclaw_infer_tts_personas ;;
+        (status) _openclaw_infer_tts_status ;;
+        (enable) _openclaw_infer_tts_enable ;;
+        (disable) _openclaw_infer_tts_disable ;;
+        (set-provider) _openclaw_infer_tts_set_provider ;;
+        (set-persona) _openclaw_infer_tts_set_persona ;;
+      esac
+      ;;
+  esac
+}
+
+_openclaw_infer_video_generate() {
+  _arguments -C \
+    "--prompt[提示文本]" \
+    "--model[模型覆盖]" \
+    "--size[尺寸提示（如 1280x720）]" \
+    "--aspect-ratio[宽高比提示（如 16:9）]" \
+    "--resolution[分辨率]" \
+    "--duration[目标时长秒数]" \
+    "--audio[支持时启用生成音频]" \
+    "--watermark[请求提供商水印（如果支持）]" \
+    "--timeout-ms[提供商请求超时毫秒数]" \
+    "--output[输出路径]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_infer_video_describe() {
+  _arguments -C \
+    "--file[视频文件]" \
+    "--model[模型覆盖]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_infer_video_providers() {
+  _arguments -C \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_infer_video() {
+  local -a commands
+  local -a options
+  
+  _arguments -C \
+     \
+    "1: :_values 'command' 'generate[生成视频]' 'describe[描述一个视频文件]' 'providers[列出视频生成和描述提供商]'" \
+    "*::arg:->args"
+
+  case $state in
+    (args)
+      case $line[1] in
+        (generate) _openclaw_infer_video_generate ;;
+        (describe) _openclaw_infer_video_describe ;;
+        (providers) _openclaw_infer_video_providers ;;
+      esac
+      ;;
+  esac
+}
+
+_openclaw_infer_web_search() {
+  _arguments -C \
+    "--query[搜索查询]" \
+    "--provider[提供商 ID]" \
+    "--limit[结果限制]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_infer_web_fetch() {
+  _arguments -C \
+    "--url[URL]" \
+    "--provider[提供商 ID]" \
+    "--format[格式提示]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_infer_web_providers() {
+  _arguments -C \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_infer_web() {
+  local -a commands
+  local -a options
+  
+  _arguments -C \
+     \
+    "1: :_values 'command' 'search[搜索记忆]' 'fetch[获取一个 URL]' 'providers[列出 Web 提供商]'" \
+    "*::arg:->args"
+
+  case $state in
+    (args)
+      case $line[1] in
+        (search) _openclaw_infer_web_search ;;
+        (fetch) _openclaw_infer_web_fetch ;;
+        (providers) _openclaw_infer_web_providers ;;
+      esac
+      ;;
+  esac
+}
+
+_openclaw_infer_embedding_create() {
+  _arguments -C \
+    "--text[输入文本]" \
+    "--provider[提供商 ID]" \
+    "--model[模型覆盖]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_infer_embedding_providers() {
+  _arguments -C \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_infer_embedding() {
+  local -a commands
+  local -a options
+  
+  _arguments -C \
+     \
+    "1: :_values 'command' 'create[创建]' 'providers[列出嵌入提供商]'" \
+    "*::arg:->args"
+
+  case $state in
+    (args)
+      case $line[1] in
+        (create) _openclaw_infer_embedding_create ;;
+        (providers) _openclaw_infer_embedding_providers ;;
+      esac
+      ;;
+  esac
+}
+
+_openclaw_infer() {
+  local -a commands
+  local -a options
+  
+  _arguments -C \
+     \
+    "1: :_values 'command' 'list[列出渠道]' 'inspect[检查记录]' 'model[文本推理和模型目录命令]' 'image[图片生成和描述]' 'audio[音频转录]' 'tts[文字转语音]' 'video[视频生成和描述]' 'web[Web 能力]' 'embedding[嵌入提供商]'" \
+    "*::arg:->args"
+
+  case $state in
+    (args)
+      case $line[1] in
+        (list) _openclaw_infer_list ;;
+        (inspect) _openclaw_infer_inspect ;;
+        (model) _openclaw_infer_model ;;
+        (image) _openclaw_infer_image ;;
+        (audio) _openclaw_infer_audio ;;
+        (tts) _openclaw_infer_tts ;;
+        (video) _openclaw_infer_video ;;
+        (web) _openclaw_infer_web ;;
+        (embedding) _openclaw_infer_embedding ;;
+      esac
+      ;;
+  esac
+}
+
+_openclaw_approvals_get() {
+  _arguments -C \
+    "--node[目标节点 ID/名称/IP]" \
+    "--gateway[强制网关审批]" \
+    "--url[网关 WebSocket URL（默认 gateway.remote.url）]" \
+    "--token[网关令牌（如果需要）]" \
+    "--timeout[超时毫秒数]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_approvals_set() {
+  _arguments -C \
+    "--node[目标节点 ID/名称/IP]" \
+    "--gateway[强制网关审批]" \
+    "--file[要上传的 JSON 文件路径]" \
+    "--stdin[从标准输入读取 JSON]" \
+    "--url[网关 WebSocket URL（默认 gateway.remote.url）]" \
+    "--token[网关令牌（如果需要）]" \
+    "--timeout[超时毫秒数]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_approvals_allowlist_add() {
+  _arguments -C \
+    "--node[目标节点 ID/名称/IP]" \
+    "--gateway[强制网关审批]" \
+    "--agent[代理 ID（默认为 "*"）]" \
+    "--url[网关 WebSocket URL（默认 gateway.remote.url）]" \
+    "--token[网关令牌（如果需要）]" \
+    "--timeout[超时毫秒数]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_approvals_allowlist_remove() {
+  _arguments -C \
+    "--node[目标节点 ID/名称/IP]" \
+    "--gateway[强制网关审批]" \
+    "--agent[代理 ID（默认为 "*"）]" \
+    "--url[网关 WebSocket URL（默认 gateway.remote.url）]" \
+    "--token[网关令牌（如果需要）]" \
+    "--timeout[超时毫秒数]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_approvals_allowlist() {
+  local -a commands
+  local -a options
+  
+  _arguments -C \
+     \
+    "1: :_values 'command' 'add[添加 Webhook]' 'remove[删除 Webhook]'" \
+    "*::arg:->args"
+
+  case $state in
+    (args)
+      case $line[1] in
+        (add) _openclaw_approvals_allowlist_add ;;
+        (remove) _openclaw_approvals_allowlist_remove ;;
+      esac
+      ;;
+  esac
+}
+
+_openclaw_approvals() {
+  local -a commands
+  local -a options
+  
+  _arguments -C \
+     \
+    "1: :_values 'command' 'get[获取 Webhook]' 'set[设置密钥]' 'allowlist[编辑每个 Agent 的允许列表]'" \
+    "*::arg:->args"
+
+  case $state in
+    (args)
+      case $line[1] in
+        (get) _openclaw_approvals_get ;;
+        (set) _openclaw_approvals_set ;;
+        (allowlist) _openclaw_approvals_allowlist ;;
+      esac
+      ;;
+  esac
+}
+
+_openclaw_exec_policy_show() {
+  _arguments -C \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_exec_policy_preset() {
+  _arguments -C \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_exec_policy_set() {
+  _arguments -C \
+    "--host[执行主机目标：auto|sandbox|gateway|node]" \
+    "--security[执行安全：deny|allowlist|full]" \
+    "--ask[执行询问模式：off|on-miss|always]" \
+    "--ask-fallback[主机审批回退：deny|allowlist|full]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_exec_policy() {
+  local -a commands
+  local -a options
+  
+  _arguments -C \
+     \
+    "1: :_values 'command' 'show[显示]' 'preset[应用同步预设：yolo, cautious, deny-all]' 'set[设置密钥]'" \
+    "*::arg:->args"
+
+  case $state in
+    (args)
+      case $line[1] in
+        (show) _openclaw_exec_policy_show ;;
+        (preset) _openclaw_exec_policy_preset ;;
+        (set) _openclaw_exec_policy_set ;;
+      esac
+      ;;
+  esac
+}
+
+_openclaw_nodes_status() {
+  _arguments -C \
+    "--connected[仅显示已连接节点]" \
+    "--last-connected[仅显示在持续时间内连接的节点（例如 24h）]" \
+    "--url[网关 WebSocket URL（默认 gateway.remote.url）]" \
+    "--token[网关令牌（如果需要）]" \
+    "--timeout[超时毫秒数]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_nodes_describe() {
+  _arguments -C \
+    "--node[节点 ID、名称或 IP]" \
+    "--url[网关 WebSocket URL（默认 gateway.remote.url）]" \
+    "--token[网关令牌（如果需要）]" \
+    "--timeout[超时毫秒数]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_nodes_list() {
+  _arguments -C \
+    "--connected[仅显示已连接节点]" \
+    "--last-connected[仅显示在持续时间内连接的节点（例如 24h）]" \
+    "--url[网关 WebSocket URL（默认 gateway.remote.url）]" \
+    "--token[网关令牌（如果需要）]" \
+    "--timeout[超时毫秒数]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_nodes_pending() {
+  _arguments -C \
+    "--url[网关 WebSocket URL（默认 gateway.remote.url）]" \
+    "--token[网关令牌（如果需要）]" \
+    "--timeout[超时毫秒数]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_nodes_approve() {
+  _arguments -C \
+    "--url[网关 WebSocket URL（默认 gateway.remote.url）]" \
+    "--token[网关令牌（如果需要）]" \
+    "--timeout[超时毫秒数]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_nodes_reject() {
+  _arguments -C \
+    "--url[网关 WebSocket URL（默认 gateway.remote.url）]" \
+    "--token[网关令牌（如果需要）]" \
+    "--timeout[超时毫秒数]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_nodes_remove() {
+  _arguments -C \
+    "--node[节点 ID、名称或 IP]" \
+    "--url[网关 WebSocket URL（默认 gateway.remote.url）]" \
+    "--token[网关令牌（如果需要）]" \
+    "--timeout[超时毫秒数]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_nodes_rename() {
+  _arguments -C \
+    "--node[节点 ID、名称或 IP]" \
+    "--name[新显示名称]" \
+    "--url[网关 WebSocket URL（默认 gateway.remote.url）]" \
+    "--token[网关令牌（如果需要）]" \
+    "--timeout[超时毫秒数]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_nodes_invoke() {
+  _arguments -C \
+    "--node[节点 ID、名称或 IP]" \
+    "--command[命令]" \
+    "--params[JSON 对象字符串参数]" \
+    "--invoke-timeout[节点调用超时毫秒数（默认 15000）]" \
+    "--idempotency-key[幂等键（可选）]" \
+    "--url[网关 WebSocket URL（默认 gateway.remote.url）]" \
+    "--token[网关令牌（如果需要）]" \
+    "--timeout[超时毫秒数]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_nodes_notify() {
+  _arguments -C \
+    "--node[节点 ID、名称或 IP]" \
+    "--title[通知标题]" \
+    "--body[通知正文]" \
+    "--sound[通知声音]" \
+    "--priority[通知优先级]" \
+    "--delivery[投递模式]" \
+    "--invoke-timeout[节点调用超时毫秒数（默认 15000）]" \
+    "--url[网关 WebSocket URL（默认 gateway.remote.url）]" \
+    "--token[网关令牌（如果需要）]" \
+    "--timeout[超时毫秒数]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_nodes_push() {
+  _arguments -C \
+    "--node[节点 ID、名称或 IP]" \
+    "--title[推送标题]" \
+    "--body[推送正文]" \
+    "--environment[覆盖 APNs 环境]" \
+    "--url[网关 WebSocket URL（默认 gateway.remote.url）]" \
+    "--token[网关令牌（如果需要）]" \
+    "--timeout[超时毫秒数]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_nodes_camera_list() {
+  _arguments -C \
+    "--node[节点 ID、名称或 IP]" \
+    "--url[网关 WebSocket URL（默认 gateway.remote.url）]" \
+    "--token[网关令牌（如果需要）]" \
+    "--timeout[超时毫秒数]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_nodes_camera_snap() {
+  _arguments -C \
+    "--node[节点 ID、名称或 IP]" \
+    "--facing[摄像头朝向]" \
+    "--device-id[摄像头设备 ID（来自节点摄像头列表）]" \
+    "--max-width[最大宽度像素（可选）]" \
+    "--quality[JPEG 质量（默认 0.9）]" \
+    "--delay-ms[捕获前延迟毫秒数（macOS 默认 2000）]" \
+    "--invoke-timeout[节点调用超时毫秒数（默认 20000）]" \
+    "--url[网关 WebSocket URL（默认 gateway.remote.url）]" \
+    "--token[网关令牌（如果需要）]" \
+    "--timeout[超时毫秒数]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_nodes_camera_clip() {
+  _arguments -C \
+    "--node[节点 ID、名称或 IP]" \
+    "--facing[摄像头朝向]" \
+    "--device-id[摄像头设备 ID（来自节点摄像头列表）]" \
+    "--duration[时长（默认 3000ms；支持 ms/s/m）]" \
+    "--no-audio[禁用音频捕获]" \
+    "--invoke-timeout[节点调用超时毫秒数（默认 90000）]" \
+    "--url[网关 WebSocket URL（默认 gateway.remote.url）]" \
+    "--token[网关令牌（如果需要）]" \
+    "--timeout[超时毫秒数]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_nodes_camera() {
+  local -a commands
+  local -a options
+  
+  _arguments -C \
+     \
+    "1: :_values 'command' 'list[列出渠道]' 'snap[从节点摄像头捕获照片（打印保存路径）]' 'clip[从节点摄像头捕获短视频片段（打印保存路径）]'" \
+    "*::arg:->args"
+
+  case $state in
+    (args)
+      case $line[1] in
+        (list) _openclaw_nodes_camera_list ;;
+        (snap) _openclaw_nodes_camera_snap ;;
+        (clip) _openclaw_nodes_camera_clip ;;
+      esac
+      ;;
+  esac
+}
+
+_openclaw_nodes_screen_record() {
+  _arguments -C \
+    "--node[节点 ID、名称或 IP]" \
+    "--screen[屏幕索引（0 = 主屏）]" \
+    "--duration[片段时长（毫秒或 10s）]" \
+    "--fps[每秒帧数]" \
+    "--no-audio[禁用麦克风音频捕获]" \
+    "--out[输出路径]" \
+    "--invoke-timeout[节点调用超时毫秒数（默认 120000）]" \
+    "--url[网关 WebSocket URL（默认 gateway.remote.url）]" \
+    "--token[网关令牌（如果需要）]" \
+    "--timeout[超时毫秒数]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_nodes_screen() {
+  local -a commands
+  local -a options
+  
+  _arguments -C \
+     \
+    "1: :_values 'command' 'record[从节点捕获短屏幕录像（打印保存路径）]'" \
+    "*::arg:->args"
+
+  case $state in
+    (args)
+      case $line[1] in
+        (record) _openclaw_nodes_screen_record ;;
+      esac
+      ;;
+  esac
+}
+
+_openclaw_nodes_location_get() {
+  _arguments -C \
+    "--node[节点 ID、名称或 IP]" \
+    "--max-age[使用此时间内的缓存位置（毫秒）]" \
+    "--accuracy[期望精度（默认取决于节点设置）]" \
+    "--location-timeout[定位超时（毫秒）]" \
+    "--invoke-timeout[节点调用超时毫秒数（默认 20000）]" \
+    "--url[网关 WebSocket URL（默认 gateway.remote.url）]" \
+    "--token[网关令牌（如果需要）]" \
+    "--timeout[超时毫秒数]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_nodes_location() {
+  local -a commands
+  local -a options
+  
+  _arguments -C \
+     \
+    "1: :_values 'command' 'get[获取 Webhook]'" \
+    "*::arg:->args"
+
+  case $state in
+    (args)
+      case $line[1] in
+        (get) _openclaw_nodes_location_get ;;
+      esac
+      ;;
+  esac
+}
+
+_openclaw_nodes_canvas_snapshot() {
+  _arguments -C \
+    "--node[节点 ID、名称或 IP]" \
+    "--format[图片格式]" \
+    "--max-width[最大宽度像素（可选）]" \
+    "--quality[JPEG 质量（可选）]" \
+    "--invoke-timeout[节点调用超时毫秒数（默认 20000）]" \
+    "--url[网关 WebSocket URL（默认 gateway.remote.url）]" \
+    "--token[网关令牌（如果需要）]" \
+    "--timeout[超时毫秒数]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_nodes_canvas_present() {
+  _arguments -C \
+    "--node[节点 ID、名称或 IP]" \
+    "--target[目标 URL/路径（可选）]" \
+    "--x[放置 X 坐标]" \
+    "--y[放置 Y 坐标]" \
+    "--width[放置宽度]" \
+    "--height[放置高度]" \
+    "--invoke-timeout[节点调用超时毫秒数]" \
+    "--url[网关 WebSocket URL（默认 gateway.remote.url）]" \
+    "--token[网关令牌（如果需要）]" \
+    "--timeout[超时毫秒数]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_nodes_canvas_hide() {
+  _arguments -C \
+    "--node[节点 ID、名称或 IP]" \
+    "--invoke-timeout[节点调用超时毫秒数]" \
+    "--url[网关 WebSocket URL（默认 gateway.remote.url）]" \
+    "--token[网关令牌（如果需要）]" \
+    "--timeout[超时毫秒数]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_nodes_canvas_navigate() {
+  _arguments -C \
+    "--node[节点 ID、名称或 IP]" \
+    "--invoke-timeout[节点调用超时毫秒数]" \
+    "--url[网关 WebSocket URL（默认 gateway.remote.url）]" \
+    "--token[网关令牌（如果需要）]" \
+    "--timeout[超时毫秒数]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_nodes_canvas_eval() {
+  _arguments -C \
+    "--js[要执行的 JavaScript]" \
+    "--node[节点 ID、名称或 IP]" \
+    "--invoke-timeout[节点调用超时毫秒数]" \
+    "--url[网关 WebSocket URL（默认 gateway.remote.url）]" \
+    "--token[网关令牌（如果需要）]" \
+    "--timeout[超时毫秒数]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_nodes_canvas_a2ui_push() {
+  _arguments -C \
+    "--jsonl[JSONL 负载路径]" \
+    "--text[渲染快速 A2UI 文本负载]" \
+    "--node[节点 ID、名称或 IP]" \
+    "--invoke-timeout[节点调用超时毫秒数]" \
+    "--url[网关 WebSocket URL（默认 gateway.remote.url）]" \
+    "--token[网关令牌（如果需要）]" \
+    "--timeout[超时毫秒数]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_nodes_canvas_a2ui_reset() {
+  _arguments -C \
+    "--node[节点 ID、名称或 IP]" \
+    "--invoke-timeout[节点调用超时毫秒数]" \
+    "--url[网关 WebSocket URL（默认 gateway.remote.url）]" \
+    "--token[网关令牌（如果需要）]" \
+    "--timeout[超时毫秒数]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_nodes_canvas_a2ui() {
+  local -a commands
+  local -a options
+  
+  _arguments -C \
+     \
+    "1: :_values 'command' 'push[推送 A2UI JSONL 到画布]' 'reset[重置本地配置/状态（保留 CLI 安装）]'" \
+    "*::arg:->args"
+
+  case $state in
+    (args)
+      case $line[1] in
+        (push) _openclaw_nodes_canvas_a2ui_push ;;
+        (reset) _openclaw_nodes_canvas_a2ui_reset ;;
+      esac
+      ;;
+  esac
+}
+
+_openclaw_nodes_canvas() {
+  local -a commands
+  local -a options
+  
+  _arguments -C \
+     \
+    "1: :_values 'command' 'snapshot[捕获画布快照（打印保存路径）]' 'present[显示画布（可选目标 URL/路径）]' 'hide[隐藏画布]' 'navigate[导航画布到 URL]' 'eval[在画布中执行 JavaScript]' 'a2ui[在画布上渲染 A2UI 内容]'" \
+    "*::arg:->args"
+
+  case $state in
+    (args)
+      case $line[1] in
+        (snapshot) _openclaw_nodes_canvas_snapshot ;;
+        (present) _openclaw_nodes_canvas_present ;;
+        (hide) _openclaw_nodes_canvas_hide ;;
+        (navigate) _openclaw_nodes_canvas_navigate ;;
+        (eval) _openclaw_nodes_canvas_eval ;;
+        (a2ui) _openclaw_nodes_canvas_a2ui ;;
+      esac
+      ;;
+  esac
+}
+
+_openclaw_nodes() {
+  local -a commands
+  local -a options
+  
+  _arguments -C \
+     \
+    "1: :_values 'command' 'status[状态]' 'describe[描述节点（能力和支持的调用命令）]' 'list[列出渠道]' 'pending[待处理]' 'approve[批准]' 'reject[拒绝配对]' 'remove[删除 Webhook]' 'rename[重命名节点]' 'invoke[调用节点命令]' 'notify[在节点上发送本地通知]' 'push[向 iOS 节点发送 APNs 测试推送]' 'camera[摄像头操作]' 'screen[屏幕录制]' 'location[从配对节点获取位置]' 'canvas[从配对节点捕获或渲染画布内容]'" \
+    "*::arg:->args"
+
+  case $state in
+    (args)
+      case $line[1] in
+        (status) _openclaw_nodes_status ;;
+        (describe) _openclaw_nodes_describe ;;
+        (list) _openclaw_nodes_list ;;
+        (pending) _openclaw_nodes_pending ;;
+        (approve) _openclaw_nodes_approve ;;
+        (reject) _openclaw_nodes_reject ;;
+        (remove) _openclaw_nodes_remove ;;
+        (rename) _openclaw_nodes_rename ;;
+        (invoke) _openclaw_nodes_invoke ;;
+        (notify) _openclaw_nodes_notify ;;
+        (push) _openclaw_nodes_push ;;
+        (camera) _openclaw_nodes_camera ;;
+        (screen) _openclaw_nodes_screen ;;
+        (location) _openclaw_nodes_location ;;
+        (canvas) _openclaw_nodes_canvas ;;
+      esac
+      ;;
+  esac
+}
+
+_openclaw_devices_list() {
+  _arguments -C \
+    "--url[网关 WebSocket URL（默认 gateway.remote.url）]" \
+    "--token[网关令牌（如果需要）]" \
+    "--password[网关密码（密码认证）]" \
+    "--timeout[超时毫秒数]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_devices_remove() {
+  _arguments -C \
+    "--url[网关 WebSocket URL（默认 gateway.remote.url）]" \
+    "--token[网关令牌（如果需要）]" \
+    "--password[网关密码（密码认证）]" \
+    "--timeout[超时毫秒数]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_devices_clear() {
+  _arguments -C \
+    "--pending[同时拒绝所有待处理的配对请求]" \
+    "--yes[确认破坏性清除]" \
+    "--url[网关 WebSocket URL（默认 gateway.remote.url）]" \
+    "--token[网关令牌（如果需要）]" \
+    "--password[网关密码（密码认证）]" \
+    "--timeout[超时毫秒数]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_devices_approve() {
+  _arguments -C \
+    "--latest[显示最近的待审批请求]" \
+    "--url[网关 WebSocket URL（默认 gateway.remote.url）]" \
+    "--token[网关令牌（如果需要）]" \
+    "--password[网关密码（密码认证）]" \
+    "--timeout[超时毫秒数]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_devices_reject() {
+  _arguments -C \
+    "--url[网关 WebSocket URL（默认 gateway.remote.url）]" \
+    "--token[网关令牌（如果需要）]" \
+    "--password[网关密码（密码认证）]" \
+    "--timeout[超时毫秒数]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_devices_rename() {
+  _arguments -C \
+    "--device[设备 ID]" \
+    "--name[操作员分配标签（最多 64 字符）]" \
+    "--url[网关 WebSocket URL（默认 gateway.remote.url）]" \
+    "--token[网关令牌（如果需要）]" \
+    "--password[网关密码（密码认证）]" \
+    "--timeout[超时毫秒数]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_devices_rotate() {
+  _arguments -C \
+    "--device[设备 ID]" \
+    "--role[角色名称]" \
+    "--scope[要附加到令牌的作用域（可重复）]" \
+    "--url[网关 WebSocket URL（默认 gateway.remote.url）]" \
+    "--token[网关令牌（如果需要）]" \
+    "--password[网关密码（密码认证）]" \
+    "--timeout[超时毫秒数]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_devices_revoke() {
+  _arguments -C \
+    "--device[设备 ID]" \
+    "--role[角色名称]" \
+    "--url[网关 WebSocket URL（默认 gateway.remote.url）]" \
+    "--token[网关令牌（如果需要）]" \
+    "--password[网关密码（密码认证）]" \
+    "--timeout[超时毫秒数]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_devices() {
+  local -a commands
+  local -a options
+  
+  _arguments -C \
+     \
+    "1: :_values 'command' 'list[列出渠道]' 'remove[删除 Webhook]' 'clear[从网关表清除已配对设备]' 'approve[批准]' 'reject[拒绝配对]' 'rename[重命名节点]' 'rotate[轮换角色的设备令牌]' 'revoke[撤销角色的设备令牌]'" \
+    "*::arg:->args"
+
+  case $state in
+    (args)
+      case $line[1] in
+        (list) _openclaw_devices_list ;;
+        (remove) _openclaw_devices_remove ;;
+        (clear) _openclaw_devices_clear ;;
+        (approve) _openclaw_devices_approve ;;
+        (reject) _openclaw_devices_reject ;;
+        (rename) _openclaw_devices_rename ;;
+        (rotate) _openclaw_devices_rotate ;;
+        (revoke) _openclaw_devices_revoke ;;
+      esac
+      ;;
+  esac
+}
+
+_openclaw_node_worker() {
+  _arguments -C \
+    
+}
+
+_openclaw_node_run() {
+  _arguments -C \
+    "--host[网关主机]" \
+    "--port[网关端口]" \
+    "--context-path[网关 WebSocket 上下文路径]" \
+    "--tls[为网关连接使用 TLS]" \
+    "--no-tls[为网关连接禁用 TLS]" \
+    "--tls-fingerprint[期望的 TLS 证书指纹（sha256）]" \
+    "--node-id[覆盖生成的节点实例 ID]" \
+    "--display-name[覆盖节点显示名称]"
+}
+
+_openclaw_node_status() {
+  _arguments -C \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_node_identity() {
+  _arguments -C \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_node_install() {
+  _arguments -C \
+    "--host[网关主机]" \
+    "--port[网关端口]" \
+    "--context-path[网关 WebSocket 上下文路径]" \
+    "--tls[为网关连接使用 TLS]" \
+    "--tls-fingerprint[期望的 TLS 证书指纹（sha256）]" \
+    "--node-id[覆盖生成的节点实例 ID]" \
+    "--display-name[覆盖节点显示名称]" \
+    "--runtime[服务运行时（node）。默认：node]" \
+    "--force[如果已安装则重装/覆盖]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_node_uninstall() {
+  _arguments -C \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_node_stop() {
+  _arguments -C \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_node_start() {
+  _arguments -C \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_node_restart() {
+  _arguments -C \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_node() {
+  local -a commands
+  local -a options
+  
+  _arguments -C \
+     \
+    "1: :_values 'command' 'worker[运行受限云工作器运行时]' 'run[运行]' 'status[状态]' 'identity[设备标识]' 'install[安装服务]' 'uninstall[卸载服务]' 'stop[停止]' 'start[启动服务]' 'restart[重启服务]'" \
+    "*::arg:->args"
+
+  case $state in
+    (args)
+      case $line[1] in
+        (worker) _openclaw_node_worker ;;
+        (run) _openclaw_node_run ;;
+        (status) _openclaw_node_status ;;
+        (identity) _openclaw_node_identity ;;
+        (install) _openclaw_node_install ;;
+        (uninstall) _openclaw_node_uninstall ;;
+        (stop) _openclaw_node_stop ;;
+        (start) _openclaw_node_start ;;
+        (restart) _openclaw_node_restart ;;
+      esac
+      ;;
+  esac
+}
+
+_openclaw_worker() {
+  _arguments -C \
+    
+}
+
+_openclaw_sandbox_list() {
+  _arguments -C \
+    "--json[以 JSON 格式输出结果]" \
+    "--browser[仅列出浏览器容器]"
+}
+
+_openclaw_sandbox_recreate() {
+  _arguments -C \
+    "--all[重建所有沙箱容器]" \
+    "--session[为特定会话重建容器]" \
+    "--agent[重建特定代理的容器]" \
+    "--browser[仅重建浏览器容器]" \
+    "--force[跳过确认提示]"
+}
+
+_openclaw_sandbox_explain() {
+  _arguments -C \
+    "--session[要检查的会话键（默认代理主会话）]" \
+    "--agent[要检查的代理 ID（默认推导的代理）]" \
+    "--json[以 JSON 格式输出结果]"
+}
+
+_openclaw_sandbox() {
+  local -a commands
+  local -a options
+  
+  _arguments -C \
+     \
+    "1: :_values 'command' 'list[列出渠道]' 'recreate[删除容器以强制使用更新配置重建]' 'explain[解释会话/Agent 的有效沙箱/工具策略]'" \
+    "*::arg:->args"
+
+  case $state in
+    (args)
+      case $line[1] in
+        (list) _openclaw_sandbox_list ;;
+        (recreate) _openclaw_sandbox_recreate ;;
+        (explain) _openclaw_sandbox_explain ;;
+      esac
+      ;;
+  esac
+}
+
+_openclaw_fleet_create() {
+  _arguments -C \
+    "--image[容器镜像]" \
+    "--runtime[容器运行时（docker 或 podman）]" \
+    "--port[主机回环端口（默认从 19100 分配）]" \
+    "--memory[容器内存限制]" \
+    "--cpus[容器 CPU 限制]" \
+    "--disk[限制容器可写层]" \
+    "--network[容器出站网络（bridge 或 internal）]" \
+    "--pids-limit[容器进程限制]" \
+    "--env[传递环境变量到单元]" \
+    "--gateway-token[使用现有的网关令牌]" \
+    "--no-start[创建容器但不启动]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_fleet_backup() {
+  _arguments -C \
+    "--out[存档输出路径或目录]" \
+    "--max-bytes[最大存档输入字节数]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_fleet_restore() {
+  _arguments -C \
+    "--from[舰队备份存档]" \
+    "--force[停止运行中的单元并替换其状态]" \
+    "--max-bytes[最大提取字节数]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_fleet_doctor() {
+  _arguments -C \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_fleet_list() {
+  _arguments -C \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_fleet_status() {
+  _arguments -C \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_fleet_logs() {
+  _arguments -C \
+    "--follow[跟踪日志输出]" \
+    "--tail[要显示的行数]" \
+    "--since[显示自某时长或时间戳以来的日志]"
+}
+
+_openclaw_fleet_start() {
+  _arguments -C \
+    
+}
+
+_openclaw_fleet_stop() {
+  _arguments -C \
+    
+}
+
+_openclaw_fleet_restart() {
+  _arguments -C \
+    
+}
+
+_openclaw_fleet_upgrade() {
+  _arguments -C \
+    "--image[替换图像（默认录制图像）]"
+}
+
+_openclaw_fleet_rm() {
+  _arguments -C \
+    "--purge-data[删除租户数据目录]" \
+    "--force[删除运行中的单元]"
+}
+
+_openclaw_fleet() {
+  local -a commands
+  local -a options
+  
+  _arguments -C \
+     \
+    "1: :_values 'command' 'create[创建]' 'backup[创建和验证备份存档及 SQLite 快照]' 'restore[恢复备份]' 'doctor[诊断]' 'list[列出渠道]' 'ls[列出租户单元]' 'status[状态]' 'logs[查看频道日志]' 'start[启动服务]' 'stop[停止]' 'restart[重启服务]' 'upgrade[用新拉取的镜像替换租户单元]' 'rm[删除钩子]'" \
+    "*::arg:->args"
+
+  case $state in
+    (args)
+      case $line[1] in
+        (create) _openclaw_fleet_create ;;
+        (backup) _openclaw_fleet_backup ;;
+        (restore) _openclaw_fleet_restore ;;
+        (doctor) _openclaw_fleet_doctor ;;
+        (list|ls) _openclaw_fleet_list ;;
+        (status) _openclaw_fleet_status ;;
+        (logs) _openclaw_fleet_logs ;;
+        (start) _openclaw_fleet_start ;;
+        (stop) _openclaw_fleet_stop ;;
+        (restart) _openclaw_fleet_restart ;;
+        (upgrade) _openclaw_fleet_upgrade ;;
+        (rm) _openclaw_fleet_rm ;;
+      esac
+      ;;
+  esac
+}
+
+_openclaw_worktrees_list() {
+  _arguments -C \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_worktrees_create() {
+  _arguments -C \
+    "--name[管理工作树名称]" \
+    "--base-ref[要分支的 Git 引用]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_worktrees_remove() {
+  _arguments -C \
+    "--force[即使快照创建失败也删除]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_worktrees_restore() {
+  _arguments -C \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_worktrees_gc() {
+  _arguments -C \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_worktrees() {
+  local -a commands
+  local -a options
+  
+  _arguments -C \
+     \
+    "1: :_values 'command' 'list[列出渠道]' 'create[创建]' 'remove[删除 Webhook]' 'restore[恢复备份]' 'gc[立即运行管理工作树清理]'" \
+    "*::arg:->args"
+
+  case $state in
+    (args)
+      case $line[1] in
+        (list) _openclaw_worktrees_list ;;
+        (create) _openclaw_worktrees_create ;;
+        (remove) _openclaw_worktrees_remove ;;
+        (restore) _openclaw_worktrees_restore ;;
+        (gc) _openclaw_worktrees_gc ;;
+      esac
+      ;;
+  esac
+}
+
+_openclaw_attach() {
+  _arguments -C \
+    "--session[网关要绑定的会话键（默认主会话）]" \
+    "--ttl[授权 TTL（正十进制毫秒，默认网关策略）]" \
+    "--bin[要生成的 Claude Code 二进制]" \
+    "--print-config[铸造授权 + 写入 .mcp.json]"
+}
+
+_openclaw_tui() {
+  _arguments -C \
+    "--local[针对本地内嵌代理运行时运行]" \
+    "--url[网关 WebSocket URL（默认 gateway.remote.url）]" \
+    "--token[网关令牌（如果需要）]" \
+    "--password[网关密码（如果需要）]" \
+    "--tls-fingerprint[期望的网关 TLS 证书指纹]" \
+    "--session[会话键（默认 "main"；全局作用域时 "global"）]" \
+    "--deliver[投递助手回复]" \
+    "--thinking[思考级别覆盖]" \
+    "--message[连接后发送初始消息]" \
+    "--timeout-ms[代理超时毫秒数]" \
+    "--history-limit[要加载的历史条目数]"
+}
+
+_openclaw_cron_status() {
+  _arguments -C \
+    "--json[以 JSON 格式输出]" \
+    "--url[网关 WebSocket URL（默认 gateway.remote.url）]" \
+    "--token[网关令牌（如果需要）]" \
+    "--timeout[超时毫秒数]" \
+    "--expect-final[等待最终响应（代理）]"
+}
+
+_openclaw_cron_list() {
+  _arguments -C \
+    "--all[包含禁用的作业]" \
+    "--agent[按代理 ID 过滤]" \
+    "--json[以 JSON 格式输出]" \
+    "--url[网关 WebSocket URL（默认 gateway.remote.url）]" \
+    "--token[网关令牌（如果需要）]" \
+    "--timeout[超时毫秒数]" \
+    "--expect-final[等待最终响应（代理）]"
+}
+
+_openclaw_cron_add() {
+  _arguments -C \
+    "--name[作业名称]" \
+    "--declaration-key[幂等声明标识键]" \
+    "--display-name[人类可读的声明式作业标签]" \
+    "--description[可选描述]" \
+    "--disabled[创建时禁用]" \
+    "--delete-after-run[成功后删除一次性作业]" \
+    "--keep-after-run[成功后保留一次性作业]" \
+    "--agent[此作业的代理 ID]" \
+    "--session[会话目标（main|isolated）]" \
+    "--session-key[作业路由的会话键]" \
+    "--wake[唤醒模式（now|next-heartbeat）]" \
+    "--at[一次性运行时间]" \
+    "--every[运行间隔时长]" \
+    "--cron[Cron 表达式（5 字段或 6 字段含秒）]" \
+    "--on-exit[监视的命令退出时触发一次（事件触发器）]" \
+    "--on-exit-cwd[--on-exit 监视命令的工作目录]" \
+    "--tz[Cron 表达式的时区（IANA，默认网关主机本地时区）]" \
+    "--stagger[Cron 错峰窗口]" \
+    "--exact[禁用 Cron 错峰]" \
+    "(--trigger-script ->)"{--trigger-script,->}"[条件脚本文件，或 - 从标准输入]" \
+    "--trigger-once[首次成功触发运行后禁用]" \
+    "--system-event[系统事件负载（主会话）]" \
+    "--message[代理消息负载]" \
+    "--command[在网关上以 sh -lc <shell> 运行的命令负载]" \
+    "--command-argv[命令负载参数为 JSON 字符串数组]" \
+    "--command-cwd[命令负载的工作目录]" \
+    "--command-env[命令负载的环境覆盖（可重复）]" \
+    "--command-input[命令负载的标准输入]" \
+    "--thinking[代理作业的思考级别]" \
+    "--model[代理作业的模型覆盖（provider/model 或别名）]" \
+    "--fallbacks[代理作业的回退模型列表]" \
+    "--timeout-seconds[代理或命令作业的超时秒数]" \
+    "--no-output-timeout-seconds[命令作业的无输出超时秒数]" \
+    "--output-max-bytes[命令作业的最大捕获 stdout/stderr 字节数]" \
+    "--light-context[对代理作业使用轻量引导上下文]" \
+    "--tools[工具白名单]" \
+    "--announce[回退投递最终文本到聊天]" \
+    "--deliver[已弃用（使用 --announce）。回退投递最终文本到聊天。]" \
+    "--no-deliver[禁用运行器回退投递]" \
+    "--webhook[将完成的有效负载 POST 到 webhook URL]" \
+    "--channel[投递频道]" \
+    "--to[投递目标]" \
+    "--thread-id[Telegram 论坛主题线程 ID]" \
+    "--account[投递的频道账号 ID（多账号设置）]" \
+    "--best-effort-deliver[投递失败时不标记作业失败]" \
+    "--json[以 JSON 格式输出]" \
+    "--url[网关 WebSocket URL（默认 gateway.remote.url）]" \
+    "--token[网关令牌（如果需要）]" \
+    "--timeout[超时毫秒数]" \
+    "--expect-final[等待最终响应（代理）]"
+}
+
+_openclaw_cron_rm() {
+  _arguments -C \
+    "--json[以 JSON 格式输出]" \
+    "--url[网关 WebSocket URL（默认 gateway.remote.url）]" \
+    "--token[网关令牌（如果需要）]" \
+    "--timeout[超时毫秒数]" \
+    "--expect-final[等待最终响应（代理）]"
+}
+
+_openclaw_cron_enable() {
+  _arguments -C \
+    "--url[网关 WebSocket URL（默认 gateway.remote.url）]" \
+    "--token[网关令牌（如果需要）]" \
+    "--timeout[超时毫秒数]" \
+    "--expect-final[等待最终响应（代理）]"
+}
+
+_openclaw_cron_disable() {
+  _arguments -C \
+    "--url[网关 WebSocket URL（默认 gateway.remote.url）]" \
+    "--token[网关令牌（如果需要）]" \
+    "--timeout[超时毫秒数]" \
+    "--expect-final[等待最终响应（代理）]"
+}
+
+_openclaw_cron_get() {
+  _arguments -C \
+    "--url[网关 WebSocket URL（默认 gateway.remote.url）]" \
+    "--token[网关令牌（如果需要）]" \
+    "--timeout[超时毫秒数]" \
+    "--expect-final[等待最终响应（代理）]"
+}
+
+_openclaw_cron_show() {
+  _arguments -C \
+    "--json[以 JSON 格式输出]" \
+    "--url[网关 WebSocket URL（默认 gateway.remote.url）]" \
+    "--token[网关令牌（如果需要）]" \
+    "--timeout[超时毫秒数]" \
+    "--expect-final[等待最终响应（代理）]"
+}
+
+_openclaw_cron_runs() {
+  _arguments -C \
+    "--id[作业 ID]" \
+    "--run-id[按定时任务运行 ID 过滤]" \
+    "--limit[最大条目数（默认 50）]" \
+    "--url[网关 WebSocket URL（默认 gateway.remote.url）]" \
+    "--token[网关令牌（如果需要）]" \
+    "--timeout[超时毫秒数]" \
+    "--expect-final[等待最终响应（代理）]"
+}
+
+_openclaw_cron_run() {
+  _arguments -C \
+    "--due[仅在到期时运行（旧版本默认行为）]" \
+    "--wait[等待排队运行完成]" \
+    "--wait-timeout[--wait 的最大等待时间]" \
+    "--poll-interval[--wait 的轮询间隔]" \
+    "--url[网关 WebSocket URL（默认 gateway.remote.url）]" \
+    "--token[网关令牌（如果需要）]" \
+    "--timeout[超时毫秒数]" \
+    "--expect-final[等待最终响应（代理）]"
+}
+
+_openclaw_cron_edit() {
+  _arguments -C \
+    "--name[设置名称]" \
+    "--description[设置描述]" \
+    "--enable[启用作业]" \
+    "--disable[禁用作业]" \
+    "--delete-after-run[成功后删除一次性作业]" \
+    "--keep-after-run[成功后保留一次性作业]" \
+    "--session[会话目标（main|isolated）]" \
+    "--agent[设置代理 ID]" \
+    "--clear-agent[取消设置代理并使用默认]" \
+    "--session-key[设置作业路由的会话键]" \
+    "--clear-session-key[取消设置会话键]" \
+    "--wake[唤醒模式（now|next-heartbeat）]" \
+    "--at[设置一次性时间（ISO 或时长如 20m）]" \
+    "--every[设置间隔时长（如 10m）]" \
+    "--cron[设置 Cron 表达式]" \
+    "--tz[Cron 表达式的时区（IANA，默认网关主机本地时区）]" \
+    "--stagger[Cron 错峰窗口]" \
+    "--exact[禁用 Cron 错峰]" \
+    "(--trigger-script ->)"{--trigger-script,->}"[从文件设置条件脚本，或 - 从标准输入]" \
+    "--trigger-once[首次成功触发运行后禁用]" \
+    "--clear-trigger[删除条件触发器]" \
+    "--system-event[设置 systemEvent 负载]" \
+    "--message[设置 agentTurn 负载消息]" \
+    "--command[设置命令负载在网关上以 sh -lc <shell> 运行]" \
+    "--command-argv[设置命令负载参数为 JSON 字符串数组]" \
+    "--command-cwd[设置命令负载工作目录]" \
+    "--command-env[设置命令负载环境覆盖（可重复）]" \
+    "--command-input[设置命令负载标准输入]" \
+    "--thinking[代理作业的思考级别]" \
+    "--clear-thinking[删除按作业思考级别覆盖（恢复普通 cron 思考级别优先级）]" \
+    "--model[代理作业的模型覆盖]" \
+    "--fallbacks[代理作业的回退模型列表]" \
+    "--clear-fallbacks[删除按作业回退覆盖]" \
+    "--clear-model[删除按作业模型覆盖（恢复普通 cron 模型优先级）]" \
+    "--timeout-seconds[代理或命令作业的超时秒数]" \
+    "--no-output-timeout-seconds[命令作业的无输出超时秒数]" \
+    "--output-max-bytes[命令作业的最大捕获 stdout/stderr 字节数]" \
+    "--light-context[启用轻量引导上下文]" \
+    "--no-light-context[禁用轻量引导上下文]" \
+    "--tools[工具白名单]" \
+    "--clear-tools[移除工具白名单（使用所有工具）]" \
+    "--announce[回退投递最终文本到聊天]" \
+    "--deliver[已弃用（使用 --announce）。回退投递最终文本到聊天。]" \
+    "--no-deliver[禁用运行器回退投递]" \
+    "--webhook[将完成的有效负载 POST 到 webhook URL]" \
+    "--channel[投递频道]" \
+    "--to[投递目标]" \
+    "--thread-id[Telegram 论坛主题线程 ID]" \
+    "--account[投递的频道账号 ID（多账号设置）]" \
+    "--clear-channel[取消设置投递频道]" \
+    "--clear-to[取消设置投递目标]" \
+    "--clear-thread-id[取消设置 Telegram 论坛主题线程 ID]" \
+    "--clear-account[取消设置按作业投递账号覆盖]" \
+    "--best-effort-deliver[投递失败时不标记作业失败]" \
+    "--no-best-effort-deliver[投递失败时标记作业失败]" \
+    "--failure-alert[启用此作业的故障告警]" \
+    "--no-failure-alert[禁用此作业的故障告警]" \
+    "--failure-alert-after[连续 N 个作业错误后告警]" \
+    "--failure-alert-channel[故障告警频道]" \
+    "--failure-alert-to[故障告警目标]" \
+    "--failure-alert-cooldown[告警最短间隔]" \
+    "--failure-alert-include-skipped[将连续跳过的运行计入告警计数]" \
+    "--failure-alert-exclude-skipped[仅执行错误时告警]" \
+    "--failure-alert-mode[故障告警投递模式]" \
+    "--failure-alert-account-id[故障告警频道的账号 ID（多账号设置）]" \
+    "--url[网关 WebSocket URL（默认 gateway.remote.url）]" \
+    "--token[网关令牌（如果需要）]" \
+    "--timeout[超时毫秒数]" \
+    "--expect-final[等待最终响应（代理）]"
+}
+
+_openclaw_cron() {
+  local -a commands
+  local -a options
+  
+  _arguments -C \
+     \
+    "1: :_values 'command' 'status[状态]' 'list[列出渠道]' 'add[添加 Webhook]' 'create[创建]' 'rm[删除钩子]' 'remove[删除 Webhook]' 'delete[删除消息]' 'enable[启用]' 'disable[禁用]' 'get[获取 Webhook]' 'show[显示]' 'runs[查看运行历史]' 'run[运行]' 'edit[编辑钩子]'" \
+    "*::arg:->args"
+
+  case $state in
+    (args)
+      case $line[1] in
+        (status) _openclaw_cron_status ;;
+        (list) _openclaw_cron_list ;;
+        (add|create) _openclaw_cron_add ;;
+        (rm|remove|delete) _openclaw_cron_rm ;;
+        (enable) _openclaw_cron_enable ;;
+        (disable) _openclaw_cron_disable ;;
+        (get) _openclaw_cron_get ;;
+        (show) _openclaw_cron_show ;;
+        (runs) _openclaw_cron_runs ;;
+        (run) _openclaw_cron_run ;;
+        (edit) _openclaw_cron_edit ;;
+      esac
+      ;;
+  esac
+}
+
+_openclaw_dns_setup() {
+  _arguments -C \
+    "--domain[广域发现域名]" \
+    "--apply[安装/更新 CoreDNS 配置并（重新）启动服务（需要 sudo）]"
+}
+
+_openclaw_dns() {
+  local -a commands
+  local -a options
+  
+  _arguments -C \
+     \
+    "1: :_values 'command' 'setup[与 OpenClaw 对话；设置未完成时进入引导]'" \
+    "*::arg:->args"
+
+  case $state in
+    (args)
+      case $line[1] in
+        (setup) _openclaw_dns_setup ;;
+      esac
+      ;;
+  esac
+}
+
+_openclaw_docs() {
+  _arguments -C \
+    
+}
+
+_openclaw_proxy_start() {
+  _arguments -C \
+    "--host[绑定主机]" \
+    "--port[绑定端口]"
+}
+
+_openclaw_proxy_run() {
+  _arguments -C \
+    "--host[绑定主机]" \
+    "--port[绑定端口]"
+}
+
+_openclaw_proxy_validate() {
+  _arguments -C \
+    "--json[打印机器可读 JSON]" \
+    "--proxy-url[要验证的代理 URL（代替配置/环境变量）]" \
+    "--proxy-ca-file[验证 HTTPS 代理端点的 CA 包文件]" \
+    "--allowed-url[预期目标通过代理成功]" \
+    "--denied-url[预期目标被代理阻止]" \
+    "--apns-reachable[同时验证沙箱 APNs HTTP/2 可通过代理访问]" \
+    "--apns-authority[使用 --apns-reachable 探测的 APNs 机构]" \
+    "--timeout-ms[每次请求超时毫秒数]"
+}
+
+_openclaw_proxy_coverage() {
+  _arguments -C \
+    
+}
+
+_openclaw_proxy_sessions() {
+  _arguments -C \
+    "--limit[最大显示会话数]"
+}
+
+_openclaw_proxy_query() {
+  _arguments -C \
+    "--preset[查询预设]" \
+    "--session[限制到捕获会话 ID]"
+}
+
+_openclaw_proxy_blob() {
+  _arguments -C \
+    "--id[Blob ID]"
+}
+
+_openclaw_proxy_purge() {
+  _arguments -C \
+    
+}
+
+_openclaw_proxy() {
+  local -a commands
+  local -a options
+  
+  _arguments -C \
+     \
+    "1: :_values 'command' 'start[启动服务]' 'run[运行]' 'validate[验证]' 'coverage[报告当前调试代理传输覆盖范围和剩余差距]' 'sessions[列出存储的对话会话]' 'query[针对捕获的流量运行内置查询预设]' 'blob[按 ID 读取捕获的负载 blob]' 'purge[删除所有捕获的流量元数据和 blob]'" \
+    "*::arg:->args"
+
+  case $state in
+    (args)
+      case $line[1] in
+        (start) _openclaw_proxy_start ;;
+        (run) _openclaw_proxy_run ;;
+        (validate) _openclaw_proxy_validate ;;
+        (coverage) _openclaw_proxy_coverage ;;
+        (sessions) _openclaw_proxy_sessions ;;
+        (query) _openclaw_proxy_query ;;
+        (blob) _openclaw_proxy_blob ;;
+        (purge) _openclaw_proxy_purge ;;
+      esac
+      ;;
+  esac
+}
+
+_openclaw_hooks_list() {
+  _arguments -C \
+    "--eligible[仅显示符合条件的钩子]" \
+    "--json[以 JSON 格式输出]" \
+    "(--verbose -v)"{--verbose,-v}"[显示更多详细信息（包括缺少的依赖）]"
+}
+
+_openclaw_hooks_info() {
+  _arguments -C \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_hooks_check() {
+  _arguments -C \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_hooks_enable() {
+  _arguments -C \
+    
+}
+
+_openclaw_hooks_disable() {
+  _arguments -C \
+    
+}
+
+_openclaw_hooks_relay() {
+  _arguments -C \
+    "--provider[原生 harness 提供商]" \
+    "--relay-id[原生钩子中继 ID]" \
+    "--generation[原生钩子中继注册生成]" \
+    "--event[原生钩子事件]" \
+    "--pre-tool-use-unavailable[源中继不可用时 PreToolUse 回退模式]" \
+    "--timeout[网关超时毫秒数]"
+}
+
+_openclaw_hooks_install() {
+  _arguments -C \
+    "(--link -l)"{--link,-l}"[链接本地路径而非复制]" \
+    "--pin[将 npm 安装记录为精确解析的 <name>@<version>]" \
+    "--force[确认非 ClawHub 源并覆盖现有钩子包]"
+}
+
+_openclaw_hooks_update() {
+  _arguments -C \
+    "--all[更新所有跟踪的钩子]" \
+    "--dry-run[显示将要更改的内容但不实际写入]"
+}
+
+_openclaw_hooks() {
+  local -a commands
+  local -a options
+  
+  _arguments -C \
+     \
+    "1: :_values 'command' 'list[列出渠道]' 'info[信息]' 'check[检查更新]' 'enable[启用]' 'disable[禁用]' 'relay[内部原生 harness 钩子中继]' 'install[安装服务]' 'update[更新插件]'" \
+    "*::arg:->args"
+
+  case $state in
+    (args)
+      case $line[1] in
+        (list) _openclaw_hooks_list ;;
+        (info) _openclaw_hooks_info ;;
+        (check) _openclaw_hooks_check ;;
+        (enable) _openclaw_hooks_enable ;;
+        (disable) _openclaw_hooks_disable ;;
+        (relay) _openclaw_hooks_relay ;;
+        (install) _openclaw_hooks_install ;;
+        (update) _openclaw_hooks_update ;;
+      esac
+      ;;
+  esac
+}
+
+_openclaw_webhooks_gmail_setup() {
+  _arguments -C \
+    "--account[要监视的 Gmail 账号]" \
+    "--project[GCP 项目 ID（OAuth 客户端所有者）]" \
+    "--topic[Pub/Sub 主题名称]" \
+    "--subscription[Pub/Sub 订阅名称]" \
+    "--label[要监视的 Gmail 标签]" \
+    "--hook-url[OpenClaw 钩子 URL]" \
+    "--hook-token[OpenClaw 钩子令牌]" \
+    "--push-token[gog watch serve 的推送令牌]" \
+    "--bind[gog watch serve 绑定主机]" \
+    "--port[gog watch serve 端口]" \
+    "--path[gog watch serve 路径]" \
+    "--include-body[包含邮件正文片段]" \
+    "--max-bytes[正文片段的最大字节数]" \
+    "--renew-minutes[每 N 分钟续订监视]" \
+    "--tailscale[通过 Tailscale 暴露推送端点]" \
+    "--tailscale-path[Tailscale serve/funnel 路径]" \
+    "--tailscale-target[Tailscale 目标（端口、host:port 或 URL）]" \
+    "--push-endpoint[显式 Pub/Sub 推送端点]" \
+    "--json[以 JSON 格式输出摘要]"
+}
+
+_openclaw_webhooks_gmail_run() {
+  _arguments -C \
+    "--account[要监视的 Gmail 账号]" \
+    "--topic[Pub/Sub 主题路径]" \
+    "--subscription[Pub/Sub 订阅名称]" \
+    "--label[要监视的 Gmail 标签]" \
+    "--hook-url[OpenClaw 钩子 URL]" \
+    "--hook-token[OpenClaw 钩子令牌]" \
+    "--push-token[gog watch serve 的推送令牌]" \
+    "--bind[gog watch serve 绑定主机]" \
+    "--port[gog watch serve 端口]" \
+    "--path[gog watch serve 路径]" \
+    "--include-body[包含邮件正文片段]" \
+    "--max-bytes[正文片段的最大字节数]" \
+    "--renew-minutes[每 N 分钟续订监视]" \
+    "--tailscale[通过 Tailscale 暴露推送端点]" \
+    "--tailscale-path[Tailscale serve/funnel 路径]" \
+    "--tailscale-target[Tailscale 目标（端口、host:port 或 URL）]"
+}
+
+_openclaw_webhooks_gmail() {
+  local -a commands
+  local -a options
+  
+  _arguments -C \
+     \
+    "1: :_values 'command' 'setup[与 OpenClaw 对话；设置未完成时进入引导]' 'run[运行]'" \
+    "*::arg:->args"
+
+  case $state in
+    (args)
+      case $line[1] in
+        (setup) _openclaw_webhooks_gmail_setup ;;
+        (run) _openclaw_webhooks_gmail_run ;;
+      esac
+      ;;
+  esac
+}
+
+_openclaw_webhooks() {
+  local -a commands
+  local -a options
+  
+  _arguments -C \
+     \
+    "1: :_values 'command' 'gmail[Gmail Pub/Sub 钩子（通过 gogcli）]'" \
+    "*::arg:->args"
+
+  case $state in
+    (args)
+      case $line[1] in
+        (gmail) _openclaw_webhooks_gmail ;;
+      esac
+      ;;
+  esac
+}
+
+_openclaw_qr() {
+  _arguments -C \
+    "--remote[使用 gateway.remote.url 和远程令牌/密码]" \
+    "--url[覆盖设置负载中使用的网关 URL]" \
+    "--public-url[覆盖设置负载中使用的网关公共 URL]" \
+    "--token[覆盖设置负载中的网关令牌]" \
+    "--password[覆盖设置负载中的网关密码]" \
+    "--limited[以受限操作员访问权限配对（省略 operator.admin）]" \
+    "--setup-code-only[仅打印设置码]" \
+    "--no-ascii[跳过 ASCII 二维码渲染]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_clawbot_qr() {
+  _arguments -C \
+    "--remote[使用 gateway.remote.url 和远程令牌/密码]" \
+    "--url[覆盖设置负载中使用的网关 URL]" \
+    "--public-url[覆盖设置负载中使用的网关公共 URL]" \
+    "--token[覆盖设置负载中的网关令牌]" \
+    "--password[覆盖设置负载中的网关密码]" \
+    "--limited[以受限操作员访问权限配对（省略 operator.admin）]" \
+    "--setup-code-only[仅打印设置码]" \
+    "--no-ascii[跳过 ASCII 二维码渲染]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_clawbot() {
+  local -a commands
+  local -a options
+  
+  _arguments -C \
+     \
+    "1: :_values 'command' 'qr[生成移动端配对二维码和设置码]'" \
+    "*::arg:->args"
+
+  case $state in
+    (args)
+      case $line[1] in
+        (qr) _openclaw_clawbot_qr ;;
+      esac
+      ;;
+  esac
+}
+
+_openclaw_pairing_list() {
+  _arguments -C \
+    "--channel[频道（未配置）]" \
+    "--account[账号 ID（多账号频道）]" \
+    "--json[打印 JSON]"
+}
+
+_openclaw_pairing_approve() {
+  _arguments -C \
+    "--channel[频道（未配置）]" \
+    "--account[账号 ID（多账号频道）]" \
+    "--notify[在同频道通知请求者]"
+}
+
+_openclaw_pairing() {
+  local -a commands
+  local -a options
+  
+  _arguments -C \
+     \
+    "1: :_values 'command' 'list[列出渠道]' 'approve[批准]'" \
+    "*::arg:->args"
+
+  case $state in
+    (args)
+      case $line[1] in
+        (list) _openclaw_pairing_list ;;
+        (approve) _openclaw_pairing_approve ;;
+      esac
+      ;;
+  esac
+}
+
+_openclaw_plugins_list() {
+  _arguments -C \
+    "--json[打印 JSON]" \
+    "--enabled[仅显示启用的插件]" \
+    "--verbose[显示详细条目]"
+}
+
+_openclaw_plugins_search() {
+  _arguments -C \
+    "--limit[最大结果数]" \
+    "--json[打印 JSON]"
+}
+
+_openclaw_plugins_inspect() {
+  _arguments -C \
+    "--all[检查所有插件]" \
+    "--runtime[加载插件运行时（钩子/工具/诊断）]" \
+    "--json[打印 JSON]"
+}
+
+_openclaw_plugins_enable() {
+  _arguments -C \
+    
+}
+
+_openclaw_plugins_disable() {
+  _arguments -C \
+    
+}
+
+_openclaw_plugins_uninstall() {
+  _arguments -C \
+    "--keep-files[在磁盘上保留已安装的文件]" \
+    "--keep-config[--keep-files 的已弃用别名]" \
+    "--force[跳过确认提示]" \
+    "--dry-run[显示将要删除的内容但不实际更改]"
+}
+
+_openclaw_plugins_install() {
+  _arguments -C \
+    "(--link -l)"{--link,-l}"[链接本地路径而非复制]" \
+    "--force[确认非 ClawHub 源并覆盖现有插件或钩子包]" \
+    "--pin[将 npm 安装记录为精确解析的 <name>@<version>]" \
+    "--dangerously-force-unsafe-install[已弃用无操作；security.installPolicy 可能仍会阻止]" \
+    "--acknowledge-clawhub-risk[无需提示即可确认 ClawHub 发布信任警告]" \
+    "--marketplace[从本地仓库/路径或 Git/GitHub 源安装 Claude 市场插件]"
+}
+
+_openclaw_plugins_update() {
+  _arguments -C \
+    "--all[更新所有跟踪的插件和钩子包]" \
+    "--dry-run[显示将要更改的内容但不实际写入]" \
+    "--dangerously-force-unsafe-install[已弃用无操作；security.installPolicy 可能仍会阻止]" \
+    "--acknowledge-clawhub-risk[无需提示即可确认 ClawHub 发布信任警告]"
+}
+
+_openclaw_plugins_registry() {
+  _arguments -C \
+    "--json[打印 JSON]" \
+    "--refresh[从当前插件清单重建持久注册表]"
+}
+
+_openclaw_plugins_doctor() {
+  _arguments -C \
+    
+}
+
+_openclaw_plugins_build() {
+  _arguments -C \
+    "--root[插件包根目录]" \
+    "--entry[插件入口模块（相对于 --root）]" \
+    "--check[如果生成的元数据已过时则失败]"
+}
+
+_openclaw_plugins_validate() {
+  _arguments -C \
+    "--root[插件包根目录]" \
+    "--entry[插件入口模块（相对于 --root）]"
+}
+
+_openclaw_plugins_init() {
+  _arguments -C \
+    "--directory[输出目录]" \
+    "--name[显示名称]" \
+    "--type[脚手架类型（tool 或 provider）]" \
+    "--force[覆盖已有输出目录]"
+}
+
+_openclaw_plugins_marketplace_entries() {
+  _arguments -C \
+    "--feed-profile[要列出的已配置市场源配置档]" \
+    "--feed-url[显式托管市场源 URL]" \
+    "--offline[读取最新接受的快照而不获取源]" \
+    "--json[打印 JSON]"
+}
+
+_openclaw_plugins_marketplace_refresh() {
+  _arguments -C \
+    "--feed-profile[要刷新的已配置市场源配置档]" \
+    "--feed-url[显式托管市场源 URL]" \
+    "--expected-sha256[预期托管源的 SHA-256 负载校验和]" \
+    "--json[打印 JSON]"
+}
+
+_openclaw_plugins_marketplace_list() {
+  _arguments -C \
+    "--json[打印 JSON]"
+}
+
+_openclaw_plugins_marketplace() {
+  local -a commands
+  local -a options
+  
+  _arguments -C \
+     \
+    "1: :_values 'command' 'entries[列出已配置的 OpenClaw 市场源条目]' 'refresh[刷新已配置的 OpenClaw 市场源快照]' 'list[列出渠道]'" \
+    "*::arg:->args"
+
+  case $state in
+    (args)
+      case $line[1] in
+        (entries) _openclaw_plugins_marketplace_entries ;;
+        (refresh) _openclaw_plugins_marketplace_refresh ;;
+        (list) _openclaw_plugins_marketplace_list ;;
+      esac
+      ;;
+  esac
+}
+
+_openclaw_plugins() {
+  local -a commands
+  local -a options
+  
+  _arguments -C \
+     \
+    "1: :_values 'command' 'list[列出渠道]' 'search[搜索记忆]' 'inspect[检查记录]' 'info[信息]' 'enable[启用]' 'disable[禁用]' 'uninstall[卸载服务]' 'install[安装服务]' 'update[更新插件]' 'registry[检查或重建持久插件注册表]' 'doctor[诊断]' 'build[生成简单工具插件元数据]' 'validate[验证]' 'init[创建插件项目]' 'marketplace[检查 Claude 兼容的插件市场]'" \
+    "*::arg:->args"
+
+  case $state in
+    (args)
+      case $line[1] in
+        (list) _openclaw_plugins_list ;;
+        (search) _openclaw_plugins_search ;;
+        (inspect|info) _openclaw_plugins_inspect ;;
+        (enable) _openclaw_plugins_enable ;;
+        (disable) _openclaw_plugins_disable ;;
+        (uninstall) _openclaw_plugins_uninstall ;;
+        (install) _openclaw_plugins_install ;;
+        (update) _openclaw_plugins_update ;;
+        (registry) _openclaw_plugins_registry ;;
+        (doctor) _openclaw_plugins_doctor ;;
+        (build) _openclaw_plugins_build ;;
+        (validate) _openclaw_plugins_validate ;;
+        (init) _openclaw_plugins_init ;;
+        (marketplace) _openclaw_plugins_marketplace ;;
+      esac
+      ;;
+  esac
+}
+
+_openclaw_channels_list() {
+  _arguments -C \
+    "--all[包含捆绑和可安装的目录频道]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_channels_status() {
+  _arguments -C \
+    "--channel[仅显示一个频道]" \
+    "--probe[探测频道凭证]" \
+    "--timeout[超时毫秒数]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_channels_capabilities() {
+  _arguments -C \
+    "--channel[频道]" \
+    "--account[账号 ID（仅与 --channel 一起使用）]" \
+    "--target[权限审计的频道目标（Discord channel:<id>）]" \
+    "--timeout[超时毫秒数]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_channels_resolve() {
+  _arguments -C \
+    "--channel[频道（telegram|whatsapp|discord|irc|googlechat|slack|signal|imessage|feishu|nostr|msteams|mattermost|nextcloud-talk|matrix|raft|line|zalo|clickclack|zalouser|sms|synology-chat|tlon|qa-channel|qqbot|reef|twitch）]" \
+    "--account[账号 ID]" \
+    "--kind[目标类型（auto|user|group）]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_channels_logs() {
+  _arguments -C \
+    "--channel[频道]" \
+    "--lines[行数（默认 200）]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_channels_add() {
+  _arguments -C \
+    "--channel[频道（telegram|whatsapp|discord|irc|googlechat|slack|signal|imessage|feishu|nostr|msteams|mattermost|nextcloud-talk|matrix|raft|line|zalo|clickclack|zalouser|sms|synology-chat|tlon|qa-channel|qqbot|reef|twitch）]" \
+    "--account[账号 ID（省略时默认）]" \
+    "--name[此账号的显示名称]" \
+    "--token[频道令牌或凭证负载]" \
+    "--token-file[从文件读取频道令牌或凭证负载]" \
+    "--secret[频道共享密钥]" \
+    "--secret-file[从文件读取频道共享密钥]" \
+    "--bot-token[机器人令牌]" \
+    "--app-token[应用令牌]" \
+    "--password[频道密码或登录密钥]" \
+    "--cli-path[频道 CLI 路径]" \
+    "--url[频道设置 URL]" \
+    "--base-url[频道基础 URL]" \
+    "--http-url[频道 HTTP 服务 URL]" \
+    "--auth-dir[频道认证目录覆盖]" \
+    "--use-env[支持时使用环境变量凭证]" \
+    "--db-path[iMessage 数据库路径]" \
+    "--service[iMessage 服务]" \
+    "--region[iMessage 区域（用于 SMS）]"
+}
+
+_openclaw_channels_remove() {
+  _arguments -C \
+    "--channel[频道（telegram|whatsapp|discord|irc|googlechat|slack|signal|imessage|feishu|nostr|msteams|mattermost|nextcloud-talk|matrix|raft|line|zalo|clickclack|zalouser|sms|synology-chat|tlon|qa-channel|qqbot|reef|twitch）]" \
+    "--account[账号 ID（省略时默认）]" \
+    "--delete[删除配置条目（无提示）]"
+}
+
+_openclaw_channels_login() {
+  _arguments -C \
+    "--channel[频道别名（仅配置一个时自动）]" \
+    "--account[账号 ID]" \
+    "--verbose[详细连接日志]"
+}
+
+_openclaw_channels_logout() {
+  _arguments -C \
+    "--channel[频道别名（仅配置一个时自动）]" \
+    "--account[账号 ID]"
+}
+
+_openclaw_channels() {
+  local -a commands
+  local -a options
+  
+  _arguments -C \
+     \
+    "1: :_values 'command' 'list[列出渠道]' 'status[状态]' 'capabilities[查看能力]' 'resolve[解决承诺]' 'logs[查看频道日志]' 'add[添加 Webhook]' 'remove[删除 Webhook]' 'login[登录频道]' 'logout[登出频道]'" \
+    "*::arg:->args"
+
+  case $state in
+    (args)
+      case $line[1] in
+        (list) _openclaw_channels_list ;;
+        (status) _openclaw_channels_status ;;
+        (capabilities) _openclaw_channels_capabilities ;;
+        (resolve) _openclaw_channels_resolve ;;
+        (logs) _openclaw_channels_logs ;;
+        (add) _openclaw_channels_add ;;
+        (remove) _openclaw_channels_remove ;;
+        (login) _openclaw_channels_login ;;
+        (logout) _openclaw_channels_logout ;;
+      esac
+      ;;
+  esac
+}
+
+_openclaw_directory_self() {
+  _arguments -C \
+    "--channel[频道（仅配置一个时自动）]" \
+    "--account[账号 ID]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_directory_peers_list() {
+  _arguments -C \
+    "--channel[频道（仅配置一个时自动）]" \
+    "--account[账号 ID]" \
+    "--json[以 JSON 格式输出]" \
+    "--query[可选搜索查询]" \
+    "--limit[限制结果]"
+}
+
+_openclaw_directory_peers() {
+  local -a commands
+  local -a options
+  
+  _arguments -C \
+     \
+    "1: :_values 'command' 'list[列出渠道]'" \
+    "*::arg:->args"
+
+  case $state in
+    (args)
+      case $line[1] in
+        (list) _openclaw_directory_peers_list ;;
+      esac
+      ;;
+  esac
+}
+
+_openclaw_directory_groups_list() {
+  _arguments -C \
+    "--channel[频道（仅配置一个时自动）]" \
+    "--account[账号 ID]" \
+    "--json[以 JSON 格式输出]" \
+    "--query[可选搜索查询]" \
+    "--limit[限制结果]"
+}
+
+_openclaw_directory_groups_members() {
+  _arguments -C \
+    "--group-id[群组 ID]" \
+    "--channel[频道（仅配置一个时自动）]" \
+    "--account[账号 ID]" \
+    "--json[以 JSON 格式输出]" \
+    "--limit[限制结果]"
+}
+
+_openclaw_directory_groups() {
+  local -a commands
+  local -a options
+  
+  _arguments -C \
+     \
+    "1: :_values 'command' 'list[列出渠道]' 'members[列出群组成员]'" \
+    "*::arg:->args"
+
+  case $state in
+    (args)
+      case $line[1] in
+        (list) _openclaw_directory_groups_list ;;
+        (members) _openclaw_directory_groups_members ;;
+      esac
+      ;;
+  esac
+}
+
+_openclaw_directory() {
+  local -a commands
+  local -a options
+  
+  _arguments -C \
+     \
+    "1: :_values 'command' 'self[显示当前账号用户]' 'peers[对等节点目录（联系人/用户）]' 'groups[群组目录]'" \
+    "*::arg:->args"
+
+  case $state in
+    (args)
+      case $line[1] in
+        (self) _openclaw_directory_self ;;
+        (peers) _openclaw_directory_peers ;;
+        (groups) _openclaw_directory_groups ;;
+      esac
+      ;;
+  esac
+}
+
+_openclaw_security_audit() {
+  _arguments -C \
+    "--deep[尝试实时网关探测和插件拥有的收集器检查]" \
+    "--auth[运行时网关认证模式]" \
+    "--token[为深度探测认证使用显式网关令牌]" \
+    "--password[为深度探测认证使用显式网关密码]" \
+    "--fix[应用安全修复（收紧默认 + chmod 状态/配置）]" \
+    "--json[打印 JSON]"
+}
+
+_openclaw_security() {
+  local -a commands
+  local -a options
+  
+  _arguments -C \
+     \
+    "1: :_values 'command' 'audit[安全审计]'" \
+    "*::arg:->args"
+
+  case $state in
+    (args)
+      case $line[1] in
+        (audit) _openclaw_security_audit ;;
+      esac
+      ;;
+  esac
+}
+
+_openclaw_secrets_reload() {
+  _arguments -C \
+    "--json[以 JSON 格式输出]" \
+    "--url[网关 WebSocket URL（默认 gateway.remote.url）]" \
+    "--token[网关令牌（如果需要）]" \
+    "--timeout[超时毫秒数]" \
+    "--expect-final[等待最终响应（代理）]"
+}
+
+_openclaw_secrets_audit() {
+  _arguments -C \
+    "--check[存在发现时返回非零退出码]" \
+    "--allow-exec[允许审核期间执行 SecretRef 解析（可能执行提供商命令）]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_secrets_configure() {
+  _arguments -C \
+    "--apply[预检后立即应用更改]" \
+    "--yes[跳过应用确认提示]" \
+    "--providers-only[仅配置 secrets.providers，跳过凭据映射]" \
+    "--skip-provider-setup[跳过提供商设置，仅映射凭证字段到已有提供商]" \
+    "--agent[认证配置档目标的代理 ID]" \
+    "--allow-exec[允许执行 SecretRef 预检检查（可能执行提供商命令）]" \
+    "--plan-out[将生成的计划 JSON 写入文件]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_secrets_apply() {
+  _arguments -C \
+    "--from[计划 JSON 路径]" \
+    "--dry-run[仅验证/预检]" \
+    "--allow-exec[允许 exec SecretRef 检查（可能执行命令）]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_secrets() {
+  local -a commands
+  local -a options
+  
+  _arguments -C \
+     \
+    "1: :_values 'command' 'reload[重新解析密钥引用并原子性交换运行时快照]' 'audit[安全审计]' 'configure[交互式配置（凭证、频道、网关和代理默认设置）]' 'apply[应用更新]'" \
+    "*::arg:->args"
+
+  case $state in
+    (args)
+      case $line[1] in
+        (reload) _openclaw_secrets_reload ;;
+        (audit) _openclaw_secrets_audit ;;
+        (configure) _openclaw_secrets_configure ;;
+        (apply) _openclaw_secrets_apply ;;
+      esac
+      ;;
+  esac
+}
+
+_openclaw_skills_search() {
+  _arguments -C \
+    "--limit[最大结果数]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_skills_install() {
+  _arguments -C \
+    "--version[安装特定版本]" \
+    "--force[覆盖已有工作区技能]" \
+    "--force-install[在 ClawHub 扫描完成前安装待处理的 GitHub 技能]" \
+    "--acknowledge-clawhub-risk[无需提示即可确认 ClawHub 发布信任警告]" \
+    "--global[安装到共享管理技能目录]" \
+    "--agent[目标代理工作区]" \
+    "--as[在此 slug 下安装 git/本地技能]"
+}
+
+_openclaw_skills_update() {
+  _arguments -C \
+    "--all[更新所有跟踪的 ClawHub 技能]" \
+    "--force-install[在 ClawHub 扫描完成前安装待处理的 GitHub 技能]" \
+    "--acknowledge-clawhub-risk[无需提示即可确认 ClawHub 发布信任警告]" \
+    "--global[更新共享管理技能目录中的技能]" \
+    "--agent[目标代理工作区]"
+}
+
+_openclaw_skills_verify() {
+  _arguments -C \
+    "--version[验证特定版本]" \
+    "--tag[验证 dist 标签]" \
+    "--card[打印生成的技能卡片 Markdown]" \
+    "--global[从共享管理技能目录解析已安装的技能元数据]" \
+    "--agent[目标代理工作区]"
+}
+
+_openclaw_skills_curator_status() {
+  _arguments -C \
+    
+}
+
+_openclaw_skills_curator_pin() {
+  _arguments -C \
+    
+}
+
+_openclaw_skills_curator_unpin() {
+  _arguments -C \
+    
+}
+
+_openclaw_skills_curator_restore() {
+  _arguments -C \
+    
+}
+
+_openclaw_skills_curator() {
+  local -a commands
+  local -a options
+  
+  _arguments -C \
+    "--json[以 JSON 格式输出]" \
+    "1: :_values 'command' 'status[状态]' 'pin[置顶消息]' 'unpin[取消置顶消息]' 'restore[恢复备份]'" \
+    "*::arg:->args"
+
+  case $state in
+    (args)
+      case $line[1] in
+        (status) _openclaw_skills_curator_status ;;
+        (pin) _openclaw_skills_curator_pin ;;
+        (unpin) _openclaw_skills_curator_unpin ;;
+        (restore) _openclaw_skills_curator_restore ;;
+      esac
+      ;;
+  esac
+}
+
+_openclaw_skills_workshop_list() {
+  _arguments -C \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_skills_workshop_inspect() {
+  _arguments -C \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_skills_workshop_propose_create() {
+  _arguments -C \
+    "--name[技能名称]" \
+    "--description[技能描述]" \
+    "--proposal[PROPOSAL.md 草稿路径]" \
+    "--proposal-dir[提案目录路径（含 PROPOSAL.md）]" \
+    "--goal[提案或改进目标]" \
+    "--evidence[提案的证据或说明]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_skills_workshop_propose_update() {
+  _arguments -C \
+    "--proposal[PROPOSAL.md 草稿路径]" \
+    "--proposal-dir[提案目录路径（含 PROPOSAL.md）]" \
+    "--description[简洁提案描述]" \
+    "--goal[提案或改进目标]" \
+    "--evidence[提案的证据或说明]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_skills_workshop_revise() {
+  _arguments -C \
+    "--proposal[修订的 PROPOSAL.md 草稿路径]" \
+    "--proposal-dir[修订提案目录路径]" \
+    "--description[替换提案描述]" \
+    "--goal[替换的研究或改进目标]" \
+    "--evidence[替换的证据或说明]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_skills_workshop_apply() {
+  _arguments -C \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_skills_workshop_reject() {
+  _arguments -C \
+    "--reason[拒绝原因]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_skills_workshop_quarantine() {
+  _arguments -C \
+    "--reason[隔离原因]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_skills_workshop() {
+  local -a commands
+  local -a options
+  
+  _arguments -C \
+    "--agent[目标代理工作区]" \
+    "1: :_values 'command' 'list[列出渠道]' 'inspect[检查记录]' 'propose-create[为新工作区技能创建待定提案]' 'propose-update[为已有工作区技能创建待定提案]' 'revise[修订待定技能提案]' 'apply[应用更新]' 'reject[拒绝配对]' 'quarantine[隔离技能提案]'" \
+    "*::arg:->args"
+
+  case $state in
+    (args)
+      case $line[1] in
+        (list) _openclaw_skills_workshop_list ;;
+        (inspect) _openclaw_skills_workshop_inspect ;;
+        (propose-create) _openclaw_skills_workshop_propose_create ;;
+        (propose-update) _openclaw_skills_workshop_propose_update ;;
+        (revise) _openclaw_skills_workshop_revise ;;
+        (apply) _openclaw_skills_workshop_apply ;;
+        (reject) _openclaw_skills_workshop_reject ;;
+        (quarantine) _openclaw_skills_workshop_quarantine ;;
+      esac
+      ;;
+  esac
+}
+
+_openclaw_skills_list() {
+  _arguments -C \
+    "--json[以 JSON 格式输出]" \
+    "--eligible[仅显示符合条件的（可用）技能]" \
+    "(--verbose -v)"{--verbose,-v}"[显示更多详细信息（包括缺少的依赖）]" \
+    "--agent[目标代理工作区]"
+}
+
+_openclaw_skills_info() {
+  _arguments -C \
+    "--json[以 JSON 格式输出]" \
+    "--agent[目标代理工作区]"
+}
+
+_openclaw_skills_check() {
+  _arguments -C \
+    "--agent[目标代理工作区]" \
+    "--json[以 JSON 格式输出]"
+}
+
+_openclaw_skills() {
+  local -a commands
+  local -a options
+  
+  _arguments -C \
+    "--agent[目标代理工作区]" \
+    "1: :_values 'command' 'search[搜索记忆]' 'install[安装服务]' 'update[更新插件]' 'verify[验证备份]' 'curator[技能生命周期管理]' 'workshop[管理技能提案]' 'list[列出渠道]' 'info[信息]' 'check[检查更新]'" \
+    "*::arg:->args"
+
+  case $state in
+    (args)
+      case $line[1] in
+        (search) _openclaw_skills_search ;;
+        (install) _openclaw_skills_install ;;
+        (update) _openclaw_skills_update ;;
+        (verify) _openclaw_skills_verify ;;
+        (curator) _openclaw_skills_curator ;;
+        (workshop) _openclaw_skills_workshop ;;
+        (list) _openclaw_skills_list ;;
+        (info) _openclaw_skills_info ;;
+        (check) _openclaw_skills_check ;;
+      esac
+      ;;
+  esac
+}
+
+_openclaw_update_repair() {
+  _arguments -C \
+    "--json[以 JSON 格式输出结果]" \
+    "--channel[修复前持久化更新渠道]" \
+    "--timeout[更新修复步骤的超时秒数（默认 1800）]" \
+    "--yes[跳过确认提示（非交互）]" \
+    "--acknowledge-clawhub-risk[确认 ClawHub 发布信任警告]" \
+    "--no-restart[接受更新命令一致性；修复从不重启]"
+}
+
+_openclaw_update_finalize() {
+  _arguments -C \
+    "--json[以 JSON 格式输出结果]" \
+    "--channel[修复前持久化更新渠道]" \
+    "--timeout[更新修复步骤的超时秒数（默认 1800）]" \
+    "--yes[跳过确认提示（非交互）]" \
+    "--acknowledge-clawhub-risk[确认 ClawHub 发布信任警告]" \
+    "--no-restart[接受更新命令一致性；修复从不重启]"
+}
+
+_openclaw_update_wizard() {
+  _arguments -C \
+    "--timeout[每个更新步骤的超时秒数（默认 1800）]"
+}
+
+_openclaw_update_status() {
+  _arguments -C \
+    "--json[以 JSON 格式输出结果]" \
+    "--timeout[更新检查超时秒数（默认 3）]"
+}
+
+_openclaw_update() {
+  local -a commands
+  local -a options
+  
+  _arguments -C \
+    "--json[以 JSON 格式输出结果]" \
+    "--no-restart[成功更新后跳过重启网关服务]" \
+    "--dry-run[预览更新操作但不实际更改]" \
+    "--channel[持久化更新渠道（git + npm）]" \
+    "--tag[覆盖此更新的包目标]" \
+    "--timeout[每个更新步骤的超时秒数（默认 1800）]" \
+    "--yes[跳过确认提示（非交互）]" \
+    "--acknowledge-clawhub-risk[确认 ClawHub 发布信任警告]" \
+    "1: :_values 'command' 'repair[修复更新后的医生检查和插件收敛]' 'finalize[修复更新后的医生检查和插件收敛]' 'wizard[交互式更新向导]' 'status[状态]'" \
+    "*::arg:->args"
+
+  case $state in
+    (args)
+      case $line[1] in
+        (repair) _openclaw_update_repair ;;
+        (finalize) _openclaw_update_finalize ;;
+        (wizard) _openclaw_update_wizard ;;
+        (status) _openclaw_update_status ;;
+      esac
+      ;;
+  esac
+}
+
+
+_openclaw_register_completion() {
+  if (( ! $+functions[compdef] )); then
+    return 0
+  fi
+
+  compdef _openclaw_root_completion openclaw
+  precmd_functions=(${precmd_functions:#_openclaw_register_completion})
+  unfunction _openclaw_register_completion 2>/dev/null
+}
+
+_openclaw_register_completion
+_openclaw() {
+  _openclaw_root_completion "$@"
+}
+
+if (( ! $+functions[compdef] )); then
+  typeset -ga precmd_functions
+  if [[ -z "${precmd_functions[(r)_openclaw_register_completion]}" ]]; then
+    precmd_functions+=(_openclaw_register_completion)
+  fi
+fi
