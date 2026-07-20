@@ -1,4 +1,4 @@
-#compdef -P pip[0-9.]#
+#compdef pip pip2 pip2.7 pip3 pip3.6 pip3.7 pip3.8 pip3.9 pip3.10 pip3.11 pip3.12 pip3.13
 
 # pip Zsh 补全函数（中文版）
 
