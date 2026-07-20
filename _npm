@@ -1,107 +1,179 @@
 #compdef npm
 
-# npm Zsh 补全函数（动态版）
-# 通过 npm 内置补全系统动态生成，始终与当前版本同步
-#
-# 安装到 fpath 后自动生效，无需额外配置
-# 依赖于 npm 命令可用
+# npm Zsh 补全函数（中文版，基于 npm 11.17）
+# 命令列表和描述基于 npm help 输出，翻译使用 DeepSeek API
 
 _npm() {
-  local si="$IFS"
-  
-  if (( $+commands[npm] )); then
-    local IFS=$'\n'
-    local -a reply
-    reply=($(COMP_CWORD=$((CURRENT-1)) \
-                 COMP_LINE="$BUFFER" \
-                 COMP_POINT="$CURSOR" \
-                 npm completion -- "${words[@]}" \
-                 2>/dev/null))
-    
-    if (( $#reply )); then
-      _describe 'npm 补全' reply
-      IFS="$si"
-      return 0
-    fi
-  fi
-  
-  # 回退：常见 npm 命令列表
-  local -a cmds
-  cmds=(
-    'access:设置已发布包的访问级别'
-    'adduser:添加注册表用户账户'
-    'approve-scripts:批准特定依赖的安装脚本'
-    'audit:运行安全审计'
-    'bugs:在浏览器中查看包的 bug 报告'
-    'cache:管理 npm 和 npx 缓存'
-    'ci:执行干净的依赖安装（基于 lockfile）'
-    'completion:生成 npm 的 tab 补全'
-    'config:管理 npm 配置文件'
-    'dedupe:减少包树中的重复'
-    'deny-scripts:拒绝特定依赖的安装脚本'
-    'deprecate:弃用某个包的版本'
-    'diff:注册表差异比较'
-    'dist-tag:修改包的分发标签'
-    'docs:在浏览器中打开包文档'
-    'doctor:检查 npm 环境健康状态'
-    'edit:编辑已安装的包'
-    'exec:从本地或远程 npm 包运行命令'
-    'explain:解释已安装的包'
-    'explore:浏览已安装的包'
-    'find-dupes:查找包树中的重复'
-    'fund:查找依赖项的资助信息'
-    'get:获取 npm 配置值'
-    'help:查看帮助信息'
-    'help-search:搜索帮助文档'
-    'init:创建 package.json 文件'
-    'install:安装依赖包'
-    'install-ci-test:执行 ci 后运行测试'
-    'install-test:安装后运行测试'
-    'link:创建符号链接以便本地开发'
-    'll:列出已安装的包（详细信息）'
-    'login:登录注册表'
-    'logout:登出注册表'
-    'ls:列出已安装的包'
-    'org:管理组织成员'
-    'outdated:检查过时的包'
-    'owner:管理包所有者'
-    'pack:创建包的 tarball'
-    'ping:检查注册表连接'
-    'pkg:管理 package.json'
-    'prefix:显示前缀'
-    'profile:更改注册表用户配置文件设置'
-    'prune:移除无关的包'
-    'publish:发布包'
-    'query:使用 CSS 选择器查询包'
-    'rebuild:重新编译包'
-    'repo:在浏览器中打开包仓库'
-    'restart:重启包'
-    'root:显示 npm 根目录'
-    'run:运行脚本'
-    'sbom:生成软件物料清单（SBOM）'
-    'search:搜索包'
-    'set:设置配置值'
-    'shrinkwrap:锁定依赖版本'
-    'stage:暂存包'
-    'star:收藏包'
-    'stars:查看收藏的包'
-    'start:启动包'
-    'stop:停止包'
-    'team:管理团队'
-    'test:运行测试'
-    'token:管理认证令牌'
-    'trust:管理包信任设置'
-    'undeprecate:取消弃用某个版本的包'
-    'uninstall:卸载包'
-    'unpublish:取消发布包'
-    'unstar:取消收藏'
-    'update:更新包'
-    'version:显示版本'
-    'view:查看包信息'
-    'whoami:显示当前用户'
+  local curcontext="$curcontext" state line ret=1
+  typeset -A opt_args
+
+  _arguments -C \
+    '1: :->command' \
+    '*:: :->args' \
+
+  case $state in
+    (command)
+      local -a commands
+      commands=(
+        'access:设置已发布包的访问级别'
+        'adduser:添加注册表用户账户'
+        'approve-scripts:批准特定依赖的安装脚本'
+        'audit:运行安全审计'
+        'bugs:在浏览器中报告包的bug'
+        'cache:操作包缓存'
+        'ci:干净安装项目'
+        'completion:npm的Tab补全'
+        'config:管理npm配置文件'
+        'dedupe:减少包树中的重复'
+        'deny-scripts:拒绝特定依赖的安装脚本'
+        'deprecate:弃用包的某个版本'
+        'diff:registry diff命令'
+        'dist-tag:修改包分发标签'
+        'docs:在浏览器中打开包的文档'
+        'doctor:检查npm环境健康'
+        'edit:编辑已安装的包'
+        'exec:从本地或远程npm包运行命令'
+        'explain:解释已安装的包'
+        'explore:浏览已安装的包'
+        'find-dupes:查找包树中的重复'
+        'fund:获取资金信息'
+        'get:从npm配置中获取值'
+        'help:获取npm帮助'
+        'help-search:搜索npm帮助文档'
+        'init:创建package.json文件'
+        'install:安装包'
+        'install-ci-test:干净安装项目并运行测试'
+        'install-test:安装包并运行测试'
+        'link:符号链接包文件夹'
+        'll:列出已安装的包'
+        'login:登录注册表用户账户'
+        'logout:注销注册表'
+        'ls:列出已安装的包'
+        'org:管理组织'
+        'outdated:检查过期的包'
+        'owner:管理包所有者'
+        'pack:从包创建tarball'
+        'ping:Ping npm注册表'
+        'pkg:管理你的package.json'
+        'prefix:显示前缀'
+        'profile:更改注册表个人资料设置'
+        'prune:删除多余的包'
+        'publish:发布包'
+        'query:依赖选择器查询'
+        'rebuild:重建包'
+        'repo:在浏览器中打开包仓库页面'
+        'restart:重启包'
+        'root:显示npm根目录'
+        'run:运行任意包脚本'
+        'sbom:生成软件物料清单 (SBOM)'
+        'search:搜索包'
+        'set:在npm配置中设置值'
+        'shrinkwrap:锁定依赖版本以发布'
+        'stage:暂存包以发布'
+        'star:标记收藏的包'
+        'stars:查看收藏的包'
+        'start:启动包'
+        'stop:停止包'
+        'team:管理组织团队和成员资格'
+        'test:测试包'
+        'token:管理身份验证令牌'
+        'trust:管理包之间的信任发布关系'
+        'undeprecate:取消弃用包的某个版本'
+        'uninstall:移除包'
+        'unpublish:从注册表移除包'
+        'unstar:从收藏中移除项目'
+        'update:更新包'
+        'version:提升包版本'
+        'view:查看注册表信息'
+        'whoami:显示npm用户名'
+      )
+      _describe 'npm 命令' commands
+      ;;
+
+    (args)
+      _npm_subcommand
+      ;;
+  esac
+}
+
+_npm_subcommand() {
+  local curcontext="$curcontext" state line
+  typeset -A opt_args
+  local -a common_opts
+
+  common_opts=(
+    '--registry[指定注册表地址]:注册表'
+    '--cache[指定缓存目录]:目录:_files'
+    '--color[控制输出颜色]:(always|always|never)'
+    '--json[以 JSON 格式输出]'
+    '--loglevel[日志级别]:级别:(silent error warn info http verbose silly)'
+    '--otp[一次性密码（2FA）]:OTP'
+    '--dry-run[模拟运行，不实际执行]'
+    {-g,--global}'[全局安装或配置]'
+    '--save[-S]:保存到 dependencies'
+    '--save-dev[-D]:保存到 devDependencies'
+    '--save-optional[-O]:保存到 optionalDependencies'
+    '--save-exact[-E]:保存精确版本'
+    '--no-save[不保存到 package.json]'
+    '--prefix[安装前缀目录]:目录:_directories'
+    '--engine-strict[严格检查 Node 引擎版本]'
+    '--force[强制操作（覆盖冲突）]'
+    '--legacy-peer-deps[忽略对等依赖冲突]'
+    '--production[仅安装生产依赖]'
+    '--omit[跳过指定类型的依赖]:类型:(dev optional peer)'
   )
-  _describe 'npm 命令' cmds
-  IFS="$si"
+
+  case ${words[1]} in
+    (install|i|add)
+      _arguments -s \
+        $common_opts \
+        '--save-prod[-P]:保存到 dependencies'
+        '--save-dev[-D]:保存到 devDependencies'
+        '--save-optional[-O]:保存到 optionalDependencies'
+        '--save-exact[-E]:保存精确版本'
+        '--no-audit[不运行安全审计]'
+        '--no-fund[不显示资助信息]'
+        '--no-optional[跳过可选依赖]'
+        '--no-package-lock[不生成 package-lock.json]'
+        '--prefer-offline[优先使用本地缓存]'
+        '--ignore-scripts[不执行安装脚本]'
+        '--workspace[指定工作区]:工作区'
+        '--workspaces[所有工作区]'
+        '*:包名'
+        && ret=0
+      ;;
+
+    (run|run-script)
+      _arguments -s \
+        $common_opts \
+        '--if-present[脚本不存在时不报错]'
+        '--silent[静默运行]'
+        '*:脚本'
+        && ret=0
+      ;;
+
+    (config)
+      _arguments -s \
+        $common_opts \
+        '1: :(get set delete list edit)'
+        && ret=0
+      ;;
+
+    (publish)
+      _arguments -s \
+        $common_opts \
+        '--tag[指定发布标签]:标签'
+        '--access[指定访问级别]:(public restricted)'
+        '--otp[一次性密码]:OTP'
+        '--dry-run[模拟发布]'
+        '*:文件:_files'
+        && ret=0
+      ;;
+
+    (*)
+      _arguments -s $common_opts && ret=0
+      ;;
+  esac
 }
 
 _npm "$@"
