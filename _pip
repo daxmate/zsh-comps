@@ -22,17 +22,17 @@ args=(
   '(* : -)'{-h,--help}'[显示使用信息]'
   '--isolated[忽略环境变量和用户配置]'
   \*{-v,--verbose}'[提供更多输出]'
-  \*{-q,--quiet}"[give less output]"
-  '--log=[specify log file where a complete record will be kept]:file:_files'
-  '--proxy=[specify a proxy]:proxy ([user\:passwd@]proxy.server\:port)'
-  '--retries=[specify maximum number of retries each connection should attempt]:retries [5]'
-  '--timeout=[set the socket timeout]:timeout (seconds) [15]'
-  '--exists-action=[specify action when a path already exists]:action:((s\:switch i\:ignore w\:wipe b\:backup a\:abort))'
-  '--cert=[specify path to alternate CA bundle]:path:_files'
-  '--client-cert=[specify path to SSL client certificate]:certificate file:_files'
-  '(--no-cache-dir)--cache-dir=[specify location to store the cache data]: :_directories'
+  \*{-q,--quiet}"[减少输出]"
+  '--log=[指定保存完整记录的日志文件]:file:_files'
+  '--proxy=[指定代理]:proxy ([用户:密码@]proxy.server\:port)'
+  '--retries=[指定每个连接应尝试的最大重试次数]:retries [5]'
+  '--timeout=[设置套接字超时]:timeout (seconds) [15]'
+  '--exists-action=[指定路径已存在时的操作]:action:((s\:switch i\:ignore w\:wipe b\:backup a\:abort))'
+  '--cert=[指定备用CA捆绑包的路径]:path:_files'
+  '--client-cert=[指定SSL客户端证书的路径]:certificate file:_files'
+  '(--no-cache-dir)--cache-dir=[指定存储缓存数据的位置]: :_directories'
   '(--cache-dir)--no-cache-dir[禁用缓存]'
-  "--disable-pip-version-check[don't check whether a new version of pip is available]"
+  "--disable-pip-version-check[不检查pip是否有新版本]"
 )
 
 subcommands=(
@@ -66,77 +66,77 @@ case $state in
       download|install|list|wheel)
         args+=(
           '--pre[包含预发布版本和开发版本]'
-          '(-i --index-url)'{-i+,--index-url=}'[base URL of Python Package Index]:url:_urls'
-          '--extra-index-url=[extra URLs of package indexes to use in addition to --index-url]:url:_urls'
+          '(-i --index-url)'{-i+,--index-url=}'[Python Package Index的基础URL]:url:_urls'
+          '--extra-index-url=[除--index-url外额外使用的包索引URL]:url:_urls'
           '--no-index[忽略包索引（仅查看 --find-links URL 代替）]'
-          '(-f --find-links)'{-f+,--find-links=}'[parse specified URL or HTML file for links to packages]:URL or file:_files -g "*.htm(|l)(-.)"'
+          '(-f --find-links)'{-f+,--find-links=}'[解析指定的URL或HTML文件以获取包链接]:URL or file:_files -g "*.htm(|l)(-.)"'
           '--process-dependency-links[启用对依赖链接的处理]'
         )
       ;|
       download|(un|)install|freeze|wheel)
         args+=(
-          '(-r --requirement)'{-r+,--requirement=}'[all the packages listed in the given requirements file]:requirements file:_files -g "(requirement*|*.txt)(-.)"'
+          '(-r --requirement)'{-r+,--requirement=}'[给定requirements文件中列出的所有包]:requirements file:_files -g "(requirement*|*.txt)(-.)"'
         )
       ;|
       download|install|wheel)
         args+=(
           '!--use-wheel' '!--no-use-wheel'
-          "*--no-binary=[don't use binary packages]: :->package_list"
-          "*--only-binary=[don't use source packages]: :->package_list"
-          \*{-c+,--constraint=}'[constrain versions using the given constraints file]:constraints file:_files'
-          '(-e --editable)'{-e+,--editable=}'[install a package directly from a checkout]:directory or VCS+REPOS_URL[@REV]#egg=PACKAGE:_files -/'
-          '--src=[check out --editable packages into given directory]: :_directories'
+          "*--no-binary=[不使用二进制包]: :->package_list"
+          "*--only-binary=[不使用源码包]: :->package_list"
+          \*{-c+,--constraint=}'[使用给定的约束文件限制版本]:constraints file:_files'
+          '(-e --editable)'{-e+,--editable=}'[直接从检出安装包]:directory or VCS+REPOS_URL[@REV]#egg=PACKAGE:_files -/'
+          '--src=[将--editable包检出到指定目录]: :_directories'
           '--ignore-requires-python[忽略 Requires-Python 信息]'
-          "--no-deps[don't install package dependencies]"
-          '(-b --build)'{-https://cloud.kiddleb+,--build=}'[specify directory to unpack packages into]: :_directories'
-          '--global-option=[extra global options to be supplied to the setup.py call before the install command]:options'
-          "--no-clean[don't clean up build directories]"
+          "--no-deps[不安装包依赖]"
+          '(-b --build)'{-https://cloud.kiddleb+,--build=}'[指定解压包的目录]: :_directories'
+          '--global-option=[在install命令前提供给setup.py调用的额外全局选项]:options'
+          "--no-clean[不清除构建目录]"
           '--require-hashes[要求提供哈希以检查每个需求]'
         )
       ;|
 
       download)
         args+=(
-          '(-d --dest)'{-d+,--dest=}'[download packages into given directory]: :_directories'
-          '--platform=[only download wheels compatible with platform]::platform'
-          '--python-version=[only download wheels compatible with specified Python interpreter version]:version'
-          '--implementation=[only download wheels compatible with specified Python implementation]:implementation:(pp jy cp ip py)'
+          '(-d --dest)'{-d+,--dest=}'[下载包到指定目录]: :_directories'
+          '--platform=[仅下载与平台兼容的wheels]::platform'
+          '--python-version=[仅下载与指定Python解释器版本兼容的wheels]:version'
+          '--implementation=[仅下载与指定Python实现兼容的wheels]:implementation:(pp jy cp ip py)'
         )
       ;;
 
       install)
         args+=(
-          '(-t --target)'{-t+,--target=}'[specify directory to install packages into]: :_directories'
-          '(-d --download)'{-d+,--download=}'[download packages into directory instead of installing them]: :_directories'
+          '(-t --target)'{-t+,--target=}'[指定安装包的目录]: :_directories'
+          '(-d --download)'{-d+,--download=}'[下载包到目录而不是安装]: :_directories'
           '(-U --upgrade)'{-U,--upgrade}'[将所有包升级到最新可用版本]'
-          '--upgrade-strategy=[determine how dependency upgrading should be handled]:strategy:(eager only-if-needed)'
+          '--upgrade-strategy=[确定如何处理依赖升级]:strategy:(eager only-if-needed)'
           '--force-reinstall[升级时，即使所有包已是最新也重新安装]'
           '(-I --ignore-installed)'{-I,--ignore-installed}'[忽略已安装的包]'
-          "--no-install[download and unpack all packages, but don't actually install them]"
-          "--no-download[don't download any packages, just install the ones already downloaded]"
-          '--install-option=[extra arguments to be supplied to the setup.py install command]:options'
+          "--no-install[下载并解压所有包，但不实际安装]"
+          "--no-download[不下载任何包，只安装已下载的]"
+          '--install-option=[提供给setup.py install命令的额外参数]:options'
           '--user[安装到用户安装目录，通常是 ~/.local]'
           '--egg[安装为自包含的 egg 文件，如 easy_install 所做]'
-          '--root=[install everything relative to this alternate root directory]: :_directories'
-          '--strip-file-prefix=[strip given prefix from script paths in wheel RECORD]:prefix'
-          '--prefix=[specify installation prefix where lib, bin and other top-level folders are placed]: :_directories'
+          '--root=[相对于此替代根目录安装所有内容]: :_directories'
+          '--strip-file-prefix=[从wheel RECORD中的脚本路径去除给定前缀]:prefix'
+          '--prefix=[指定安装前缀，lib、bin和其他顶层文件夹所在位置]: :_directories'
           '(--no-compile)--compile[将 py 文件编译为 pyc]'
-          "(--compile)--no-compile[don't compile py files to pyc]"
+          "(--compile)--no-compile[不将py文件编译为pyc]"
           '*:package name:->packages_or_dirs'
         )
       ;;
 
       uninstall)
         args+=(
-          '(-y --yes)'{-y,--yes}"[don't ask for confirmation of uninstall deletions]"
+          '(-y --yes)'{-y,--yes}"[不询问确认卸载删除]"
           ':installed package:->installed_packages'
         )
       ;;
 
       freeze)
         args+=(
-          '(-f --find-links)'{-f+,--find-links=}'[specify URL to look for packages at]:url:_urls'
-          '(-l --local)'{-l,--local}"[if in a virtualenv that has global access, don't list globally-installed packages]"
+          '(-f --find-links)'{-f+,--find-links=}'[指定查找包的URL]:url:_urls'
+          '(-l --local)'{-l,--local}"[如果在具有全局访问权限的virtualenv中，不列出全局安装的包]"
           '--user[仅输出安装在 user-site 中的包]'
           '--all[在输出中包含 pip、setuptools、distribute 和 wheel]'
         )
@@ -144,7 +144,7 @@ case $state in
 
       hash)
         args+=(
-          '(-a  --algorithm)'{-a+,--algorithm=}'[specify hash algorithm]:algorithm:(sha256 sha384 sha512)'
+          '(-a  --algorithm)'{-a+,--algorithm=}'[指定哈希算法]:algorithm:(sha256 sha384 sha512)'
           '*: :_files'
         )
       ;;
@@ -154,9 +154,9 @@ case $state in
           '(-o --outdated -u --uptodate)'{-o,--outdated}'[列出过时的包（排除 editable 项目）]'
           '(-u --uptodate -o --outdated)'{-u,--uptodate}'[列出最新的包（排除 editable 项目）]'
           '(-e --editable)'{-e,--editable}'[列出 editable 项目]'
-          '(-l --local)'{-l,--local}"[if in a virtualenv that has global access, don't list globally-installed packages]"
+          '(-l --local)'{-l,--local}"[如果在具有全局访问权限的virtualenv中，不列出全局安装的包]"
           '--user[仅输出安装在 user-site 中的包]'
-          '--format=[select the output format]:format [legacy]:(legacy columns freeze json)'
+          '--format=[选择输出格式]:format [遗留模式]:(legacy columns freeze json)'
           '--not-required[列出不是已安装包依赖的包]'
         )
       ;;
@@ -170,14 +170,14 @@ case $state in
 
       search)
         args+=(
-          '(-i --index)'{-i+,--index=}'[specify base URL of Python Package Index]:URL:_urls'
+          '(-i --index)'{-i+,--index=}'[指定Python Package Index的基础URL]:URL:_urls'
         )
       ;;
 
       wheel)
         args+=(
-          '(-w --wheel-dir)'{-w+,--wheel-dir=}"[build wheels into given directory]: :_directories"
-          "--build-option=[extra arguments to be supplied to 'setup.py bdist_wheel']:options"
+          '(-w --wheel-dir)'{-w+,--wheel-dir=}"[将wheels构建到指定目录]: :_directories"
+          "--build-option=[提供给'setup.py bdist_wheel'的额外参数]:options"
         )
       ;;
 
