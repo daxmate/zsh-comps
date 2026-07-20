@@ -36,17 +36,17 @@ args=(
 )
 
 subcommands=(
-  'install:install packages'
-  'download:download packages'
-  'uninstall:uninstall packages'
-  'freeze:output installed packages in requirements format'
-  'list:list installed packages'
-  'show:show information about installed packages'
-  'check:verify installed packages have compatible dependencies'
-  'search:search PyPI for packages'
-  'wheel:build wheels from your requirements'
-  'hash:compute hashes of package archives'
-  'help:show available commands'
+  'install:安装包'
+  'download:下载包'
+  'uninstall:卸载包'
+  'freeze:以 requirements 格式输出已安装的包'
+  'list:列出已安装的包'
+  'show:显示已安装包的信息'
+  'check:验证已安装包的依赖兼容性'
+  'search:在 PyPI 中搜索包'
+  'wheel:从 requirements 构建 wheels'
+  'hash:计算包存档的哈希值'
+  'help:显示可用命令'
 )
 
 _arguments -C $args \
