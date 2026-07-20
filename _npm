@@ -139,23 +139,23 @@ _npm_subcommand() {
         '--ignore-scripts[不执行安装脚本]'
         '--workspace[指定工作区]:工作区'
         '--workspaces[所有工作区]'
-        '*:包名'
+        '*:包名' \
         && ret=0
       ;;
 
     (run|run-script)
       _arguments -s \
         $common_opts \
-        '--if-present[脚本不存在时不报错]'
-        '--silent[静默运行]'
-        '*:脚本'
+        '--if-present[脚本不存在时不报错]' \
+        '--silent[静默运行]' \
+        '*:脚本' \
         && ret=0
       ;;
 
     (config)
       _arguments -s \
         $common_opts \
-        '1: :(get set delete list edit)'
+        '1: :(get set delete list edit)' \
         && ret=0
       ;;
 
@@ -166,7 +166,7 @@ _npm_subcommand() {
         '--access[指定访问级别]:(public restricted)'
         '--otp[一次性密码]:OTP'
         '--dry-run[模拟发布]'
-        '*:文件:_files'
+        '*:文件:_files' \
         && ret=0
       ;;
 
