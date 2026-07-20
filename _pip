@@ -1,216 +1,134 @@
-#compdef pip pip2 pip2.7 pip3 pip3.6 pip3.7 pip3.8 pip3.9 pip3.10 pip3.11 pip3.12 pip3.13
+#compdef pip pip2 pip2.7 pip3 pip3.6 pip3.7 pip3.8 pip3.9 pip3.10 pip3.11 pip3.12 pip3.13 pip3.14
 
-# pip Zsh 补全函数（中文版）
-
-
-# To get completion of installable packages, do:
-#     pip install pip-cache
-# and then run:
-#     pip-cache update
+# pip Zsh 补全函数（中文版，基于 pip 26.1）
 
 local curcontext="$curcontext" ret=1
 local -a state state_descr line
 local -A opt_args
-local python pip
 local -a args subcommands packages
-
-pip=${words[1]}
-python=${${pip}/pip/python}
-[[ $python == $pip ]] && python=python
-
-args=(
-  '(* : -)'{-h,--help}'[显示使用信息]'
-  '--isolated[忽略环境变量和用户配置]'
-  \*{-v,--verbose}'[提供更多输出]'
-  \*{-q,--quiet}"[减少输出]"
-  '--log=[指定保存完整记录的日志文件]:file:_files'
-  '--proxy=[指定代理]:proxy ([用户:密码@]proxy.server\:port)'
-  '--retries=[指定每个连接应尝试的最大重试次数]:retries [5]'
-  '--timeout=[设置套接字超时]:timeout (seconds) [15]'
-  '--exists-action=[指定路径已存在时的操作]:action:((s\:switch i\:ignore w\:wipe b\:backup a\:abort))'
-  '--cert=[指定备用CA捆绑包的路径]:path:_files'
-  '--client-cert=[指定SSL客户端证书的路径]:certificate file:_files'
-  '(--no-cache-dir)--cache-dir=[指定存储缓存数据的位置]: :_directories'
-  '(--cache-dir)--no-cache-dir[禁用缓存]'
-  "--disable-pip-version-check[不检查pip是否有新版本]"
-)
 
 subcommands=(
   'install:安装包'
+  'lock:生成锁文件'
   'download:下载包'
   'uninstall:卸载包'
-  'freeze:以 requirements 格式输出已安装的包'
-  'list:列出已安装的包'
-  'show:显示已安装包的信息'
+  'freeze:输出已安装包（requirements格式）'
+  'inspect:检查Python环境'
+  'list:列出已安装包'
+  'show:显示已安装包信息'
   'check:验证已安装包的依赖兼容性'
-  'search:在 PyPI 中搜索包'
-  'wheel:从 requirements 构建 wheels'
+  'config:管理本地和全局配置'
+  'search:在PyPI搜索包'
+  'cache:检查和管理pip的wheel缓存'
+  'index:检查可用包索引的信息'
+  'wheel:根据requirements构建wheel'
   'hash:计算包存档的哈希值'
-  'help:显示可用命令'
+  'completion:用于命令补全的辅助命令'
+  'debug:显示调试信息'
+  'help:显示命令帮助'
 )
 
-_arguments -C $args \
-  '(* : -)'{-V,--version}'[显示版本信息]' \
+args=(
+  '(* : -)'{-h,--help}'[显示帮助]'
+  '--debug[让未处理的异常传播到主程序外]'
+  '--isolated[在隔离模式下运行pip，忽略环境变量和用户配置]'
+  '--require-virtualenv[允许pip仅在虚拟环境中运行]'
+  '{-v,--verbose}[增加输出量。该选项可叠加，最多使用3次]'
+  '{-V,--version}[显示版本并退出]'
+  '{-q,--quiet}[减少输出量。该选项可叠加，最多使用3次]'
+  '--no-input[禁用输入提示]'
+  '--no-cache-dir[禁用缓存]'
+  '--disable-pip-version-check[不定期检查PyPI上pip的新版本]'
+  '--python=[%s]:Python 解释器'
+  '--log=[详细追加日志的路径]:文件:_files'
+  '--keyring-provider[启用通过keyring库进行凭证查找]:(auto disabled import subprocess)'
+  '--proxy=[指定代理]:代理'
+  '--timeout=[指定套接字连接超时（秒）]:秒数'
+  '--retries=[指定每次连接尝试的重试次数]:次数'
+  '--exists-action=[指定路径已存在时的操作]:(switch ignore wipe backup abort)'
+  '--cert=[指定备用CA捆绑包的路径]:文件:_files'
+  '--client-cert=[指定SSL客户端证书的路径]:文件:_files'
+  '--cache-dir=[指定缓存数据的目录]:目录:_directories'
+  '--exists-action=: :((s:switch i:ignore w:wipe b:backup a:abort))'
+
   ':subcommand:->subcommand' \
-  '*::options:->options' && ret=0
+  '*::options:->options'
+)
+
+_arguments -C $args && ret=0
 
 case $state in
-  subcommand)
-    _describe -t subcommands 'pip subcommand' subcommands && ret=0
-  ;;
-
-  options)
-    curcontext="${curcontext%:*}-$words[2]:"
-
-    case $words[1] in
-      download|install|list|wheel)
-        args+=(
-          '--pre[包含预发布版本和开发版本]'
-          '(-i --index-url)'{-i+,--index-url=}'[Python Package Index的基础URL]:url:_urls'
-          '--extra-index-url=[除--index-url外额外使用的包索引URL]:url:_urls'
-          '--no-index[忽略包索引（仅查看 --find-links URL 代替）]'
-          '(-f --find-links)'{-f+,--find-links=}'[解析指定的URL或HTML文件以获取包链接]:URL or file:_files -g "*.htm(|l)(-.)"'
-          '--process-dependency-links[启用对依赖链接的处理]'
-        )
-      ;|
-      download|(un|)install|freeze|wheel)
-        args+=(
-          '(-r --requirement)'{-r+,--requirement=}'[给定requirements文件中列出的所有包]:requirements file:_files -g "(requirement*|*.txt)(-.)"'
-        )
-      ;|
-      download|install|wheel)
-        args+=(
-          '!--use-wheel' '!--no-use-wheel'
-          "*--no-binary=[不使用二进制包]: :->package_list"
-          "*--only-binary=[不使用源码包]: :->package_list"
-          \*{-c+,--constraint=}'[使用给定的约束文件限制版本]:constraints file:_files'
-          '(-e --editable)'{-e+,--editable=}'[直接从检出安装包]:directory or VCS+REPOS_URL[@REV]#egg=PACKAGE:_files -/'
-          '--src=[将--editable包检出到指定目录]: :_directories'
-          '--ignore-requires-python[忽略 Requires-Python 信息]'
-          "--no-deps[不安装包依赖]"
-          '(-b --build)'{-https://cloud.kiddleb+,--build=}'[指定解压包的目录]: :_directories'
-          '--global-option=[在install命令前提供给setup.py调用的额外全局选项]:options'
-          "--no-clean[不清除构建目录]"
-          '--require-hashes[要求提供哈希以检查每个需求]'
-        )
-      ;|
-
-      download)
-        args+=(
-          '(-d --dest)'{-d+,--dest=}'[下载包到指定目录]: :_directories'
-          '--platform=[仅下载与平台兼容的wheels]::platform'
-          '--python-version=[仅下载与指定Python解释器版本兼容的wheels]:version'
-          '--implementation=[仅下载与指定Python实现兼容的wheels]:implementation:(pp jy cp ip py)'
-        )
-      ;;
-
-      install)
-        args+=(
-          '(-t --target)'{-t+,--target=}'[指定安装包的目录]: :_directories'
-          '(-d --download)'{-d+,--download=}'[下载包到目录而不是安装]: :_directories'
-          '(-U --upgrade)'{-U,--upgrade}'[将所有包升级到最新可用版本]'
-          '--upgrade-strategy=[确定如何处理依赖升级]:strategy:(eager only-if-needed)'
-          '--force-reinstall[升级时，即使所有包已是最新也重新安装]'
-          '(-I --ignore-installed)'{-I,--ignore-installed}'[忽略已安装的包]'
-          "--no-install[下载并解压所有包，但不实际安装]"
-          "--no-download[不下载任何包，只安装已下载的]"
-          '--install-option=[提供给setup.py install命令的额外参数]:options'
-          '--user[安装到用户安装目录，通常是 ~/.local]'
-          '--egg[安装为自包含的 egg 文件，如 easy_install 所做]'
-          '--root=[相对于此替代根目录安装所有内容]: :_directories'
-          '--strip-file-prefix=[从wheel RECORD中的脚本路径去除给定前缀]:prefix'
-          '--prefix=[指定安装前缀，lib、bin和其他顶层文件夹所在位置]: :_directories'
-          '(--no-compile)--compile[将 py 文件编译为 pyc]'
-          "(--compile)--no-compile[不将py文件编译为pyc]"
-          '*:package name:->packages_or_dirs'
-        )
-      ;;
-
-      uninstall)
-        args+=(
-          '(-y --yes)'{-y,--yes}"[不询问确认卸载删除]"
-          ':installed package:->installed_packages'
-        )
-      ;;
-
-      freeze)
-        args+=(
-          '(-f --find-links)'{-f+,--find-links=}'[指定查找包的URL]:url:_urls'
-          '(-l --local)'{-l,--local}"[如果在具有全局访问权限的virtualenv中，不列出全局安装的包]"
-          '--user[仅输出安装在 user-site 中的包]'
-          '--all[在输出中包含 pip、setuptools、distribute 和 wheel]'
-        )
-      ;;
-
-      hash)
-        args+=(
-          '(-a  --algorithm)'{-a+,--algorithm=}'[指定哈希算法]:algorithm:(sha256 sha384 sha512)'
-          '*: :_files'
-        )
-      ;;
-
-      list)
-        args+=(
-          '(-o --outdated -u --uptodate)'{-o,--outdated}'[列出过时的包（排除 editable 项目）]'
-          '(-u --uptodate -o --outdated)'{-u,--uptodate}'[列出最新的包（排除 editable 项目）]'
-          '(-e --editable)'{-e,--editable}'[列出 editable 项目]'
-          '(-l --local)'{-l,--local}"[如果在具有全局访问权限的virtualenv中，不列出全局安装的包]"
-          '--user[仅输出安装在 user-site 中的包]'
-          '--format=[选择输出格式]:format [遗留模式]:(legacy columns freeze json)'
-          '--not-required[列出不是已安装包依赖的包]'
-        )
-      ;;
-
-      show)
-        args+=(
-          '(-f --files)'{-f,--files}'[显示每个包的已安装文件完整列表]'
-          ':installed package:->installed_packages'
-        )
-      ;;
-
-      search)
-        args+=(
-          '(-i --index)'{-i+,--index=}'[指定Python Package Index的基础URL]:URL:_urls'
-        )
-      ;;
-
-      wheel)
-        args+=(
-          '(-w --wheel-dir)'{-w+,--wheel-dir=}"[将wheels构建到指定目录]: :_directories"
-          "--build-option=[提供给'setup.py bdist_wheel'的额外参数]:options"
-        )
-      ;;
-
-      help)
-        _describe -t subcommands 'pip subcommand' subcommands
-        return
-      ;;
-
-      *) args+=( '*: :_default' ) ;;
-    esac
-
-    _arguments -s -S $args && ret=0
-
-    case $state in
-      package_list)
-        packages=( ${(f)"$(_call_program packages pip-cache pkgnames)"} )
-        _sequence _wanted packages expl package compadd - -a packages && ret=0
-      ;;
-
-      packages_or_dirs)
-        [[ -prefix - ]] || packages=( ${(f)"$(_call_program packages pip-cache pkgnames)"} )
-        _alternative \
-          'all-packages:package:compadd -a packages' \
-          'directories:directory with setup.py:_directories' && ret=0
-      ;;
-
-      installed_packages)
-        packages=( $(_call_program fetch-installed \
-          "env COMP_WORDS='pip uninstall' COMP_CWORD=2 PIP_AUTO_COMPLETE=1 $pip") )
-        _wanted installed-packages expl 'installed package' compadd -a packages && ret=0
-      ;;
-    esac
-  ;;
+  (subcommand)
+    _describe -t subcommands 'pip 子命令' subcommands && ret=0
+    ;;
 esac
 
-return ret
+case $state in
+  (options)
+    case $words[1] in
+      (install)
+        _arguments -s \
+          '(-i --index-url)'{-i+,--index-url=}'[PyPI 索引基础 URL]:url:_urls' \
+          '--extra-index-url=[额外的包索引 URL]:url:_urls' \
+          '(-f --find-links)'{-f+,--find-links=}'[从指定 URL 或 HTML 文件解析包链接]:URL 或文件:_files' \
+          '(-r --requirement)'{-r+,--requirement=}'[根据 requirements 文件安装]:requirements 文件:_files' \
+          '*--no-binary[不使用二进制包]: :->package_list' \
+          '*--only-binary[不使用源码包]: :->package_list' \
+          '{-c+,--constraint=}[约束版本]:约束文件:_files' \
+          '(-e --editable)'{-e+,--editable=}'[从本地检出直接安装]:目录或 VCS 地址:_files -/' \
+          '--src=[可编辑包检出目录]: :_directories' \
+          '--no-deps[不安装依赖]' \
+          '--global-option=[传递给 setup.py 的全局选项]:选项' \
+          '--no-clean[不清理构建目录]' \
+          '*:包名' \
+          && ret=0
+        ;;
+
+      (download)
+        _arguments -s \
+          '(-d --dest)'{-d+,--dest=}'[下载到指定目录]: :_directories' \
+          '--platform[仅下载兼容指定平台的 wheel]:平台' \
+          '--python-version[仅下载兼容指定 Python 版本]:版本' \
+          '--implementation[仅下载兼容指定实现]:实现:(pp jy cp ip py)' \
+          '*:包名' \
+          && ret=0
+        ;;
+
+      (list)
+        _arguments -s \
+          '(-o --outdated)'{-o,--outdated}'[列出过时的包]' \
+          '(-u --uptodate)'{-u,--uptodate}'[列出最新的包]' \
+          '--format[选择输出格式]:格式:(columns freeze json)' \
+          && ret=0
+        ;;
+
+      (show)
+        _arguments -s \
+          '*:包名' \
+          && ret=0
+        ;;
+
+      (config)
+        _arguments -s \
+          '1: :(list edit get set unset)' \
+          && ret=0
+        ;;
+
+      (cache)
+        _arguments -s \
+          '1: :(list info remove purge)' \
+          && ret=0
+        ;;
+
+      (index)
+        _arguments -s \
+          '1: :(versions)' \
+          && ret=0
+        ;;
+
+      (*)
+        _arguments -s $args && ret=0
+        ;;
+    esac
+    ;;
+esac
