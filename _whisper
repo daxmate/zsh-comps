@@ -1,0 +1,96 @@
+#compdef whisper
+
+# whisper Zsh 补全函数（中文版）
+# 基于 openai-whisper 20250625_5（brew）的 --help 输出
+
+_whisper() {
+    local curcontext="$curcontext" state state_descr line
+    typeset -A opt_args
+
+    local -a models languages
+    models=(
+        'tiny.en:39M 参数，仅英语，最快最省（约 75MB）'
+        'tiny:39M 参数，多语言，最快最省（约 75MB）'
+        'base.en:74M 参数，仅英语（约 142MB）'
+        'base:74M 参数，多语言（约 142MB）'
+        'small.en:244M 参数，仅英语（约 466MB）'
+        'small:244M 参数，多语言（约 466MB）'
+        'medium.en:769M 参数，仅英语（约 1.5GB）'
+        'medium:769M 参数，多语言，精度与速度均衡（约 1.5GB）'
+        'large-v1:1550M 参数，多语言，旧版大模型（约 2.9GB）'
+        'large-v2:1550M 参数，多语言（约 2.9GB）'
+        'large-v3:1550M 参数，多语言，精度最高（约 2.9GB）'
+        'large:large-v3 的别名（约 2.9GB）'
+        'large-v3-turbo:809M 参数，多语言，接近 large-v3 精度，速度快约 8 倍（约 1.6GB）'
+        'turbo:large-v3-turbo 的别名，默认模型（约 1.6GB）'
+    )
+    languages=(
+        'af:南非荷兰语' 'am:阿姆哈拉语' 'ar:阿拉伯语' 'as:阿萨姆语' 'az:阿塞拜疆语'
+        'ba:巴什基尔语' 'be:白俄罗斯语' 'bg:保加利亚语' 'bn:孟加拉语' 'bo:藏语'
+        'br:布列塔尼语' 'bs:波斯尼亚语' 'ca:加泰罗尼亚语' 'cs:捷克语' 'cy:威尔士语'
+        'da:丹麦语' 'de:德语' 'el:希腊语' 'en:英语' 'es:西班牙语'
+        'et:爱沙尼亚语' 'eu:巴斯克语' 'fa:波斯语' 'fi:芬兰语' 'fo:法罗语'
+        'fr:法语' 'gl:加利西亚语' 'gu:古吉拉特语' 'ha:豪萨语' 'haw:夏威夷语'
+        'he:希伯来语' 'hi:印地语' 'hr:克罗地亚语' 'ht:海地克里奥尔语' 'hu:匈牙利语'
+        'hy:亚美尼亚语' 'id:印尼语' 'is:冰岛语' 'it:意大利语' 'ja:日语'
+        'jw:爪哇语' 'ka:格鲁吉亚语' 'kk:哈萨克语' 'km:高棉语' 'kn:卡纳达语'
+        'ko:韩语' 'la:拉丁语' 'lb:卢森堡语' 'ln:林加拉语' 'lo:老挝语'
+        'lt:立陶宛语' 'lv:拉脱维亚语' 'mg:马达加斯加语' 'mi:毛利语' 'mk:马其顿语'
+        'ml:马拉雅拉姆语' 'mn:蒙古语' 'mr:马拉地语' 'ms:马来语' 'mt:马耳他语'
+        'my:缅甸语' 'ne:尼泊尔语' 'nl:荷兰语' 'nn:挪威尼诺斯克语' 'no:挪威语'
+        'oc:奥克语' 'pa:旁遮普语' 'pl:波兰语' 'ps:普什图语' 'pt:葡萄牙语'
+        'ro:罗马尼亚语' 'ru:俄语' 'sa:梵语' 'sd:信德语' 'si:僧伽罗语'
+        'sk:斯洛伐克语' 'sl:斯洛文尼亚语' 'sn:绍纳语' 'so:索马里语' 'sq:阿尔巴尼亚语'
+        'sr:塞尔维亚语' 'su:巽他语' 'sv:瑞典语' 'sw:斯瓦希里语' 'ta:泰米尔语'
+        'te:泰卢固语' 'tg:塔吉克语' 'th:泰语' 'tk:土库曼语' 'tl:他加禄语'
+        'tr:土耳其语' 'tt:鞑靼语' 'uk:乌克兰语' 'ur:乌尔都语' 'uz:乌兹别克语'
+        'vi:越南语' 'yi:意第绪语' 'yo:约鲁巴语' 'yue:粤语' 'zh:中文'
+    )
+
+    local -a options
+    options=(
+        '(-h --help)--help[(-h) 显示帮助]'
+        '--model[使用的 Whisper 模型名称（默认 turbo）]:模型:->models'
+        '--model_dir[模型文件保存目录（默认 ~/.cache/whisper）]:目录:_directories'
+        '--device[PyTorch 推理设备（Mac 可用 mps 加速）]:设备:(cpu cuda mps)'
+        '(-o --output_dir)--output_dir[(-o) 输出文件保存目录（默认当前目录）]:目录:_directories'
+        '(-f --output_format)--output_format[(-f) 输出格式（默认 all 全部生成）]:格式:(txt vtt srt tsv json all)'
+        '--verbose[是否打印进度和调试信息（默认 true）]:布尔:(true false)'
+        '--task[任务类型：transcribe 语音转文字 / translate 翻译成英语]:任务:(transcribe translate)'
+        '--language[音频语言，不指定则自动检测]:语言:->languages'
+        '--temperature[采样温度（默认 0）]:温度:'
+        '--best_of[非零温度采样时的候选数（默认 5）]:数量:'
+        '--beam_size[beam search 束宽，仅温度为零时生效（默认 5）]:束宽:'
+        '--patience[beam 解码耐心值，1.0 即常规 beam search]:值:'
+        '--length_penalty[token 长度惩罚系数 alpha]:系数:'
+        '--suppress_tokens[采样时抑制的 token id 列表，-1 抑制大部分特殊字符]:token 列表:'
+        '--initial_prompt[首个窗口的提示文本]:文本:'
+        '--carry_initial_prompt[是否将 initial_prompt 附加到每次内部解码（默认 false）]:布尔:(true false)'
+        '--condition_on_previous_text[是否用上一窗口输出作下一窗口提示（默认 true，关闭可防重复死循环）]:布尔:(true false)'
+        '--fp16[是否使用 fp16 推理（默认 true）]:布尔:(true false)'
+        '--temperature_increment_on_fallback[解码失败回退时的温度增量（默认 0.2）]:增量:'
+        '--compression_ratio_threshold[gzip 压缩比超过此值视为解码失败（默认 2.4）]:阈值:'
+        '--logprob_threshold[平均对数概率低于此值视为解码失败（默认 -1.0）]:阈值:'
+        '--no_speech_threshold[无语音 token 概率高于此值且解码失败时视为静音（默认 0.6）]:阈值:'
+        '--word_timestamps[提取词级时间戳（实验性，默认 false）]:布尔:(true false)'
+        '--prepend_punctuations[需 --word_timestamps，与后一个词合并的标点符号]:符号:'
+        '--append_punctuations[需 --word_timestamps，与前一个词合并的标点符号]:符号:'
+        '--highlight_words[需 --word_timestamps true，在 srt/vtt 中给每个词加下划线]:布尔:(true false)'
+        '--max_line_width[需 --word_timestamps，一行最大字符数，超此值换行]:字符数:'
+        '--max_line_count[需 --word_timestamps，一个片段最大行数]:行数:'
+        '--max_words_per_line[需 --word_timestamps，一段最大词数（与 --max_line_width 互斥）]:词数:'
+        '--threads[CPU 推理线程数（默认 0 表示不限制）]:线程数:'
+        '--clip_timestamps[逗号分隔的 start,end 裁剪时间戳（秒），如 0,10,20,30]:时间戳:'
+        '--hallucination_silence_threshold[需 --word_timestamps，检测到幻觉时跳过超过此秒数的静音段]:秒数:'
+        '*:音频文件:_files'
+    )
+
+    _arguments -s "${options[@]}" && return
+
+    case "$state" in
+        models) _describe '模型' models ;;
+        languages) _describe '语言' languages ;;
+    esac
+}
+
+_whisper
